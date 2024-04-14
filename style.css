@@ -24,7 +24,8 @@
 }
 
 .sidebar-container {
-    background-color: gray;
+    /*TODO: Fix this color bs*/
+    background-color: rgb(36, 40, 42);
     width: var(--sidebar-container-width);
     height: 100vh;
     border-right: var(--border);
@@ -75,7 +76,7 @@
 }
 
 .navbar-container .navbar-padding {
-    height: 100%;
+    height: calc(100% - 50px);
     width: calc(100% - var(--navbar-dropdown-spacing)*2);
     margin-left: var(--navbar-dropdown-spacing);
 }
@@ -119,11 +120,11 @@
 
 .navbar-children > .sidebar-sideline {
     position: absolute;
-    height: calc(100% - var(--checkbox-height) + 1px);
+    height: calc(100% - var(--checkbox-height) + 1px + var(--checkbox-height)/4);
     width: 3px;
     background-color: rgba(203, 208, 208, 0.29);
     left: -12px;
-    top: calc(var(--checkbox-height)/2);
+    top: calc(var(--checkbox-height)/4);
     border-radius: 100px;
 }
 
