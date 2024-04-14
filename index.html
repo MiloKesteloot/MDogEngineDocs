@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="sidebar-container">
+        <div class="searchbar-container">
+            <div>
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search...">
+            </div>
+        </div>
+
+        <div class="navbar-container">
+            <div class="header-text">Explore</div>
+
+            <div class="navbar-padding">
+
+                <div class="navbar-button">
+                    <label class="navbar-title">
+                        <input type="checkbox">
+                        <i class="fa-solid fa-mug-hot navbar-title-icon navbar-icon"></i>
+                        <span class="navbar-title-text">What is MDog Engine?</span>
+                    </label>
+                </div>
+
+                <div class="navbar-button">
+                    <label class="navbar-title">
+                        <input type="checkbox">
+                        <i class="fa-solid fa-rocket navbar-title-icon navbar-icon"></i>
+                        <span class="navbar-title-text">Getting Started</span>
+                    </label>
+                </div>
+
+                <div class="navbar-button navbar-dropdown">
+                    <label class="navbar-title">
+                        <input type="checkbox">
+                        <i class="fa-solid fa-code navbar-title-icon navbar-icon"></i>
+                        <span class="navbar-title-text">Code</span>
+                        <span class="spacer"></span>
+                        <i class="fa-solid fa-caret-right closed-i dropdown-indicator"></i>
+                        <i class="fa-solid fa-caret-down open-i dropdown-indicator"></i>
+                    </label>
+
+                    <div class="navbar-children indent1">
+
+                        <div class="sidebar-sideline"></div>
+
+                        <div class="navbar-button navbar-dropdown">
+                            <label class="navbar-title">
+                                <input type="checkbox">
+                                <span class="navbar-title-text">Draw</span>
+                                <span class="spacer"></span>
+                                <i class="fa-solid fa-caret-right closed-i dropdown-indicator"></i>
+                                <i class="fa-solid fa-caret-down open-i dropdown-indicator"></i>
+                            </label>
+
+                            <div class="navbar-children indent1">
+
+                                <div class="sidebar-sideline"></div>
+
+                                <div class="navbar-button">
+                                    <label class="navbar-title">
+                                        <input type="checkbox">
+                                        <span class="navbar-title-text">Point</span>
+                                    </label>
+                                </div>
+
+                                <div class="navbar-button">
+                                    <label class="navbar-title">
+                                        <input type="checkbox">
+                                        <span class="navbar-title-text">Rectangle</span>
+                                    </label>
+                                </div>
+
+                                <div class="navbar-button">
+                                    <label class="navbar-title">
+                                        <input type="checkbox">
+                                        <span class="navbar-title-text">RectangleFill</span>
+                                    </label>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="navbar-button navbar-dropdown">
+                            <label class="navbar-title">
+                                <input type="checkbox">
+                                <span class="navbar-title-text">Input</span>
+                            </label>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<!--
+
+https://developer.mozilla.org/en-US/docs/Web/JavaScript
+https://docs.vulkan.org/spec/latest/chapters/memory.html
+https://devdocs.io/vulkan/
+
+Hello - Explanation of what MDog Engine is
+Getting Started - Basic tutorial of how to set up project
+Code Modules
+    Draw
+        Circle
+        Rectangle
+        Image
+    Input
+        Mouse
+        Keyboard
+
+-->
