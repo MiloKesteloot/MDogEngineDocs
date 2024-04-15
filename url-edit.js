@@ -2,6 +2,8 @@ function setURL(urlPath){
     window.history.pushState({},"", urlPath);
 }
 
+console.log("url-edit.js wuz here");
+
 // setURL("penis");
 
 

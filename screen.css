@@ -1,0 +1,131 @@
+@font-face {
+    font-family: gitlab-sans;
+    src: url(GitLabSans.ttf);
+}
+
+body, .screen {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.screen {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+
+    background-color: rgb(28, 28, 28);
+/*rgb(51, 61, 65);*/
+}
+
+.page {
+    padding: 27px 50px;
+    width: 1000px;
+    max-width: 100%;
+}
+
+.page-centerer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.page * {
+    font-family: gitlab-sans, sans-serif;
+}
+
+.page .breadcrums {
+    font-size: 15px;
+    color: rgb(241, 245, 249);
+}
+
+.page h1, .page h2, .page h3 {
+    color: rgb(241, 245, 249);
+}
+
+.page h1 {
+    font-size: 43px;
+}
+
+.page h2 {
+    font-size: 33px;
+}
+
+.page h3 {
+    font-size: 23px;
+}
+
+.page p {
+    color: rgb(226, 232, 240);
+    line-height: 1.75rem;
+    margin-top: 1.5rem;
+    overflow-wrap: break-word;
+    font-size: 16px;
+}
+
+.page p code {
+    border-radius: 5px;
+    border: hsla(0, 0%, 100%, .1) solid 1px;
+    background-color: hsla(0, 0%, 100%, 0.05);
+    padding: .125rem .25em;
+    font-family: monospace;
+}
+
+.methods-grid td code {
+    font-family: monospace;
+}
+
+.methods-grid td code:hover {
+    /*text-decoration: underline;*/
+    /*cursor: pointer;*/
+    /*pointer-events: none;*/
+}
+
+.methods-grid td code .optional {
+    font-family: monospace;
+    color: rgba(226, 232, 240, 0.5);
+}
+
+.info-box {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+
+    font-size: 16px;
+}
+
+.info-box i {
+    font-size: 23px;
+    margin-right: 11px;
+}
+
+.info-box-blue {
+    color: rgb(191, 219, 254);
+    border: 1px #485772 solid;
+    background-color: #151E36;
+}
+
+.page .methods-grid {
+    border-collapse: collapse;
+    color: rgb(226, 232, 240);
+}
+
+.methods-grid td, .methods-grid th {
+    border: 1px solid rgb(93, 93, 100);
+    font-size: 16px;
+}
+
+.methods-grid td {
+    padding: 11px 15px;
+}
+
+.methods-grid th {
+    padding: 15px;
+}
+
+.methods-grid tr:nth-child(odd){background-color: rgba(44, 47, 56, 0.11);}
+
+/*.methods-grid tr:hover {background-color: #ddd;}*/

@@ -3,182 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="stylesheet" type="text/css" href="sidebar.css">
-    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="screen.css">
 </head>
 <body>
-    <script src="url-edit.js"></script>
-    <div class="sidebar-container">
-        <div class="searchbar-container">
-            <div>
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" placeholder="Search...">
-            </div>
-        </div>
+    <div class="screen">
+        <div class="page-centerer">
+            <div class="page">
 
-        <div class="navbar-container">
-            <div class="header-text">Explore</div>
+                <div class="breadcrums">Draw</div>
 
-            <div class="navbar-padding">
+                <h1>Draw Module</h1>
 
-                <div class="navbar-button">
-                    <label class="navbar-title">
-                        <input type="checkbox">
-                        <i class="fa-solid fa-mug-hot navbar-title-icon navbar-icon"></i>
-                        <span class="navbar-title-text">What is MDog Engine?</span>
-                    </label>
+                <div class="info-box info-box-blue">
+                    <i class="fa-solid fa-circle-info"></i>Page still in progress.
                 </div>
 
-                <div class="navbar-button">
-                    <label class="navbar-title">
-                        <input type="checkbox">
-                        <i class="fa-solid fa-rocket navbar-title-icon navbar-icon"></i>
-                        <span class="navbar-title-text">Getting Started</span>
-                    </label>
-                </div>
+                <p>The Draw Module contains everything you need to set the pixels on the screen. This includes shapes, images, particles, and more.</p>
 
-                <div class="navbar-button navbar-dropdown">
-                    <label class="navbar-title">
-                        <input type="checkbox">
-                        <i class="fa-solid fa-code navbar-title-icon navbar-icon"></i>
-                        <span class="navbar-title-text">Code</span>
-                        <span class="spacer"></span>
-                        <i class="fa-solid fa-caret-right closed-i dropdown-indicator"></i>
-                        <i class="fa-solid fa-caret-down open-i dropdown-indicator"></i>
-                    </label>
+                <p>The Draw Module creates multiple canvases called "Layers." At the end of every frame, all of the Layers are combined and drawn to the screen.</p>
 
-                    <div class="navbar-children indent1">
+                <p>Yada yada yada <code>yada</code> yada.</p>
 
-                        <div class="sidebar-sideline"></div>
+                <h2>Drawing Methods</h2>
 
-                        <div class="navbar-button navbar-dropdown">
-                            <label class="navbar-title">
-                                <input type="checkbox">
-                                <span class="navbar-title-text">Draw</span>
-                                <span class="spacer"></span>
-                                <i class="fa-solid fa-caret-right closed-i dropdown-indicator"></i>
-                                <i class="fa-solid fa-caret-down open-i dropdown-indicator"></i>
-                            </label>
+    <!--            animation, preloadAnimation-->
 
-                            <div class="navbar-children indent1">
+                <table class="methods-grid">
 
-                                <div class="sidebar-sideline"></div>
+                    <tr>
+                        <th>Method</th>
+                        <th>Description</th>
+                    </tr>
 
-                                <div class="navbar-button">
-                                    <label class="navbar-title">
-                                        <input type="checkbox">
-                                        <span class="navbar-title-text">point()</span>
-                                    </label>
-                                </div>
+                    <tr>
+                        <td><code>circle(x, y, radius, color, <span class="optional">settings</span>)</code></td>
+                        <td>Draws a circle.</td>
+                    </tr>
 
-                                <div class="navbar-button">
-                                    <label class="navbar-title">
-                                        <input type="checkbox">
-                                        <span class="navbar-title-text">rectangle()</span>
-                                    </label>
-                                </div>
+                    <tr>
+                        <td><code>clear(settings)</code></td>
+                        <td>Clears the screen/layer to a color.</td>
+                    </tr>
 
-                                <div class="navbar-button">
-                                    <label class="navbar-title">
-                                        <input type="checkbox">
-                                        <span class="navbar-title-text">rectangleFill()</span>
-                                    </label>
-                                </div>
+                    <tr>
+                        <td><code>image(fileName, x, y, <span class="optional">settings</span>)</code></td>
+                        <td>Draws an image.</td>
+                    </tr>
 
-                            </div>
-                        </div>
+                    <tr>
+                        <td><code>interactable(interactable)</code></td>
+                        <td>Draws an interactable.</td> <!-- TODO make this a link -->
+                    </tr>
 
-                        <div class="navbar-button navbar-dropdown">
-                            <label class="navbar-title">
-                                <input type="checkbox">
-                                <span class="navbar-title-text">Input</span>
-                                <span class="spacer"></span>
-                                <i class="fa-solid fa-caret-right closed-i dropdown-indicator"></i>
-                                <i class="fa-solid fa-caret-down open-i dropdown-indicator"></i>
-                            </label>
+                    <tr>
+                        <td><code>line(x1, y1, x2, y2, color, <span class="optional">settings</span>)</code></td>
+                        <td>Draws a line</td>
+                    </tr>
 
-                            <div class="navbar-children indent1">
+                    <tr>
+                        <td><code>particleSystem(particleSystem)</code></td>
+                        <td>Draws a particle system.</td> <!-- TODO make this a link -->
+                    </tr>
 
-                                <div class="sidebar-sideline"></div>
+                    <tr>
+                        <td><code>point(x, y, color, <span class="optional">settings</span>)</code></td>
+                        <td>Sets a pixel.</td>
+                    </tr>
 
-                                <div class="navbar-button">
-                                    <label class="navbar-title">
-                                        <input type="checkbox">
-                                        <span class="navbar-title-text">Keyboard</span>
-                                    </label>
-                                </div>
+                    <tr>
+                        <td><code>polygon(points, color, <span class="optional">settings</span>)</code></td>
+                        <td>Draws the outline of a polygon.</td>
+                    </tr>
 
-                                <div class="navbar-button">
-                                    <label class="navbar-title">
-                                        <input type="checkbox">
-                                        <span class="navbar-title-text">Mouse</span>
-                                    </label>
-                                </div>
+                    <tr>
+                        <td><code>polygonFill(points, color, <span class="optional">settings</span>)</code></td>
+                        <td>Draws a filled polygon.</td>
+                    </tr>
 
-                            </div>
-                        </div>
+                    <tr>
+                        <td><code>rectangle(x, y, width, height, color, <span class="optional">settings</span>)</code></td>
+                        <td>Draws the outline of a rectangle.</td>
+                    </tr>
 
-                        <div class="navbar-button navbar-dropdown">
-                            <label class="navbar-title">
-                                <input type="checkbox">
-                                <span class="navbar-title-text">Maths</span>
-                                <span class="spacer"></span>
-                                <i class="fa-solid fa-caret-right closed-i dropdown-indicator"></i>
-                                <i class="fa-solid fa-caret-down open-i dropdown-indicator"></i>
-                            </label>
+                    <tr>
+                        <td><code>rectangleFill(x, y, width, height, color, <span class="optional">settings</span>)</code></td>
+                        <td>Draws a filled-in rectangle.</td>
+                    </tr>
 
-                            <div class="navbar-children indent1">
+                    <tr>
+                        <td><code>setActiveLayer(layer)</code></td>
+                        <td>Sets the default draw layer.</td>
+                    </tr>
 
-                                <div class="sidebar-sideline"></div>
+                    <tr>
+                        <td><code>text(x, y, text, color, <span class="optional">settings</span>)</code></td>
+                        <td>Draws text.</td>
+                    </tr>
 
-                                <div class="navbar-button">
-                                    <label class="navbar-title">
-                                        <input type="checkbox">
-                                        <span class="navbar-title-text">Vector</span>
-                                    </label>
-                                </div>
+                    <tr>
+                        <td><code>threeDeeScene(threeDeeScene)</code></td>
+                        <td>Draws a threeDeeScene</td> <!-- TODO make this a link -->
+                    </tr>
 
-                                <div class="navbar-button">
-                                    <label class="navbar-title">
-                                        <input type="checkbox">
-                                        <span class="navbar-title-text">Vector3</span>
-                                    </label>
-                                </div>
+                    <tr>
+                        <td><code>translate(x, y, <span class="optional">settings</span>)</code></td>
+                        <td>Shifts the screen.</td>
+                    </tr>
 
-                                <div class="navbar-button">
-                                    <label class="navbar-title">
-                                        <input type="checkbox">
-                                        <span class="navbar-title-text">lerp()</span>
-                                    </label>
-                                </div>
+                    <tr>
+                        <td><code>translateX(x, <span class="optional">settings</span>)</code></td>
+                        <td>Shifts the screen horizontally.</td>
+                    </tr>
 
-                            </div>
-                        </div>
+                    <tr>
+                        <td><code>translateY(y, <span class="optional">settings</span>)</code></td>
+                        <td>Shifts the screen vertically.</td>
+                    </tr>
+                </table>
 
-                    </div>
-                </div>
+                <h2>Setup Functions</h2>
 
+                <table class="methods-grid">
+                    <tr>
+                        <th>Method</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>loadFont(fontName, fontURL)</code></td>
+                        <td>Adds a custom font.</td>
+                    </tr>
+                    <tr>
+                        <td><code>setBackgroundColor(color)</code></td>
+                        <td>Sets the color of the dom body.</td>
+                    </tr>
+                </table>
+
+                <h2>Info Methods</h2>
+
+
+                <table class="methods-grid">
+                    <tr>
+                        <th>Method</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>getScreenHeightInArtPixels()</code></td>
+                        <td>Gets the height of the screen.</td>
+                    </tr>
+                    <tr>
+                        <td><code>getScreenWidthInArtPixels()</code></td>
+                        <td>Gets the width of the screen.</td>
+                    </tr>
+                    <tr>
+                        <td><code>getHalfScreenHeightInArtPixels()</code></td>
+                        <td>Gets the int height of half of the screen.</td>
+                    </tr>
+                    <tr>
+                        <td><code>getHalfScreenWidthInArtPixels()</code></td>
+                        <td>Gets the int width of half of the screen.</td>
+                    </tr>
+                    <tr>
+                        <td><code>measureText(text, settings)</code></td>
+                        <td>Gets the length of theoretical text.</td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
+
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <script src="sidebar.js"></script>
 </body>
 </html>
-
-<!--
-
-https://developer.mozilla.org/en-US/docs/Web/JavaScript
-https://docs.vulkan.org/spec/latest/chapters/memory.html
-https://devdocs.io/vulkan/
-
-Hello - Explanation of what MDog Engine is
-Getting Started - Basic tutorial of how to set up project
-Code Modules
-    Draw
-        Circle
-        Rectangle
-        Image
-    Input
-        Mouse
-        Keyboard
-
--->

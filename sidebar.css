@@ -16,32 +16,47 @@
     --indent: 35px;
 }
 
-* {
+body {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
 .sidebar-container * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
     font-family: gitlab-sans, sans-serif;
 }
 
 .sidebar-container {
     /*TODO: Fix this color bs*/
-    background-color: rgb(36, 40, 42);
+    /*background-color: rgb(36, 40, 42);*/
     width: var(--sidebar-container-width);
+    min-width: var(--sidebar-container-width);
     height: 100vh;
+}
+
+.sidebar-container .sidebar-fixed {
+    position: fixed;
+    width: var(--sidebar-container-width);
+    min-width: var(--sidebar-container-width);
     border-right: var(--border);
+    height: calc(100vh);
+
+    background-color: rgb(36, 40, 42);
 }
 
 .searchbar-container {
-    background-color: rgb(28, 28, 28);
     height: 47px;
     width: 100%;
 
     display: flex;
     justify-content: center;
     align-items: center;
+
+    background-color: #1c1c1c;
 }
 
 .searchbar-container > div {
@@ -100,7 +115,7 @@
     margin-top: 2px;
 }
 
-.navbar-container .indent1 {
+.navbar-container .indent {
     width: calc(100% - var(--indent));
     margin-left: var(--indent);
 }
