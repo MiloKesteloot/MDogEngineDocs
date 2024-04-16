@@ -12,7 +12,7 @@ body {
     background-color: rgb(28, 28, 28);
 }
 
-body, .screen {
+body, .screen * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -122,7 +122,7 @@ body, .screen {
 .page .methods-grid {
     border-collapse: collapse;
     color: rgb(226, 232, 240);
-    table-layout: fixed;
+    table-layout: fixed; /*fixed; What's this?'*/
 }
 
 .methods-grid td, .methods-grid th {
@@ -160,12 +160,35 @@ tr.has-dropdown input[type=checkbox] {
     display: none;
 }
 
+
+
+
+
 tr.has-dropdown:has(input[type=checkbox]:checked) + tr{
-    display: block;
+    display: table-row;
 }
 
 tr.has-dropdown + tr {
     display: none;
+    /*position: relative;*/
+    background-color: rgba(115, 255, 0, 0.44);
+
+}
+
+tr.has-dropdown + tr .method-info {
+    /*position: absolute;*/
+    width: 100%;
+    max-width: 100%;
+    background-color: rgba(255, 0, 0, 0.44);
+    top: 0;
+}
+
+tr.has-dropdown + tr div {
+    /*for dad*/
+}
+
+tr.has-dropdown + tr div .method-info {
+    /*for dad*/
 }
 
 tr.has-dropdown td code:hover {
