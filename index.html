@@ -22,7 +22,7 @@
 
                 <p>The Draw Module creates multiple canvases called "Layers." At the end of every frame, all of the Layers are combined and drawn to the screen.</p>
 
-                <p>Yada yada yada <code>yada</code> yada.</p>
+                <p>The draw Module can be accessed with <code>MDog.Draw.method()</code>.</p>
 
                 <h2>Drawing Methods</h2>
 
@@ -35,14 +35,51 @@
                         <th>Description</th>
                     </tr>
 
-                    <tr>
-                        <td><code>circle(x, y, radius, color, <span class="optional">settings</span>)</code></td>
+
+                    <tr class="has-dropdown">
+
+
+                        <td>
+                            <label>
+                            <input type="checkbox">
+                            <code>circle(x, y, radius, color, <span class="optional">settings</span>)</code>
+                            </label>
+                        </td>
                         <td>Draws a circle.</td>
                     </tr>
 
                     <tr>
-                        <td><code>clear(settings)</code></td>
+                        <td colspan="2" class="method-info">
+                            Draws a circle using a distance method.<br>
+                            <br>
+                            <b>Parameters:</b><br>
+                            <code class="outline">x</code>, <code class="outline">y</code>: The integer center of the drawn circle.<br>
+                            <code class="outline">radius</code>: The integer radius of the drawn circle.<br>
+                            <code class="outline">color</code>: Hex code for the circle fill.<br>
+                            <br>
+                            <b>Settings (optional):</b><br>
+                            <code class="outline">layer</code> - An integer defining the canvas to draw to. If the layer has never been drawn to, a new canvas will be created.</td>
+                    </tr>
+
+                    <tr class="has-dropdown">
+                        <td>
+                            <label>
+                                <input type="checkbox">
+                                <code>clear(<span class="optional">settings</span>)</code>
+                            </label>
+                        </td>
                         <td>Clears the screen/layer to a color.</td>
+                    </tr>
+
+                    <tr>
+                        <td colspan="1/-1" class="method-info">
+                            Clears the screen (or specific layer) to a color.<br>
+                            <br>
+                            <b>Parameters:</b><br>
+                            <code class="outline">color</code>: Hex code for background clear.<br>
+                            <br>
+                            <b>Settings (optional):</b><br>
+                            <code class="outline">layer</code> - An integer defining the canvas to draw to clear. If no layer is give, all layers will be cleared.</td>
                     </tr>
 
                     <tr>
@@ -57,7 +94,7 @@
 
                     <tr>
                         <td><code>line(x1, y1, x2, y2, color, <span class="optional">settings</span>)</code></td>
-                        <td>Draws a line</td>
+                        <td>Draws a line.</td>
                     </tr>
 
                     <tr>
@@ -102,7 +139,7 @@
 
                     <tr>
                         <td><code>threeDeeScene(threeDeeScene)</code></td>
-                        <td>Draws a threeDeeScene</td> <!-- TODO make this a link -->
+                        <td>Draws a threeDeeScene.</td> <!-- TODO make this a link -->
                     </tr>
 
                     <tr>
@@ -163,11 +200,15 @@
                         <td>Gets the int width of half of the screen.</td>
                     </tr>
                     <tr>
-                        <td><code>measureText(text, settings)</code></td>
+                        <td><code>measureText(text, <span class="optional">settings</span>)</code></td>
                         <td>Gets the length of theoretical text.</td>
                     </tr>
                 </table>
+
+                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+
             </div>
+
         </div>
     </div>
 
