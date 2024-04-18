@@ -37,8 +37,6 @@
 
 
                     <tr class="has-dropdown">
-
-
                         <td>
                             <label>
                             <input type="checkbox">
@@ -48,9 +46,8 @@
                         <td>Draws a circle.</td>
                     </tr>
 
-                    <tr class="drowpdown-tr">
+                    <tr class="dropdown-tr">
                         <td colspan="2" class="method-info">
-                            <div>
                             Draws a circle using a distance method.<br>
                             <br>
                             <b>Parameters:</b><br>
@@ -59,10 +56,8 @@
                             <code class="outline">color</code>: Hex code for the circle fill.<br>
                             <br>
                             <b>Settings (optional):</b><br>
-                            <code class="outline">layer</code> - An integer defining the canvas to draw to. If the layer has never been drawn to, a new canvas will be created.
-                            </div>
+                            <code class="outline">layer</code> - An integer defining the canvas to draw to. If the layer has never been drawn to, a new canvas will be created. Default: <code>0</code>.
                         </td>
-<!--                        <td colspan="2" class="method-info-spacer"></td>-->
                     </tr>
 
                     <tr class="has-dropdown">
@@ -75,91 +70,117 @@
                         <td>Clears the screen/layer to a color.</td>
                     </tr>
 
-                    <tr>
-                        <td colspan="1/-1" class="method-info">
-                            Clears the screen (or specific layer) to a color.<br>
-                            <br>
-                            <b>Parameters:</b><br>
-                            <code class="outline">color</code>: Hex code for background clear.<br>
+                    <tr class="dropdown-tr">
+                        <td colspan="2" class="method-info">
+                            Clears the screen (or specific layer) to a color (black by default).<br>
                             <br>
                             <b>Settings (optional):</b><br>
-                            <code class="outline">layer</code> - An integer defining the canvas to draw to clear. If no layer is give, all layers will be cleared.</td>
+                            <code class="outline">color</code>: Hex code for background clear.<br>
+                            <code class="outline">layer</code> - An integer defining the canvas to draw to clear. If no layer is given, all layers will be cleared.</td>
                     </tr>
 
-                    <tr>
-                        <td><code>image(fileName, x, y, <span class="optional">settings</span>)</code></td>
+                    <tr class="has-dropdown">
+                        <td>
+                            <label>
+                                <input type="checkbox">
+                                <code>image(fileName, x, y, <span class="optional">settings</span>)</code>
+                            </label>
+                        </td>
                         <td>Draws an image.</td>
                     </tr>
 
-                    <tr>
-                        <td><code>interactable(interactable)</code></td>
-                        <td>Draws an interactable.</td> <!-- TODO make this a link -->
+                    <tr class="dropdown-tr">
+                        <td colspan="2" class="method-info">
+                            Draws an image.<br>
+                            <br>
+                            <!-- // Perams: layer, scale, scaleX, scaleY, offsetX, offsetY, width, height, flipX, flipY-->
+                            <b>Parameters:</b><br>
+                            <code class="outline">fileName</code> The name of the file to be drawn. This is auto-prefixed with "assets/".<br>
+                            <code class="outline">x</code>, <code class="outline">y</code>: The integer top left of the image.<br>
+                            <br>
+                            <b>Settings (optional):</b><br>
+                            <code class="outline">layer</code> - The canvas to draw to. If the layer specified layer has never been drawn to, a new canvas will be created. Default: <code>0</code>.<br>
+                            <code class="outline">scale</code> - How many pixels each image pixel maps to. Default: <code>1</code>.<br>
+                            <code class="outline">scaleX</code> - How horizontally stretched the image should be. Default: <code>this.scale</code>.<br>
+                            <code class="outline">scaleY</code> - How vertically stretched the image should be. Default: <code>this.scale</code>.<br>
+                            <code class="outline">offsetX</code> - A horizontal offset into the image of where to crop. Default: <code>0</code>.<br>
+                            <code class="outline">offsetY</code> - A vertical offset into the image of where to crop. Default: <code>0</code>.<br>
+                            <code class="outline">width</code> - The width of the image relative to <code>this.offsetX</code>. Default: <code>image.width</code>.<br>
+                            <code class="outline">height</code> - The height of the image relative to <code>this.offsetY</code>. Default: <code>image.height</code>.<br>
+                            <code class="outline">flipX</code> - An integer defining the canvas to draw to. If the layer specified layer has never been drawn to, a new canvas will be created. Default: <code>0</code>.<br>
+                            <code class="outline">flipY</code> - An integer defining the canvas to draw to. If the layer specified layer has never been drawn to, a new canvas will be created. Default: <code>0</code>.
+                        </td>
                     </tr>
 
-                    <tr>
-                        <td><code>line(x1, y1, x2, y2, color, <span class="optional">settings</span>)</code></td>
-                        <td>Draws a line.</td>
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>interactable(interactable)</code></td>-->
+<!--                        <td>Draws an interactable.</td> &lt;!&ndash; TODO make this a link &ndash;&gt;-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>particleSystem(particleSystem)</code></td>
-                        <td>Draws a particle system.</td> <!-- TODO make this a link -->
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>line(x1, y1, x2, y2, color, <span class="optional">settings</span>)</code></td>-->
+<!--                        <td>Draws a line.</td>-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>point(x, y, color, <span class="optional">settings</span>)</code></td>
-                        <td>Sets a pixel.</td>
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>particleSystem(particleSystem)</code></td>-->
+<!--                        <td>Draws a particle system.</td> &lt;!&ndash; TODO make this a link &ndash;&gt;-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>polygon(points, color, <span class="optional">settings</span>)</code></td>
-                        <td>Draws the outline of a polygon.</td>
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>point(x, y, color, <span class="optional">settings</span>)</code></td>-->
+<!--                        <td>Sets a pixel.</td>-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>polygonFill(points, color, <span class="optional">settings</span>)</code></td>
-                        <td>Draws a filled polygon.</td>
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>polygon(points, color, <span class="optional">settings</span>)</code></td>-->
+<!--                        <td>Draws the outline of a polygon.</td>-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>rectangle(x, y, width, height, color, <span class="optional">settings</span>)</code></td>
-                        <td>Draws the outline of a rectangle.</td>
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>polygonFill(points, color, <span class="optional">settings</span>)</code></td>-->
+<!--                        <td>Draws a filled polygon.</td>-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>rectangleFill(x, y, width, height, color, <span class="optional">settings</span>)</code></td>
-                        <td>Draws a filled-in rectangle.</td>
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>rectangle(x, y, width, height, color, <span class="optional">settings</span>)</code></td>-->
+<!--                        <td>Draws the outline of a rectangle.</td>-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>setActiveLayer(layer)</code></td>
-                        <td>Sets the default draw layer.</td>
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>rectangleFill(x, y, width, height, color, <span class="optional">settings</span>)</code></td>-->
+<!--                        <td>Draws a filled-in rectangle.</td>-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>text(x, y, text, color, <span class="optional">settings</span>)</code></td>
-                        <td>Draws text.</td>
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>setActiveLayer(layer)</code></td>-->
+<!--                        <td>Sets the default draw layer.</td>-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>threeDeeScene(threeDeeScene)</code></td>
-                        <td>Draws a threeDeeScene.</td> <!-- TODO make this a link -->
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>text(x, y, text, color, <span class="optional">settings</span>)</code></td>-->
+<!--                        <td>Draws text.</td>-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>translate(x, y, <span class="optional">settings</span>)</code></td>
-                        <td>Shifts the screen.</td>
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>threeDeeScene(threeDeeScene)</code></td>-->
+<!--                        <td>Draws a threeDeeScene.</td> &lt;!&ndash; TODO make this a link &ndash;&gt;-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>translateX(x, <span class="optional">settings</span>)</code></td>
-                        <td>Shifts the screen horizontally.</td>
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>translate(x, y, <span class="optional">settings</span>)</code></td>-->
+<!--                        <td>Shifts the screen.</td>-->
+<!--                    </tr>-->
 
-                    <tr>
-                        <td><code>translateY(y, <span class="optional">settings</span>)</code></td>
-                        <td>Shifts the screen vertically.</td>
-                    </tr>
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>translateX(x, <span class="optional">settings</span>)</code></td>-->
+<!--                        <td>Shifts the screen horizontally.</td>-->
+<!--                    </tr>-->
+
+<!--                    <tr class="has-dropdown">-->
+<!--                        <td><code>translateY(y, <span class="optional">settings</span>)</code></td>-->
+<!--                        <td>Shifts the screen vertically.</td>-->
+<!--                    </tr>-->
                 </table>
 
                 <h2>Setup Functions</h2>
@@ -218,5 +239,6 @@
 
     <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
     <script src="sidebar.js"></script>
+    <script src="table-fix.js"></script>
 </body>
 </html>

@@ -6,6 +6,7 @@
 :root {
     --info-blue: rgb(191, 219, 254);
     --table-header-color: rgb(168, 203, 245);
+    --text-color: rgb(241, 245, 249);
 }
 
 body {
@@ -44,11 +45,11 @@ body, .screen * {
 
 .page .breadcrums {
     font-size: 15px;
-    color: rgb(241, 245, 249);
+    color: var(--text-color);
 }
 
 .page h1, .page h2, .page h3 {
-    color: rgb(241, 245, 249);
+    color: var(--text-color);
 }
 
 .page h1 {
@@ -66,7 +67,7 @@ body, .screen * {
 }
 
 .page p {
-    color: rgb(226, 232, 240);
+    color: var(--text-color);
     line-height: 1.75rem;
     margin-top: 1.5rem;
     overflow-wrap: break-word;
@@ -121,14 +122,14 @@ body, .screen * {
 
 .page .methods-grid {
     border-collapse: collapse;
-    color: rgb(226, 232, 240);
-    table-layout: fixed; /*fixed; What's this?'*/
+    color: var(--text-color);
+    width: 100%;
+    min-width: 100%;
+    /*table-layout: fixed; !*fixed; What's this?'*!*/
 }
 
 .methods-grid td, .methods-grid th {
     font-size: 16px;
-    /*width: 10px;*/
-    /*TODO make resizing work, maybe in js file?*/
 }
 
 .methods-grid td {
@@ -148,9 +149,11 @@ body, .screen * {
     background-color: var(--table-header-color);
 }
 
-/*.methods-grid tr:nth-child(odd):not(:first-child) {*/
-/*    background-color: rgba(44, 47, 56, 0.13);*/
-/*}*/
+.methods-grid tr:nth-child(4n):not(:first-child), .methods-grid tr:nth-child(4n+1):not(:first-child) {
+    background-color: rgba(44, 47, 56, 0.3);
+    /*background-color: rgba(255, 0, 0, 0.76);*/
+
+}
 
 .methods-grid .method-info {
     line-height: 23px;
@@ -164,22 +167,19 @@ tr.has-dropdown input[type=checkbox] {
 
 
 
-tr.has-dropdown:has(input[type=checkbox]:checked) + tr{
+tr.has-dropdown:has(input[type=checkbox]:checked) + tr {
     display: table-row;
 }
 
 tr.has-dropdown + tr {
     display: none;
-    /*position: relative;*/
-    background-color: rgba(115, 255, 0, 0.44);
-
+    position: relative;
 }
 
 tr.has-dropdown + tr .method-info {
     /*position: absolute;*/
     width: 100%;
     max-width: 100%;
-    background-color: rgba(255, 0, 0, 0.44);
     top: 0;
 }
 
@@ -193,7 +193,16 @@ tr.has-dropdown + tr div .method-info {
 
 tr.has-dropdown td code:hover {
     text-decoration: underline;
+    text-decoration-color: var(--text-color);
     cursor: pointer;
+}
+
+tr.has-dropdown:has(input[type=checkbox]:checked) td code {
+    text-decoration: underline;
+}
+
+tr.has-dropdown:has(input[type=checkbox]:checked) td code:not(:hover) {
+    text-decoration-color: rgba(226, 232, 240, 0.4);
 }
 
 /*.methods-grid tr:hover {background-color: #ddd;}*/
