@@ -107,7 +107,8 @@ class Method {
         let s2 = `<tr class="dropdown-tr">
                         <td colspan="2" class="method-info">`;
 
-        s2 += this.longDescription + `<br>`; // TODO set this for everyone
+        s2 += `<b>Description:</b><br>`; // TODO not sure about this part
+        s2 += this.longDescription + `<br>`;
 
         if (this.parameters.length > 0) {
             s2 += `<br><b>Parameters:</b><br>`
@@ -209,7 +210,7 @@ class Setting {
 const methodsGrid = new MethodsGrid("Drawing Methods");
 
 {
-    const method = new Method("circle", "Draws a circle.");
+    const method = new Method("circle", "Draws a circle.", "Draws a circle using a distance method.");
     method.addParameter(new DoubleParameter("x", "y", "The integer center of the drawn circle."));
     method.addParameter(new Parameter("radius", "The integer radius of the drawn circle."));
     method.addParameter(new Parameter("color", "Hex code for the circle fill."));
@@ -218,9 +219,26 @@ const methodsGrid = new MethodsGrid("Drawing Methods");
 }
 
 {
-    const method = new Method("clear", "Clears the screen/layer to a color.");
+    const method = new Method("clear", "Clears the screen/layer to a color.", "Clears the screen (or specific layer) to a color.");
     method.addSetting(new Setting("color", "Hex code for background clear.", "0"));
-    method.addSetting(new Setting("layer", "An integer defining the canvas to draw to clear. If no layer is given, all layers will be cleared.", "0"));
+    method.addSetting(new Setting("layer", "An integer defining the canvas to draw to clear. If no layer is given, all layers will be cleared.", "#000000"));
+    methodsGrid.addMethod(method);
+}
+
+{
+    const method = new Method("image", "Draws an image.", "Draws an image.");
+    method.addParameter(new Parameter("fileName", "The name of the file to be drawn. This is auto-prefixed with \"assets/\"."));
+    method.addParameter(new DoubleParameter("x", "y", "The integer top left of the image."));
+    method.addSetting(new Setting("layer", "The canvas to draw to. If the layer specified layer has never been drawn to, a new canvas will be created.", "0"));
+    method.addSetting(new Setting("scale", "How many pixels each image pixel maps to.", "1"));
+    method.addSetting(new Setting("scaleX", "How horizontally stretched the image should be.", "0"));
+    method.addSetting(new Setting("scaleY", "An", "0"));
+    method.addSetting(new Setting("offsetX", "An", "0"));
+    method.addSetting(new Setting("offsetY", "An", "0"));
+    method.addSetting(new Setting("width", "An", "0"));
+    method.addSetting(new Setting("height", "An", "0"));
+    method.addSetting(new Setting("flipX", "An", "0"));
+    method.addSetting(new Setting("flipY", "An", "0"));
     methodsGrid.addMethod(method);
 }
 
