@@ -29,6 +29,42 @@
 
                 $METHODS
 
+                <table class="methods-grid">
+<!--
+METHOD
+circle - Draws a circle. - Draws a circle using a distance method.
+    PERAMS
+    x, y - The integer center of the drawn circle.
+    radius - The integer radius of the drawn circle.
+    color - Hex code for the circle fill.
+    SETTINGS
+    layer - An integer defining the canvas to draw to. If the layer has never been drawn to, a new canvas will be created. - 0
+METHOD
+clear - Clears the screen/layer to a color. - Clears the screen (or specific layer) to a color.
+    SETTINGS
+    color - Hex code for background clear. - 0
+    layer - An integer defining the canvas to draw to clear. If no layer is given, all layers will be cleared. - #000000
+METHOD
+image - Draws an image. - Draws a pixelated image.
+    PERAMS
+    fileName - The name of the file to be drawn. This is auto-prefixed with "assets/".
+    x, y - The integer top left of the image.
+    SETTINGS
+    layer - The canvas to draw to. If the layer specified layer has never been drawn to, a new canvas will be created. - 0
+    scale - How many pixels each image pixel maps to. - 1
+    scaleX - How horizontally stretched the image should be. - 1
+    scaleY - How vertically stretched the image should be. - 1
+    offsetX - A horizontal shift in the image, cropping the left side. - 0
+    offsetY - A vertical shift in the image, cropping the top side. - 0
+    width - How many pixels should be drawn horizontally. - image.width
+    height - How many pixels should be drawn vertically. - image.height
+    flipX - Flip the image horizontally - false
+    flipY - Flip the image vertically - false
+
+
+-->
+                </table>
+
                 <h2>Drawing Methods</h2>
 
                 <table class="methods-grid">
@@ -37,7 +73,6 @@
                         <th>Method</th>
                         <th>Description</th>
                     </tr>
-
 
                     <tr class="has-dropdown">
                         <td>

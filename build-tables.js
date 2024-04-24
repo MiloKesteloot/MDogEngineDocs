@@ -231,7 +231,7 @@ const methodsGrid = new MethodsGrid("Drawing Methods");
     method.addParameter(new DoubleParameter("x", "y", "The integer top left of the image."));
     method.addSetting(new Setting("layer", "The canvas to draw to. If the layer specified layer has never been drawn to, a new canvas will be created.", "0"));
     method.addSetting(new Setting("scale", "How many pixels each image pixel maps to.", "1"));
-    method.addSetting(new Setting("scaleX", "How horizontally stretched the image should be.", "0"));
+    method.addSetting(new Setting("scaleX", "How horizontally stretched the image should be.", "1"));
     method.addSetting(new Setting("scaleY", "An", "0"));
     method.addSetting(new Setting("offsetX", "An", "0"));
     method.addSetting(new Setting("offsetY", "An", "0"));
