@@ -252,8 +252,13 @@ if (false) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    const test = document.body.getElementById("test");
-    const inside = test.innerHTML;
+    const test = document.getElementById("test");
+    let inside = test.innerHTML;
+    inside = inside.replace("<!--\n", "");
+    inside = inside.replace("\n-->", "");
+
+    console.log(inside);
+    console.log("yuh")
 
     document.body.innerHTML = document.body.innerHTML.replace("$METHODS", methodsGrid.generateHTML());
 });

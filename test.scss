@@ -1,0 +1,17 @@
+.hi {
+    background: red;
+
+    button {
+        color: green;
+    }
+
+    &.himom {
+        background: blue;
+    }
+}
+
+div .hi
+
+div .hi .himom
+
+button .himom
