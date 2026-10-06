@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Draw Module - MDog Engine Docs</title>
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <script src="build-tables.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Draw</div>
+
+                <h1>Draw Module</h1>
+
+                <p>The Draw Module contains everything you need to set the pixels on the screen. This includes shapes, images, text, animations, and more.</p>
+
+                <p>The screen is 512 by 384 "art pixels." The canvas is scaled up by a whole number so every art pixel stays crisp and square. All positions are in art pixels, with <code>(0, 0)</code> at the top left and y going down.</p>
+
+                <p>The Draw Module creates multiple canvases called "Layers." Layers are numbered, and higher layers are drawn on top of lower ones. At the end of every frame, all of the Layers are combined and drawn to the screen. Layers are not cleared on their own, so most games call <code>clear()</code> at the start of every tick.</p>
+
+                <p>Colors are strings like <code>"#ff0000"</code>.</p>
+
+                <p>The draw Module can be accessed with <code>MDog.Draw.method()</code>.</p>
+
+                <script>
+                    const LAYER = ["layer", "An integer defining the canvas to draw to. If the layer has never been drawn to, a new canvas will be created. Defaults to the active layer (see <code>setActiveLayer()</code>)."];
+                </script>
+
+                <h2>Drawing Methods</h2>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "animation",
+                            description: "Draws an animation.",
+                            details: "Draws the current frame of an animation, then moves the animation forward by one tick. See <a href=\"#animations\">Animations</a> below.",
+                            parameters: [
+                                ["animation", "The <code>MultipleFileAnimation</code> or <code>SpriteSheetAnimation</code> to be drawn."],
+                                ["x, y", "The integer top left of the animation."],
+                            ],
+                            settings: [
+                                ["scale", "How many pixels each image pixel maps to.", "1"],
+                                ["flipX", "Flip the animation horizontally.", "false"],
+                                ["flipY", "Flip the animation vertically.", "false"],
+                                ["update", "Whether drawing the animation should move it forward. Set this to false to draw the animation frozen.", "true"],
+                            ],
+                        },
+                        {
+                            name: "circle",
+                            description: "Draws a circle.",
+                            details: "Draws a filled-in circle. Unlike the other shapes, the edges of the circle can be slightly smoothed.",
+                            parameters: [
+                                ["x, y", "The integer center of the drawn circle."],
+                                ["radius", "The integer radius of the drawn circle."],
+                                ["color", "Hex code for the circle fill."],
+                            ],
+                            settings: [LAYER],
+                        },
+                        {
+                            name: "clear",
+                            description: "Clears the screen/layer to a color.",
+                            details: "Clears the screen (or specific layer) to a color (black by default). If no layer is given, every layer is wiped and the screen is filled with the color. The color can be <code>\"transparent\"</code> to see the web page behind the game.",
+                            settings: [
+                                ["color", "Hex code for background clear.", "\"#000000\""],
+                                ["layer", "An integer defining the canvas to clear. If no layer is given, all layers will be cleared.", "null"],
+                            ],
+                        },
+                        {
+                            name: "image",
+                            description: "Draws an image.",
+                            details: "Draws a pixelated image from your assets folder. Images are loaded the first time they're drawn, so an image might not show up on the first few ticks. To load an image early, draw it once off screen (like at <code>-1000, -1000</code>).",
+                            parameters: [
+                                ["fileName", "The name of the file to be drawn. This is auto-prefixed with \"assets/\"."],
+                                ["x, y", "The integer top left of the image."],
+                            ],
+                            settings: [
+                                LAYER,
+                                ["scale", "How many pixels each image pixel maps to.", "1"],
+                                ["scaleX", "How horizontally stretched the image should be.", "scale"],
+                                ["scaleY", "How vertically stretched the image should be.", "scale"],
+                                ["offsetX", "A horizontal offset into the image of where to crop.", "0"],
+                                ["offsetY", "A vertical offset into the image of where to crop.", "0"],
+                                ["width", "The width of the image relative to <code>offsetX</code>.", "image.width"],
+                                ["height", "The height of the image relative to <code>offsetY</code>.", "image.height"],
+                                ["flipX", "Flip the image horizontally.", "false"],
+                                ["flipY", "Flip the image vertically.", "false"],
+                                ["tint", "Hex code to recolor every non-transparent pixel of the image with.", "undefined"],
+                            ],
+                            returns: "<code>true</code> if the image was drawn, or <code>false</code> if it hasn't finished loading yet.",
+                        },
+                        {
+                            name: "interactable",
+                            description: "Draws an interactable.",
+                            details: "Draws a UI interactable, like a <code>TilemapInteractable</code>. See the <a href=\"ui.html\">UI Module</a>.",
+                            parameters: [
+                                ["interactable", "The interactable to be drawn."],
+                            ],
+                        },
+                        {
+                            name: "line",
+                            description: "Draws a line.",
+                            details: "Draws a one pixel wide line between two points, including both end points. The points are rounded down to whole pixels.",
+                            parameters: [
+                                ["x1, y1", "The start of the line."],
+                                ["x2, y2", "The end of the line."],
+                                ["color", "Hex code for the line."],
+                            ],
+                            settings: [LAYER],
+                        },
+                        {
+                            name: "particleSystem",
+                            description: "Draws a particle system.",
+                            details: "Draws every particle in a particle system. See the <a href=\"fx.html\">FX Module</a>.",
+                            parameters: [
+                                ["particleSystem", "The particle system to be drawn."],
+                            ],
+                        },
+                        {
+                            name: "point",
+                            description: "Sets a pixel.",
+                            details: "Sets a single pixel to a color.",
+                            parameters: [
+                                ["x, y", "The integer position of the pixel."],
+                                ["color", "Hex code for the pixel."],
+                            ],
+                            settings: [LAYER],
+                        },
+                        {
+                            name: "polygon",
+                            description: "Draws the outline of a polygon.",
+                            details: "Draws lines between each point, and from the last point back to the first one.",
+                            parameters: [
+                                ["points", "An array of points, like <code>Vector</code>s, that each have an <code>x</code> and a <code>y</code>."],
+                                ["color", "Hex code for the outline."],
+                            ],
+                            settings: [LAYER],
+                        },
+                        {
+                            name: "polygonFill",
+                            description: "Draws a filled polygon.",
+                            details: "Draws a filled-in polygon, including its outline.",
+                            parameters: [
+                                ["points", "An array of points, like <code>Vector</code>s, that each have an <code>x</code> and a <code>y</code>."],
+                                ["color", "Hex code for the polygon fill."],
+                            ],
+                            settings: [LAYER],
+                        },
+                        {
+                            name: "rectangle",
+                            description: "Draws the outline of a rectangle.",
+                            details: "Draws a one pixel thick outline of a rectangle. The outline is drawn inside of the given width and height.",
+                            parameters: [
+                                ["x, y", "The integer top left of the rectangle."],
+                                ["width, height", "The integer size of the rectangle."],
+                                ["color", "Hex code for the outline."],
+                            ],
+                            settings: [LAYER],
+                        },
+                        {
+                            name: "rectangleFill",
+                            description: "Draws a filled-in rectangle.",
+                            details: "Draws a filled-in rectangle.",
+                            parameters: [
+                                ["x, y", "The integer top left of the rectangle."],
+                                ["width, height", "The integer size of the rectangle."],
+                                ["color", "Hex code for the rectangle fill."],
+                            ],
+                            settings: [LAYER],
+                        },
+                        {
+                            name: "textImage",
+                            description: "Draws pixel font text.",
+                            details: "Draws text using one of the built-in pixel fonts. Each piece of text is drawn once and then saved, so drawing the same text again is fast. Use <code>\\n</code> for new lines. The fonts only have letters, numbers, and <code>!~-.,?[]/:*'\"&gt;&lt;_</code>, and any other character is left as a space.",
+                            parameters: [
+                                ["text", "The text to be drawn."],
+                                ["x, y", "The integer position of the text. Which corner this is depends on <code>alignX</code> and <code>alignY</code>."],
+                                ["color", "Hex code for the text."],
+                                ["font", "The font image to use. This must be <code>\"fonts/marsfont.png\"</code> (5 by 5 pixel letters) or <code>\"fonts/determinationfont.png\"</code> (8 by 13 pixel letters), and the font image must be in your assets folder (see <a href=\"getting-started.html#fonts\">Getting Started</a>)."],
+                            ],
+                            settings: [
+                                LAYER,
+                                ["alignX", "Where the text lines up horizontally: <code>\"left\"</code>, <code>\"center\"</code>, or <code>\"right\"</code>.", "\"left\""],
+                                ["alignY", "Where the text lines up vertically: <code>\"top\"</code>, <code>\"center\"</code>, or <code>\"bottom\"</code>.", "\"top\""],
+                                ["size", "How many pixels each font pixel maps to.", "1"],
+                                ["lineHeight", "The number of pixels between lines.", "1"],
+                                ["letterSpacing", "Adds space between letters. <code>1</code> is normal spacing, and each number above that adds a pixel.", "1"],
+                            ],
+                            returns: "<code>true</code> if the text was drawn, or <code>false</code> if the font hasn't finished loading yet.",
+                        },
+                        {
+                            name: "threeDeeScene",
+                            description: "Draws a threeDeeScene.",
+                            details: "Draws every object in a ThreeDee scene. See the <a href=\"threedee.html\">ThreeDee Module</a>.",
+                            parameters: [
+                                ["threeDeeScene", "The scene to be drawn."],
+                            ],
+                        },
+                        {
+                            name: "translate",
+                            description: "Shifts the screen.",
+                            details: "Shifts everything drawn on a layer afterwards by an amount, like moving a camera. This sets the total shift, so calling <code>translate(10, 0)</code> twice still only shifts by 10. Use <code>translate(0, 0)</code> to go back to normal.",
+                            parameters: [
+                                ["x, y", "How far to shift the layer."],
+                            ],
+                            settings: [LAYER],
+                        },
+                        {
+                            name: "translateX",
+                            description: "Shifts the screen horizontally.",
+                            details: "The same as <code>translate()</code>, but only sets the horizontal shift.",
+                            parameters: [
+                                ["x", "How far to shift the layer horizontally."],
+                            ],
+                            settings: [LAYER],
+                        },
+                        {
+                            name: "translateY",
+                            description: "Shifts the screen vertically.",
+                            details: "The same as <code>translate()</code>, but only sets the vertical shift.",
+                            parameters: [
+                                ["y", "How far to shift the layer vertically."],
+                            ],
+                            settings: [LAYER],
+                        },
+                    ]);
+                </script>
+
+                <h2>Setup Methods</h2>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "preloadAnimation",
+                            description: "Starts loading an animation.",
+                            details: "Starts loading the images an animation uses, so it's ready by the time it's drawn.",
+                            parameters: [
+                                ["animation", "The animation to load."],
+                            ],
+                        },
+                        {
+                            name: "setActiveLayer",
+                            description: "Sets the default draw layer.",
+                            details: "Sets which layer is drawn to when a method isn't given a <code>layer</code> setting. The active layer starts as <code>0</code>.",
+                            parameters: [
+                                ["layer", "An integer defining the canvas to draw to."],
+                            ],
+                        },
+                        {
+                            name: "setBackgroundColor",
+                            description: "Sets the color of the dom body.",
+                            details: "Sets the color of the web page around the game. This starts as black.",
+                            parameters: [
+                                ["color", "Hex code for the page background."],
+                            ],
+                        },
+                    ]);
+                </script>
+
+                <h2>Info Methods</h2>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "findIntersections",
+                            description: "Finds where a row crosses a polygon.",
+                            details: "Finds every x position where a horizontal line crosses the edges of a polygon. This is used by <code>polygonFill()</code>.",
+                            parameters: [
+                                ["points", "An array of points, like <code>Vector</code>s, that each have an <code>x</code> and a <code>y</code>."],
+                                ["y", "The height of the horizontal line."],
+                            ],
+                            returns: "A sorted array of x positions, rounded up.",
+                        },
+                        {
+                            name: "getScreenHeightInArtPixels",
+                            description: "Gets the height of the screen.",
+                        },
+                        {
+                            name: "getScreenWidthInArtPixels",
+                            description: "Gets the width of the screen.",
+                        },
+                        {
+                            name: "getHalfScreenHeightInArtPixels",
+                            description: "Gets the int height of half of the screen.",
+                        },
+                        {
+                            name: "getHalfScreenWidthInArtPixels",
+                            description: "Gets the int width of half of the screen.",
+                        },
+                        {
+                            name: "measureText",
+                            description: "Gets the length of theoretical text.",
+                            details: "Measures how wide the first line of some text would be in a regular browser font. This doesn't measure pixel font text from <code>textImage()</code>.",
+                            parameters: [
+                                ["text", "The text to measure."],
+                            ],
+                            settings: [
+                                ["size", "The font size in pixels.", "5"],
+                                ["font", "The name of the browser font.", "\"Arial\""],
+                            ],
+                            returns: "The width of the text in pixels.",
+                        },
+                    ]);
+                </script>
+
+                <h2 id="animations">Animations</h2>
+
+                <p>Animations are made with the classes <code>MDog.Draw.MultipleFileAnimation</code> and <code>MDog.Draw.SpriteSheetAnimation</code>, and drawn with <code>MDog.Draw.animation()</code>. Every time an animation is drawn it moves forward by one tick, so draw it once per tick.</p>
+
+                <p>The <code>animationSpeed</code> is roughly how many frames are shown per second.</p>
+
+                <pre><code>const run = new MDog.Draw.SpriteSheetAnimation("player/run.png", 6, 10, 16);
+
+function main() {
+    MDog.Draw.clear();
+    MDog.Draw.animation(run, 100, 100);
+}</code></pre>
+
+                <h3>Constructors</h3>
+
+                <script>
+                    const FRAMES = ["frames", "The number of frames. This can also be an array of frame numbers (starting at 0) to play them in a custom order, like <code>[0, 1, 2, 1]</code>."];
+                    const ANIMATION_SPEED = ["animationSpeed", "How fast the animation plays, in roughly frames per second."];
+
+                    methodsTable([
+                        {
+                            name: "new MultipleFileAnimation",
+                            description: "Makes an animation from many images.",
+                            details: "Makes an animation where every frame is its own image file.",
+                            parameters: [
+                                ["fileName", "The name of the frame files, with a <code>?</code> where the frame number goes. Frame numbers start at 1, so <code>\"player/run_?.png\"</code> uses <code>run_1.png</code>, <code>run_2.png</code>, and so on."],
+                                FRAMES,
+                                ANIMATION_SPEED,
+                            ],
+                        },
+                        {
+                            name: "new SpriteSheetAnimation",
+                            description: "Makes an animation from a sprite sheet.",
+                            details: "Makes an animation where every frame is side by side in one image, from left to right.",
+                            parameters: [
+                                ["fileName", "The name of the sprite sheet image."],
+                                FRAMES,
+                                ANIMATION_SPEED,
+                                ["spriteWidth", "The width of each frame in pixels."],
+                            ],
+                        },
+                    ]);
+                </script>
+
+                <h3>Animation Methods</h3>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "getFrame",
+                            description: "Gets the current frame.",
+                            details: "Gets the frame number being shown right now, starting at 0. If the animation was given a custom frame order, this is the frame from that order.",
+                        },
+                        {
+                            name: "getRawFrame",
+                            description: "Gets how many frames have passed.",
+                            details: "Gets how many frames have been shown since the animation started, without looping back to the start. This is useful for checking if an animation has finished playing once.",
+                        },
+                        {
+                            name: "reset",
+                            description: "Restarts the animation.",
+                        },
+                        {
+                            name: "getImage",
+                            description: "Gets a frame's file name.",
+                            details: "Gets the file name of a frame. This is only on <code>MultipleFileAnimation</code>s.",
+                            parameters: [
+                                ["frame?", "Which frame to get the file name of. If no frame is given, the current frame is used."],
+                            ],
+                            returns: "The file name of the frame.",
+                        },
+                    ]);
+                </script>
+
+                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>

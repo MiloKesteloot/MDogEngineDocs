@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ThreeDee Module - MDog Engine Docs</title>
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <script src="build-tables.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">ThreeDee</div>
+
+                <h1>ThreeDee Module</h1>
+
+                <p>The ThreeDee Module draws simple flat shapes with perspective, for retro pseudo-3D effects like roads, hallways, and floors.</p>
+
+                <p>Objects are added to a <code>ThreeDeeScene</code>, which has a <code>Camera</code>, and the scene is drawn with <code>MDog.Draw.threeDeeScene()</code>. Objects are drawn in the order they were added, so add the farthest objects first.</p>
+
+                <p>The camera looks forward along z, so objects need a larger z than the camera to be seen. Like the rest of the screen, y goes down. The center of the view is in the middle of the screen horizontally, and a quarter of the way down vertically.</p>
+
+                <pre><code>const scene = new MDog.ThreeDee.ThreeDeeScene(new MDog.ThreeDee.Camera(0, 0, 0, 100));
+scene.addObject(new MDog.ThreeDee.ThreeDeeFloor(10, 5, 40, "#336633"));
+scene.addObject(new MDog.ThreeDee.ThreeDeeRectangle(20, -5, -5, 5, 5, "#aa3333"));
+
+function main() {
+    MDog.Draw.clear();
+    MDog.Draw.threeDeeScene(scene);
+}</code></pre>
+
+                <p>The ThreeDee Module's classes can be accessed with <code>new MDog.ThreeDee.ClassName()</code>.</p>
+
+                <h2>ThreeDeeScene</h2>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new ThreeDeeScene",
+                            description: "Makes a new scene.",
+                            parameters: [
+                                ["camera?", "The camera to view the scene from. If no camera is given, one is made at <code>(0, 0, 0)</code> with an fov of <code>10</code>."],
+                            ],
+                        },
+                        {
+                            name: "addObject",
+                            description: "Adds an object to the scene.",
+                            parameters: [
+                                ["object", "The ThreeDee object to add."],
+                            ],
+                        },
+                        {
+                            name: "getCamera",
+                            description: "Gets the scene's camera.",
+                        },
+                        {
+                            name: "threeDeeToTwoDee",
+                            description: "Turns a 3D position into a screen position.",
+                            details: "Finds where a 3D position would be drawn on the screen.",
+                            parameters: [
+                                ["Draw", "The Draw Module, <code>MDog.Draw</code>."],
+                                ["vector3_or_x, y?, z?", "Either a <code>Vector3</code>, or an <code>x</code>, <code>y</code>, and <code>z</code>."],
+                            ],
+                            returns: "A <code>Vector</code> of the screen position.",
+                        },
+                        {
+                            name: "threeDeeToTwoDeeVector3",
+                            description: "Turns a Vector3 into a screen position.",
+                            details: "The same as <code>threeDeeToTwoDee()</code>, but only takes a <code>Vector3</code>.",
+                            parameters: [
+                                ["Draw", "The Draw Module, <code>MDog.Draw</code>."],
+                                ["vector3", "The 3D position."],
+                            ],
+                            returns: "A <code>Vector</code> of the screen position.",
+                        },
+                    ]);
+                </script>
+
+                <h2>Camera</h2>
+
+                <p>The camera can be moved by changing its <code>position</code>, which is a <code>Vector3</code>, like <code>camera.position.z += 1</code>.</p>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new Camera",
+                            description: "Makes a new camera.",
+                            parameters: [
+                                ["x, y, z", "The position of the camera."],
+                                ["fov", "How zoomed in the camera is. Bigger numbers make everything look bigger."],
+                            ],
+                        },
+                        {
+                            name: "getX",
+                            description: "Gets the x position.",
+                        },
+                        {
+                            name: "getY",
+                            description: "Gets the y position.",
+                        },
+                        {
+                            name: "getZ",
+                            description: "Gets the z position.",
+                        },
+                        {
+                            name: "getFov",
+                            description: "Gets the fov.",
+                        },
+                    ]);
+                </script>
+
+                <h2>Objects</h2>
+
+                <p>Every object has a <code>getScene()</code> method, which gets the scene it was added to.</p>
+
+                <script>
+                    const STROKE = ["stroke", "Hex code for the outline.", "\"transparent\""];
+
+                    methodsTable([
+                        {
+                            name: "new ThreeDeeRectangle",
+                            description: "Makes a rectangle facing the camera.",
+                            details: "Makes a flat rectangle that faces the camera, like a wall straight ahead.",
+                            parameters: [
+                                ["z", "How far away the rectangle is."],
+                                ["x1, y1", "The top left corner."],
+                                ["x2, y2", "The bottom right corner."],
+                                ["color", "Hex code for the rectangle fill."],
+                            ],
+                            settings: [STROKE],
+                        },
+                        {
+                            name: "new ThreeDeeFloor",
+                            description: "Makes a floor.",
+                            details: "Makes a flat floor that goes across the whole width of the screen.",
+                            parameters: [
+                                ["y", "The height of the floor."],
+                                ["z1", "Where the floor starts, farthest from the camera."],
+                                ["z2", "Where the floor ends, closest to the camera."],
+                                ["color", "Hex code for the floor fill."],
+                            ],
+                            settings: [STROKE],
+                        },
+                        {
+                            name: "new ThreeDeeShape",
+                            description: "Makes a polygon.",
+                            details: "Makes a filled-in polygon from 3D points.",
+                            parameters: [
+                                ["points", "An array of <code>Vector3</code>s."],
+                                ["color", "Hex code for the shape fill. Use <code>\"transparent\"</code> to only draw the outline."],
+                            ],
+                            settings: [STROKE],
+                        },
+                        {
+                            name: "new ThreeDeeImage",
+                            description: "Makes an image.",
+                            details: "Makes an image placed in 3D. The image is drawn at its normal size and doesn't get smaller with distance.",
+                            parameters: [
+                                ["x, y, z", "The position of the top middle of the image."],
+                                ["path", "The name of the image file. This is auto-prefixed with \"assets/\"."],
+                                ["width, height", "How much of the image to draw, in pixels."],
+                            ],
+                        },
+                    ]);
+                </script>
+
+                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>

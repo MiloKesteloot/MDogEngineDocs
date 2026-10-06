@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Basics Module - MDog Engine Docs</title>
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <script src="build-tables.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Basics</div>
+
+                <h1>Basics Module</h1>
+
+                <p>The Basics Module contains ready-made pieces that lots of games need. Right now that's the <code>SquareKickbox</code>.</p>
+
+                <p>The Basics Module's classes can be accessed with <code>new MDog.Basics.ClassName()</code>.</p>
+
+                <h2>SquareKickbox</h2>
+
+                <p>A <code>SquareKickbox</code> is a rectangle hitbox for checking collisions. It's attached to a position <code>Vector</code>, so when the vector moves the kickbox moves with it. The corners are offsets from that position, so the kickbox can be a different size than the sprite.</p>
+
+                <pre><code>const position = new MDog.Math.Vector(50, 50);
+const hitbox = new MDog.Basics.SquareKickbox(position, 2, 0, 14, 16);
+
+position.add(1, 0); // The hitbox moves too
+
+if (hitbox.colliding(enemyHitbox)) {
+    ...
+}</code></pre>
+
+                <h3>Constructor</h3>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new SquareKickbox",
+                            description: "Makes a new kickbox.",
+                            parameters: [
+                                ["vector", "The position <code>Vector</code> the kickbox is attached to."],
+                                ["x1, y1", "The top left corner, as an offset from the position."],
+                                ["x2, y2", "The bottom right corner, as an offset from the position. This corner is just outside of the kickbox, so <code>(0, 0, 16, 16)</code> is 16 pixels wide."],
+                            ],
+                        },
+                    ]);
+                </script>
+
+                <h3>Collision Methods</h3>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "colliding",
+                            description: "Checks if two kickboxes overlap.",
+                            parameters: [
+                                ["otherKickbox", "The other kickbox."],
+                            ],
+                            returns: "<code>true</code> if the kickboxes overlap.",
+                        },
+                    ]);
+                </script>
+
+                <h3>Info Methods</h3>
+
+                <p>Positions are whole pixels on screen. The position vector is rounded down first.</p>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "getLeftX",
+                            description: "Gets the x of the left edge.",
+                        },
+                        {
+                            name: "getRightX",
+                            description: "Gets the x of the right edge.",
+                            details: "Gets the x of the right-most pixel inside the kickbox.",
+                        },
+                        {
+                            name: "getTopY",
+                            description: "Gets the y of the top edge.",
+                        },
+                        {
+                            name: "getBottomY",
+                            description: "Gets the y of the bottom edge.",
+                            details: "Gets the y of the bottom-most pixel inside the kickbox.",
+                        },
+                        {
+                            name: "getMiddleX",
+                            description: "Gets the x of the middle.",
+                        },
+                        {
+                            name: "getMiddleY",
+                            description: "Gets the y of the middle.",
+                        },
+                        {
+                            name: "getMiddleOffsetX",
+                            description: "Gets the x of the middle, from the position.",
+                            details: "Gets the x of the middle of the kickbox as an offset from the position vector.",
+                        },
+                        {
+                            name: "getMiddleOffsetY",
+                            description: "Gets the y of the middle, from the position.",
+                            details: "Gets the y of the middle of the kickbox as an offset from the position vector.",
+                        },
+                        {
+                            name: "getWidth",
+                            description: "Gets the width.",
+                        },
+                        {
+                            name: "getHeight",
+                            description: "Gets the height.",
+                        },
+                        {
+                            name: "getX",
+                            description: "Gets an x near the kickbox's edges.",
+                            details: "Gets one of four x positions near the kickbox's left and right edges. These are useful for checking the pixels just outside a kickbox, like to see if a wall is next to it.",
+                            parameters: [
+                                ["index", "<code>0</code> is just outside the left edge, <code>1</code> is the left edge, <code>2</code> is the right edge, and <code>3</code> is just outside the right edge."],
+                            ],
+                        },
+                        {
+                            name: "getY",
+                            description: "Gets a y near the kickbox's edges.",
+                            details: "Gets one of four y positions near the kickbox's top and bottom edges. These are useful for checking the pixels just outside a kickbox, like to see if the ground is under it.",
+                            parameters: [
+                                ["index", "<code>0</code> is just above the top edge, <code>1</code> is the top edge, <code>2</code> is the bottom edge, and <code>3</code> is just below the bottom edge."],
+                            ],
+                        },
+                    ]);
+                </script>
+
+                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>

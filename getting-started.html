@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Getting Started - MDog Engine Docs</title>
+    <link rel="stylesheet" type="text/css" href="screen.css">
+</head>
+<body>
+    <div class="screen">
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Getting Started</div>
+
+                <h1>Getting Started</h1>
+
+                <p>This page walks through making a small game where you move a square around with the arrow keys. You don't need to download MDog Engine, since your game imports it from the web.</p>
+
+                <h2>1. Make the Project</h2>
+
+                <p>Make a new folder for your game, with these files in it:</p>
+
+                <pre><code>my-game/
+    index.html
+    game.js
+    assets/</code></pre>
+
+                <p>The <code>assets</code> folder is where your images and other files go. Whenever MDog Engine asks for a file name, it looks inside this folder.</p>
+
+                <h2>2. Make the Web Page</h2>
+
+                <p>Put this in <code>index.html</code>. It loads <code>game.js</code> as a module, and centers the game in the window.</p>
+
+                <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;My Game&lt;/title&gt;
+&lt;/head&gt;
+&lt;body style="margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;"&gt;
+    &lt;script type="module" src="game.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+                <h2>3. Write the Game</h2>
+
+                <p>Put this in <code>game.js</code>.</p>
+
+                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.0.0/MDogModules/MDogMain.js";
+
+const position = new MDog.Math.Vector(256, 192);
+
+function main() {
+    // Move with the arrow keys
+    if (MDog.Input.Keyboard.isDown("ArrowLeft")) {
+        position.add(-1, 0);
+    }
+    if (MDog.Input.Keyboard.isDown("ArrowRight")) {
+        position.add(1, 0);
+    }
+    if (MDog.Input.Keyboard.isDown("ArrowUp")) {
+        position.add(0, -1);
+    }
+    if (MDog.Input.Keyboard.isDown("ArrowDown")) {
+        position.add(0, 1);
+    }
+
+    // Draw
+    MDog.Draw.clear({color: "#1c1c3c"});
+    MDog.Draw.rectangleFill(position.x - 8, position.y - 8, 16, 16, "#ff8800");
+}
+
+MDog.setActiveFunction(main);</code></pre>
+
+                <p>Here's what's happening:</p>
+
+                <ul>
+                    <li>The <code>import</code> line loads MDog Engine and makes the game screen.</li>
+                    <li><code>MDog.setActiveFunction(main)</code> tells MDog Engine to run <code>main</code> 160 times per second. Each run is called a "tick." See <a href="core.html">Core</a>.</li>
+                    <li>Every tick, the game checks the arrow keys with the <a href="input.html">Input Module</a>, clears the screen, and draws the square with the <a href="draw.html">Draw Module</a>.</li>
+                </ul>
+
+                <h2>4. Run the Game</h2>
+
+                <p>Browsers won't run modules from a file opened straight off your computer, so the game needs to be opened through a local web server. Any of these work:</p>
+
+                <ul>
+                    <li>The <a href="https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer">Live Server</a> extension for VS Code. Right click <code>index.html</code> and pick "Open with Live Server."</li>
+                    <li>Opening <code>index.html</code> from WebStorm or another JetBrains editor.</li>
+                    <li>Running <code>npx serve</code> or <code>python -m http.server</code> in the game's folder, then going to the address it prints.</li>
+                </ul>
+
+                <p>You should see an orange square you can move around with the arrow keys.</p>
+
+                <h2>5. Add an Image</h2>
+
+                <p>Put an image in your <code>assets</code> folder, like <code>assets/player.png</code>, and draw it instead of the square:</p>
+
+                <pre><code>MDog.Draw.image("player.png", position.x - 8, position.y - 8);</code></pre>
+
+                <p>Images load the first time they're drawn, so it's normal for an image to be missing for the first moment of the game.</p>
+
+                <h2 id="fonts">6. Add Text</h2>
+
+                <p>MDog Engine draws text with pixel fonts, which are images in your assets folder. Download one or both of the font images and put them in <code>assets/fonts/</code>:</p>
+
+                <ul>
+                    <li><a href="https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.0.0/assets/fonts/marsfont.png"><code>marsfont.png</code></a> - A small 5 by 5 pixel font.</li>
+                    <li><a href="https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.0.0/assets/fonts/determinationfont.png"><code>determinationfont.png</code></a> - A larger 8 by 13 pixel font.</li>
+                </ul>
+
+                <p>Then draw text with <code>textImage()</code>:</p>
+
+                <pre><code>MDog.Draw.textImage("Hello world!", 256, 20, "#ffffff", "fonts/marsfont.png", {alignX: "center", size: 2});</code></pre>
+
+                <h2>7. Share It</h2>
+
+                <p>Since the game is just a web page, it can be put online anywhere that hosts web pages, like <a href="https://pages.github.com/">GitHub Pages</a>.</p>
+
+                <h2>Tips</h2>
+
+                <ul>
+                    <li>To have the game fill the whole window, add <code>?fullscreen=true</code> to the end of the URL.</li>
+                    <li>The <code>@v1.0.0</code> in the import is the version of MDog Engine. Keeping it means your game won't change when MDog Engine is updated.</li>
+                    <li>Every module's methods are listed under Code in the sidebar.</li>
+                </ul>
+
+                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Core - MDog Engine Docs</title>
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <script src="build-tables.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Core</div>
+
+                <h1>Core</h1>
+
+                <p><code>MDog</code> is the object you get when you import MDog Engine. It runs the game loop, and holds every module.</p>
+
+                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.0.0/MDogModules/MDogMain.js";</code></pre>
+
+                <h2>The Game Loop</h2>
+
+                <p>Your game is one function, called the "active function." MDog Engine calls the active function 160 times per second, and each call is called a "tick." Ticks happen at the same speed no matter how fast the player's screen refreshes, so a game can move things by a set amount every tick instead of using <code>deltaTime()</code>.</p>
+
+                <p>After the ticks for a frame are done, every layer is drawn to the screen.</p>
+
+                <p>If the game falls more than 100 ticks behind, like when the browser tab was hidden, the missed ticks are skipped instead of all running at once.</p>
+
+                <h2>Core Methods</h2>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "setActiveFunction",
+                            description: "Sets the function that runs every tick.",
+                            details: "Sets the function that runs every tick. This can be called again at any time to switch to a different function, like going from a title screen to the game.",
+                            parameters: [
+                                ["activeFunction", "The function to run every tick."],
+                            ],
+                        },
+                    ]);
+                </script>
+
+                <h2>Properties</h2>
+
+                <table class="methods-grid">
+                    <tr>
+                        <th>Property</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr class="no-dropdown">
+                        <td><code>ticksPerSecond</code></td>
+                        <td>How many times per second the active function runs. Defaults to <code>160</code>.</td>
+                    </tr>
+                    <tr class="dropdown-tr"></tr>
+                </table>
+
+                <h2>Modules</h2>
+
+                <table class="methods-grid">
+                    <tr>
+                        <th>Module</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr class="no-dropdown">
+                        <td><a href="draw.html"><code>MDog.Draw</code></a></td>
+                        <td>Shapes, images, text, animations, and layers.</td>
+                    </tr>
+                    <tr class="dropdown-tr"></tr>
+                    <tr class="no-dropdown">
+                        <td><a href="input.html"><code>MDog.Input</code></a></td>
+                        <td>The keyboard and mouse.</td>
+                    </tr>
+                    <tr class="dropdown-tr"></tr>
+                    <tr class="no-dropdown">
+                        <td><a href="math.html"><code>MDog.Math</code></a></td>
+                        <td>Math helpers, <code>Vector</code>, and <code>Vector3</code>.</td>
+                    </tr>
+                    <tr class="dropdown-tr"></tr>
+                    <tr class="no-dropdown">
+                        <td><a href="ui.html"><code>MDog.UI</code></a></td>
+                        <td>Pages, tilemaps, and grids.</td>
+                    </tr>
+                    <tr class="dropdown-tr"></tr>
+                    <tr class="no-dropdown">
+                        <td><a href="fx.html"><code>MDog.FX</code></a></td>
+                        <td>Particles.</td>
+                    </tr>
+                    <tr class="dropdown-tr"></tr>
+                    <tr class="no-dropdown">
+                        <td><a href="threedee.html"><code>MDog.ThreeDee</code></a></td>
+                        <td>Simple pseudo-3D scenes.</td>
+                    </tr>
+                    <tr class="dropdown-tr"></tr>
+                    <tr class="no-dropdown">
+                        <td><a href="asset-manager.html"><code>MDog.AssetManager</code></a></td>
+                        <td>Loading text files.</td>
+                    </tr>
+                    <tr class="dropdown-tr"></tr>
+                    <tr class="no-dropdown">
+                        <td><a href="basics.html"><code>MDog.Basics</code></a></td>
+                        <td>Hitboxes.</td>
+                    </tr>
+                    <tr class="dropdown-tr"></tr>
+                </table>
+
+                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>

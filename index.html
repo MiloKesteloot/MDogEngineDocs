@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>What is MDog Engine? - MDog Engine Docs</title>
     <link rel="stylesheet" type="text/css" href="screen.css">
 </head>
 <body>
@@ -10,261 +10,48 @@
         <div class="page-centerer">
             <div class="page">
 
-                <div class="breadcrums">Draw</div>
+                <div class="breadcrums">What is MDog Engine?</div>
 
-                <h1>Draw Module</h1>
+                <h1>What is MDog Engine?</h1>
 
-                <div class="info-box info-box-blue">
-                    <i class="fa-solid fa-circle-info"></i>Page still in progress.
-                </div>
+                <p>MDog Engine is a retro, web-based game engine designed for quick production of games. Games are written in JavaScript and run right in the browser, so they can be shared with just a link.</p>
 
-                <p>The Draw Module contains everything you need to set the pixels on the screen. This includes shapes, images, particles, and more.</p>
+                <p>Everything is drawn with crisp, square pixels on a 512 by 384 pixel screen, which is scaled up to fit the browser window.</p>
 
-                <p>The Draw Module creates multiple canvases called "Layers." At the end of every frame, all of the Layers are combined and drawn to the screen.</p>
+                <h2>Features</h2>
 
-                <p>The draw Module can be accessed with <code>MDog.Draw.method()</code>.</p>
+                <ul>
+                    <li>Shapes, images, sprite sheet animations, pixel font text, and layers with the <a href="draw.html">Draw Module</a>.</li>
+                    <li>Keyboard and mouse input with the <a href="input.html">Input Module</a>.</li>
+                    <li>2D and 3D vectors with the <a href="math.html">Math Module</a>.</li>
+                    <li>Tilemaps and grids with the <a href="ui.html">UI Module</a>.</li>
+                    <li>Particle effects with the <a href="fx.html">FX Module</a>.</li>
+                    <li>Retro pseudo-3D scenes with the <a href="threedee.html">ThreeDee Module</a>.</li>
+                    <li>Hitboxes with the <a href="basics.html">Basics Module</a>.</li>
+                    <li>A fixed speed game loop, so games run the same on every screen.</li>
+                </ul>
 
+                <h2>How it Works</h2>
 
-    <!--            animation, preloadAnimation-->
+                <p>There's nothing to install. Your game imports MDog Engine straight from the web, gives it a function to run every tick, and uses the modules inside it to draw and read input. Your game's code and art stay in your own project.</p>
 
-                $METHODS
+                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.0.0/MDogModules/MDogMain.js";
 
-                <table class="methods-grid" id="test">
-<!--
-METHOD
-circle - Draws a circle. - Draws a circle using a distance method.
-    PERAMS
-    x, y - The integer center of the drawn circle.
-    radius - The integer radius of the drawn circle.
-    color - Hex code for the circle fill.
-    SETTINGS
-    layer - An integer defining the canvas to draw to. If the layer has never been drawn to, a new canvas will be created. - 0
-METHOD
-clear - Clears the screen/layer to a color. - Clears the screen (or specific layer) to a color.
-    SETTINGS
-    color - Hex code for background clear. - 0
-    layer - An integer defining the canvas to draw to clear. If no layer is given, all layers will be cleared. - #000000
-METHOD
-image - Draws an image. - Draws a pixelated image.
-    PERAMS
-    fileName - The name of the file to be drawn. This is auto-prefixed with "assets/".
-    x, y - The integer top left of the image.
-    SETTINGS
-    layer - The canvas to draw to. If the layer specified layer has never been drawn to, a new canvas will be created. - 0
-    scale - How many pixels each image pixel maps to. - 1
-    scaleX - How horizontally stretched the image should be. - 1
-    scaleY - How vertically stretched the image should be. - 1
-    offsetX - A horizontal shift in the image, cropping the left side. - 0
-    offsetY - A vertical shift in the image, cropping the top side. - 0
-    width - How many pixels should be drawn horizontally. - image.width
-    height - How many pixels should be drawn vertically. - image.height
-    flipX - Flip the image horizontally - false
-    flipY - Flip the image vertically - false
--->
-                </table>
+function main() {
+    MDog.Draw.clear();
+    MDog.Draw.circle(256, 192, 20, "#ff0000");
+}
 
-                <h2>Drawing Methods</h2>
+MDog.setActiveFunction(main);</code></pre>
 
-                <table class="methods-grid">
+                <p>To make your first game, see <a href="getting-started.html">Getting Started</a>.</p>
 
-                    <tr>
-                        <th>Method</th>
-                        <th>Description</th>
-                    </tr>
+                <h2>Example Games</h2>
 
-                    <tr class="has-dropdown">
-                        <td>
-                            <label>
-                            <input type="checkbox">
-                            <code>circle(x, y, radius, color, <span class="optional">settings</span>)</code>
-                            </label>
-                        </td>
-                        <td>Draws a circle.</td>
-                    </tr>
-
-                    <tr class="dropdown-tr">
-                        <td colspan="2" class="method-info">
-                            Draws a circle using a distance method.<br>
-                            <br>
-                            <b>Parameters:</b><br>
-                            <code class="outline">x</code>, <code class="outline">y</code>: The integer center of the drawn circle.<br>
-                            <code class="outline">radius</code>: The integer radius of the drawn circle.<br>
-                            <code class="outline">color</code>: Hex code for the circle fill.<br>
-                            <br>
-                            <b>Settings (optional):</b><br>
-                            <code class="outline">layer</code> - An integer defining the canvas to draw to. If the layer has never been drawn to, a new canvas will be created. Default: <code>0</code>.
-                        </td>
-                    </tr>
-
-                    <tr class="has-dropdown">
-                        <td>
-                            <label>
-                                <input type="checkbox">
-                                <code>clear(<span class="optional">settings</span>)</code>
-                            </label>
-                        </td>
-                        <td>Clears the screen/layer to a color.</td>
-                    </tr>
-
-                    <tr class="dropdown-tr">
-                        <td colspan="2" class="method-info">
-                            Clears the screen (or specific layer) to a color (black by default).<br>
-                            <br>
-                            <b>Settings (optional):</b><br>
-                            <code class="outline">color</code> - Hex code for background clear.<br>
-                            <code class="outline">layer</code> - An integer defining the canvas to draw to clear. If no layer is given, all layers will be cleared.</td>
-                    </tr>
-
-                    <tr class="has-dropdown">
-                        <td>
-                            <label>
-                                <input type="checkbox">
-                                <code>image(fileName, x, y, <span class="optional">settings</span>)</code>
-                            </label>
-                        </td>
-                        <td>Draws an image.</td>
-                    </tr>
-
-                    <tr class="dropdown-tr">
-                        <td colspan="2" class="method-info">
-                            Draws an image.<br>
-                            <br>
-                            <!-- // Perams: layer, scale, scaleX, scaleY, offsetX, offsetY, width, height, flipX, flipY-->
-                            <b>Parameters:</b><br>
-                            <code class="outline">fileName</code> The name of the file to be drawn. This is auto-prefixed with "assets/".<br>
-                            <code class="outline">x</code>, <code class="outline">y</code>: The integer top left of the image.<br>
-                            <br>
-                            <b>Settings (optional):</b><br>
-                            <code class="outline">layer</code> - The canvas to draw to. If the layer specified layer has never been drawn to, a new canvas will be created. Default: <code>0</code>.<br>
-                            <code class="outline">scale</code> - How many pixels each image pixel maps to. Default: <code>1</code>.<br>
-                            <code class="outline">scaleX</code> - How horizontally stretched the image should be. Default: <code>this.scale</code>.<br>
-                            <code class="outline">scaleY</code> - How vertically stretched the image should be. Default: <code>this.scale</code>.<br>
-                            <code class="outline">offsetX</code> - A horizontal offset into the image of where to crop. Default: <code>0</code>.<br>
-                            <code class="outline">offsetY</code> - A vertical offset into the image of where to crop. Default: <code>0</code>.<br>
-                            <code class="outline">width</code> - The width of the image relative to <code>this.offsetX</code>. Default: <code>image.width</code>.<br>
-                            <code class="outline">height</code> - The height of the image relative to <code>this.offsetY</code>. Default: <code>image.height</code>.<br>
-                            <code class="outline">flipX</code> - An integer defining the canvas to draw to. If the layer specified layer has never been drawn to, a new canvas will be created. Default: <code>0</code>.<br>
-                            <code class="outline">flipY</code> - An integer defining the canvas to draw to. If the layer specified layer has never been drawn to, a new canvas will be created. Default: <code>0</code>.
-                        </td>
-                    </tr>
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>interactable(interactable)</code></td>-->
-<!--                        <td>Draws an interactable.</td> &lt;!&ndash; TODO make this a link &ndash;&gt;-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>line(x1, y1, x2, y2, color, <span class="optional">settings</span>)</code></td>-->
-<!--                        <td>Draws a line.</td>-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>particleSystem(particleSystem)</code></td>-->
-<!--                        <td>Draws a particle system.</td> &lt;!&ndash; TODO make this a link &ndash;&gt;-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>point(x, y, color, <span class="optional">settings</span>)</code></td>-->
-<!--                        <td>Sets a pixel.</td>-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>polygon(points, color, <span class="optional">settings</span>)</code></td>-->
-<!--                        <td>Draws the outline of a polygon.</td>-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>polygonFill(points, color, <span class="optional">settings</span>)</code></td>-->
-<!--                        <td>Draws a filled polygon.</td>-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>rectangle(x, y, width, height, color, <span class="optional">settings</span>)</code></td>-->
-<!--                        <td>Draws the outline of a rectangle.</td>-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>rectangleFill(x, y, width, height, color, <span class="optional">settings</span>)</code></td>-->
-<!--                        <td>Draws a filled-in rectangle.</td>-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>setActiveLayer(layer)</code></td>-->
-<!--                        <td>Sets the default draw layer.</td>-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>text(x, y, text, color, <span class="optional">settings</span>)</code></td>-->
-<!--                        <td>Draws text.</td>-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>threeDeeScene(threeDeeScene)</code></td>-->
-<!--                        <td>Draws a threeDeeScene.</td> &lt;!&ndash; TODO make this a link &ndash;&gt;-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>translate(x, y, <span class="optional">settings</span>)</code></td>-->
-<!--                        <td>Shifts the screen.</td>-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>translateX(x, <span class="optional">settings</span>)</code></td>-->
-<!--                        <td>Shifts the screen horizontally.</td>-->
-<!--                    </tr>-->
-
-<!--                    <tr class="has-dropdown">-->
-<!--                        <td><code>translateY(y, <span class="optional">settings</span>)</code></td>-->
-<!--                        <td>Shifts the screen vertically.</td>-->
-<!--                    </tr>-->
-                </table>
-
-                <h2>Setup Functions</h2>
-
-                <table class="methods-grid">
-                    <tr>
-                        <th>Method</th>
-                        <th>Description</th>
-                    </tr>
-                    <tr>
-                        <td><code>loadFont(fontName, fontURL)</code></td>
-                        <td>Adds a custom font.</td>
-                    </tr>
-                    <tr>
-                        <td><code>setBackgroundColor(color)</code></td>
-                        <td>Sets the color of the dom body.</td>
-                    </tr>
-                </table>
-
-                <h2>Info Methods</h2>
-
-
-                <table class="methods-grid">
-                    <tr>
-                        <th>Method</th>
-                        <th>Description</th>
-                    </tr>
-                    <tr>
-                        <td><code>getScreenHeightInArtPixels()</code></td>
-                        <td>Gets the height of the screen.</td>
-                    </tr>
-                    <tr>
-                        <td><code>getScreenWidthInArtPixels()</code></td>
-                        <td>Gets the width of the screen.</td>
-                    </tr>
-                    <tr>
-                        <td><code>getHalfScreenHeightInArtPixels()</code></td>
-                        <td>Gets the int height of half of the screen.</td>
-                    </tr>
-                    <tr>
-                        <td><code>getHalfScreenWidthInArtPixels()</code></td>
-                        <td>Gets the int width of half of the screen.</td>
-                    </tr>
-                    <tr>
-                        <td><code>measureText(text, <span class="optional">settings</span>)</code></td>
-                        <td>Gets the length of theoretical text.</td>
-                    </tr>
-                </table>
+                <ul>
+                    <li><a href="https://www.milo.games/projects/cattale">Cat Tale</a> - Cat Tale is an Undertale fan battle made in MDog Engine.</li>
+                    <li><a href="https://www.milo.games/projects/modern-forest">Modern Forest</a> - Modern Forest is a time-trial platformer made in MDog Engine.</li>
+                </ul>
 
                 <div class="copyright">Copyright © 2024. All rights reserved.</div>
 
@@ -275,6 +62,5 @@ image - Draws an image. - Draws a pixelated image.
 
     <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
     <script src="sidebar.js"></script>
-    <script src="build-tables.js"></script>
 </body>
 </html>

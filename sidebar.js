@@ -2,9 +2,6 @@ let screen = document.body.getElementsByClassName("screen")[0];
 
 document.addEventListener("DOMContentLoaded", function() {
 
-
-
-
     // Create a new XMLHttpRequest object
     let xhr = new XMLHttpRequest();
 
@@ -23,31 +20,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 let div = document.createElement('div');
                 div.innerHTML = sidebarContent;
-                let body = div.getElementsByClassName("sidebar-container")[0];
+                let sidebar = div.getElementsByClassName("sidebar-container")[0];
 
-                // Get a NodeList of all script elements in the body
-                let scripts = body.querySelectorAll('script');
+                // Insert the sidebar without rewriting the page, so the generated tables and their checkboxes stay as they are
+                screen.insertAdjacentElement("afterbegin", sidebar);
 
-                // Iterate through each script element
-                scripts.forEach(function(script) {
-                    // Remove the script element from the DOM
-                    script.parentNode.removeChild(script);
-
-                    document.head.appendChild(script);
-                });
-
-                // Create a new script element
-                let script = document.createElement('script');
-// Set the script content (your script code)
-                script.innerHTML = "console.log('Script executed!')";
-// Append the script element to the document's head or body
-                document.head.appendChild(script);
-
-                body = body.outerHTML;
-                screen.innerHTML = body + screen.innerHTML;
-
-                // Do whatever you want with the sidebarContent here
-                // console.log(sidebarContent);
+                highlightCurrentPage(sidebar);
             } else {
                 // If there's an error, log the error message
                 console.error("Error fetching sidebar content: " + xhr.status);
@@ -58,3 +36,26 @@ document.addEventListener("DOMContentLoaded", function() {
     // Send the request
     xhr.send();
 });
+
+// Highlights the link to the page we're on, and opens the dropdowns it's inside of
+function highlightCurrentPage(sidebar) {
+    let page = window.location.pathname.split("/").pop();
+    if (page === "") {
+        page = "index.html";
+    }
+
+    const links = sidebar.querySelectorAll("a.navbar-title");
+    for (const link of links) {
+        if (link.getAttribute("href") !== page) {
+            continue;
+        }
+
+        link.classList.add("active");
+
+        let dropdown = link.parentElement.closest(".navbar-dropdown");
+        while (dropdown) {
+            dropdown.querySelector(":scope > .navbar-title > input[type=checkbox]").checked = true;
+            dropdown = dropdown.parentElement.closest(".navbar-dropdown");
+        }
+    }
+}

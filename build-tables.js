@@ -1,22 +1,39 @@
+// Builds the method tables on each page.
+//
+// Put a script tag where a table should go, and call methodsTable with a list of methods:
+//
+// <script>
+//     methodsTable([
+//         {
+//             name: "circle",
+//             description: "Draws a circle.",
+//             details: "Draws a circle using a distance method.",
+//             parameters: [
+//                 ["x, y", "The integer center of the drawn circle."],
+//                 ["button?", "Names ending in ? are shown as optional."],
+//             ],
+//             settings: [
+//                 ["layer", "An integer defining the canvas to draw to.", "0"],
+//             ],
+//             returns: "What the method gives back.",
+//         },
+//     ]);
+// </script>
+//
+// Everything but name and description is optional. Strings can contain HTML.
+// A method with no details, parameters, settings, or returns gets a row without a dropdown.
+
 class MethodsGrid {
 
-    name;
     methods = [];
 
-    constructor(name) {
-        this.name = name;
-    }
-
-    addMethod(method) {
-        this.methods.push(method);
+    constructor(methods) {
+        this.methods = methods.map(method => new Method(method));
     }
 
     generateHTML() {
-        let s = `<h2>$NAME</h2><table class="methods-grid">`;
-
-        s = s.replace("$NAME", this.name);
-
-        s += `<tr>
+        let s = `<table class="methods-grid">
+                    <tr>
                         <th>Method</th>
                         <th>Description</th>
                     </tr>`;
@@ -35,101 +52,92 @@ class Method {
 
     name;
     description;
-    longDescription;
+    details;
     parameters = [];
     settings = [];
+    returns;
 
-    constructor(name, description, longDescription) {
-        this.name = name;
-        this.description = description;
-        this.longDescription = longDescription;
+    constructor(data) {
+        this.name = data.name;
+        this.description = data.description;
+        this.details = data.details;
+        this.parameters = (data.parameters ?? []).map(p => new Parameter(p[0], p[1]));
+        this.settings = (data.settings ?? []).map(s => new Setting(s[0], s[1], s[2]));
+        this.returns = data.returns;
     }
 
-    addParameter(parameter) {
-        this.parameters.push(parameter);
+    hasDropdown() {
+        return this.details !== undefined ||
+            this.parameters.length > 0 ||
+            this.settings.length > 0 ||
+            this.returns !== undefined;
     }
 
-    addSetting(setting) {
-        this.settings.push(setting);
+    generateSignature() {
+        let p = this.parameters.map(parameter => parameter.generatePeram());
+
+        if (this.settings.length !== 0) {
+            p.push(`<span class="optional">settings</span>`);
+        }
+
+        return `<code>${this.name}(${p.join(", ")})</code>`;
     }
 
     generateHTML() {
 
-        const templateDropdown = `
+        if (!this.hasDropdown()) {
+            // The empty row keeps the table stripes lined up with the rows that do have dropdowns
+            return `
+                    <tr class="no-dropdown">
+                        <td>${this.generateSignature()}</td>
+                        <td>${this.description}</td>
+                    </tr>
+                    <tr class="dropdown-tr"></tr>`;
+        }
+
+        let s = `
                     <tr class="has-dropdown">
                         <td>
                             <label>
                             <input type="checkbox">
-                            <code>$NAME($PERAMS)</code>
+                            ${this.generateSignature()}
                             </label>
                         </td>
-                        <td>$DESCRIPTION</td>
-                    </tr>`
-        const templateNoDropdown = `
-                    <tr class="has-dropdown">
-                        <td>
-                            <code>$NAME($PERAMS))</code>
-                        </td>
-                        <td>$DESCRIPTION</td>
-                    </tr>`
+                        <td>${this.description}</td>
+                    </tr>`;
 
-        let s = "";
+        let sections = [];
 
-        const hasDropdown = !(this.parameters.length === 0 && this.settings.length === 0);
-
-        if (hasDropdown) {
-            s = templateDropdown;
-        } else {
-            s = templateNoDropdown;
+        if (this.details !== undefined) {
+            sections.push(this.details + `<br>`);
         }
-
-        s = s.replace("$NAME", this.name);
-        s = s.replace("$DESCRIPTION", this.description);
-
-        let p = "";
-
-        for (let i = 0; i < this.parameters.length; i++) {
-            if (i !== 0) {
-                p += `, `;
-            }
-            p += this.parameters[i].generatePeram();
-        }
-
-        if (this.settings.length !== 0) {
-            if (this.parameters.length !== 0) {
-                p += `, `;
-            }
-            p += `<span class="optional">settings</span>`;
-        }
-
-        s = s.replace("$PERAMS", p);
-
-        let s2 = `<tr class="dropdown-tr">
-                        <td colspan="2" class="method-info">`;
-
-        s2 += `<b>Description:</b><br>`; // TODO not sure about this part
-        s2 += this.longDescription + `<br>`;
 
         if (this.parameters.length > 0) {
-            s2 += `<br><b>Parameters:</b><br>`
-        }
-
-        for (let i = 0; i < this.parameters.length; i++) {
-            s2 += this.parameters[i].generateHTML() + `<br>`;
+            let section = `<b>Parameters:</b><br>`;
+            for (let i = 0; i < this.parameters.length; i++) {
+                section += this.parameters[i].generateHTML() + `<br>`;
+            }
+            sections.push(section);
         }
 
         if (this.settings.length > 0) {
-            s2 += `<br><b>Settings:</b><br>`
+            let section = `<b>Settings (optional):</b><br>`;
+            for (let i = 0; i < this.settings.length; i++) {
+                section += this.settings[i].generateHTML() + `<br>`;
+            }
+            sections.push(section);
         }
 
-        for (let i = 0; i < this.settings.length; i++) {
-            s2 += this.settings[i].generateHTML() + `<br>`;
+        if (this.returns !== undefined) {
+            sections.push(`<b>Returns:</b> ${this.returns}<br>`);
         }
 
-        s2 += `</td>
+        s += `
+                    <tr class="dropdown-tr">
+                        <td colspan="2" class="method-info">
+                            ${sections.join(`<br>`)}
+                        </td>
                     </tr>`;
-
-        s += s2;
 
         return s;
     }
@@ -137,50 +145,30 @@ class Method {
 
 class Parameter {
 
-    name;
+    names = [];
     description;
 
+    // name can be a comma separated list like "x, y", and each name ends with "?" if it's optional
     constructor(name, description) {
-        this.name = name;
+        for (let n of name.split(",")) {
+            n = n.trim();
+            const optional = n.endsWith("?");
+            if (optional) {
+                n = n.slice(0, -1);
+            }
+            this.names.push({name: n, optional: optional});
+        }
         this.description = description;
     }
 
     generatePeram() {
-        return this.name;
+        return this.names.map(n => n.optional ? `<span class="optional">${n.name}</span>` : n.name).join(", ");
     }
 
     generateHTML() {
-        let s = `<code class="outline">$NAME</code>: $DESCRIPTION`;
-
-        s = s.replace("$NAME", this.name);
-        s = s.replace("$DESCRIPTION", this.description);
-
-        return s;
-    }
-}
-
-class DoubleParameter extends Parameter {
-
-    otherName;
-
-    constructor(name, otherName, description) {
-        super(name, description);
-        this.otherName = otherName;
-    }
-
-    generatePeram() {
-        return this.name + ", " + this.otherName;
-    }
-
-    generateHTML() {
-        let s = `<code class="outline">$NAME</code>, <code class="outline">$OTHER_NAME</code>: $DESCRIPTION`;
-
-        console.log(this.name);
-        s = s.replace("$NAME", this.name);
-        s = s.replace("$OTHER_NAME", this.otherName);
-        s = s.replace("$DESCRIPTION", this.description);
-
-        return s;
+        const names = this.names.map(n => `<code class="outline">${n.name}</code>`).join(", ");
+        const optional = this.names.every(n => n.optional) ? " (optional)" : "";
+        return `${names}${optional}: ${this.description}`;
     }
 }
 
@@ -197,68 +185,16 @@ class Setting {
     }
 
     generateHTML() {
-        let s = `<code class="outline">$NAME</code>: $DESCRIPTION Default: <code>$DEFAULT</code>.`;
-
-        s = s.replace("$NAME", this.name);
-        s = s.replace("$DESCRIPTION", this.description);
-        s = s.replace("$DEFAULT", this.def);
-
+        let s = `<code class="outline">${this.name}</code> - ${this.description}`;
+        if (this.def !== undefined) {
+            s += ` Default: <code>${this.def}</code>.`;
+        }
         return s;
     }
 }
 
-const methodsGrid = new MethodsGrid("Drawing Methods");
-
-if (false) {
-
-    {
-        const method = new Method("circle", "Draws a circle.", "Draws a circle using a distance method.");
-        method.addParameter(new DoubleParameter("x", "y", "The integer center of the drawn circle."));
-        method.addParameter(new Parameter("radius", "The integer radius of the drawn circle."));
-        method.addParameter(new Parameter("color", "Hex code for the circle fill."));
-        method.addSetting(new Setting("layer", "An integer defining the canvas to draw to. If the layer has never been drawn to, a new canvas will be created.", "0"));
-        methodsGrid.addMethod(method);
-    }
-
-    {
-        const method = new Method("clear", "Clears the screen/layer to a color.", "Clears the screen (or specific layer) to a color.");
-        method.addSetting(new Setting("color", "Hex code for background clear.", "0"));
-        method.addSetting(new Setting("layer", "An integer defining the canvas to draw to clear. If no layer is given, all layers will be cleared.", "#000000"));
-        methodsGrid.addMethod(method);
-    }
-
-    {
-        const method = new Method("image", "Draws an image.", "Draws an image.");
-        method.addParameter(new Parameter("fileName", "The name of the file to be drawn. This is auto-prefixed with \"assets/\"."));
-        method.addParameter(new DoubleParameter("x", "y", "The integer top left of the image."));
-        method.addSetting(new Setting("layer", "The canvas to draw to. If the layer specified layer has never been drawn to, a new canvas will be created.", "0"));
-        method.addSetting(new Setting("scale", "How many pixels each image pixel maps to.", "1"));
-        method.addSetting(new Setting("scaleX", "How horizontally stretched the image should be.", "1"));
-        method.addSetting(new Setting("scaleY", "An", "0"));
-        method.addSetting(new Setting("offsetX", "An", "0"));
-        method.addSetting(new Setting("offsetY", "An", "0"));
-        method.addSetting(new Setting("width", "An", "0"));
-        method.addSetting(new Setting("height", "An", "0"));
-        method.addSetting(new Setting("flipX", "An", "0"));
-        method.addSetting(new Setting("flipY", "An", "0"));
-        methodsGrid.addMethod(method);
-    }
-
-    {
-        const method = new Method("interactable", "Draws an interactable.");
-        method.addParameter(new Parameter("interactable", "The interactable to be drawn."));
-        methodsGrid.addMethod(method);
-    }
+// Inserts a methods table right where the calling script tag is
+function methodsTable(methods) {
+    const html = new MethodsGrid(methods).generateHTML();
+    document.currentScript.insertAdjacentHTML("beforebegin", html);
 }
-
-document.addEventListener("DOMContentLoaded", function() {
-    const test = document.getElementById("test");
-    let inside = test.innerHTML;
-    inside = inside.replace("<!--\n", "");
-    inside = inside.replace("\n-->", "");
-
-    console.log(inside);
-    console.log("yuh")
-
-    document.body.innerHTML = document.body.innerHTML.replace("$METHODS", methodsGrid.generateHTML());
-});

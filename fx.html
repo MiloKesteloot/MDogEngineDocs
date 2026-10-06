@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FX Module - MDog Engine Docs</title>
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <script src="build-tables.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">FX</div>
+
+                <h1>FX Module</h1>
+
+                <p>The FX Module contains particles, for effects like sparks, dust, and explosions.</p>
+
+                <p>Particles are added to a <code>ParticleSystem</code>. Every tick, call the particle system's <code>update()</code> to move the particles, and draw it with <code>MDog.Draw.particleSystem()</code>. Every particle has a life, which is how many ticks it lasts before it's removed.</p>
+
+                <p>Speeds and gravity are in pixels per tick.</p>
+
+                <pre><code>const sparks = new MDog.FX.ParticleSystem();
+
+function main() {
+    if (MDog.Input.Mouse.getClick()) {
+        for (let i = 0; i &lt; 20; i++) {
+            const vx = Math.random() * 2 - 1;
+            const vy = Math.random() * -2;
+            sparks.addParticle(new MDog.FX.ChunkParticle(
+                MDog.Input.Mouse.getX(), MDog.Input.Mouse.getY(),
+                60, "#ffcc00", vx, vy, {gy: 0.05}));
+        }
+    }
+
+    sparks.update();
+
+    MDog.Draw.clear();
+    MDog.Draw.particleSystem(sparks);
+}</code></pre>
+
+                <p>The FX Module's classes can be accessed with <code>new MDog.FX.ClassName()</code>.</p>
+
+                <h2>ParticleSystem</h2>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new ParticleSystem",
+                            description: "Makes a new particle system.",
+                        },
+                        {
+                            name: "addParticle",
+                            description: "Adds a particle.",
+                            parameters: [
+                                ["particle", "The particle to add."],
+                            ],
+                        },
+                        {
+                            name: "clear",
+                            description: "Removes every particle.",
+                        },
+                        {
+                            name: "count",
+                            description: "Gets the number of particles.",
+                        },
+                        {
+                            name: "isEmpty",
+                            description: "Checks if there are no particles.",
+                            returns: "<code>true</code> if there are no particles left.",
+                        },
+                        {
+                            name: "update",
+                            description: "Moves every particle.",
+                            details: "Takes one tick off of every particle's life, removes the particles that ran out, and moves the rest. Call this once per tick.",
+                        },
+                    ]);
+                </script>
+
+                <h2>Particles</h2>
+
+                <p>There are three kinds of particles. They all have the same settings for gravity, layer, and tags.</p>
+
+                <script>
+                    const PARTICLE_POSITION = ["x, y", "The starting position of the particle."];
+                    const PARTICLE_LIFE = ["life", "How many ticks the particle lasts."];
+                    const PARTICLE_VELOCITY = ["vx, vy", "The starting speed of the particle."];
+                    const PARTICLE_GX = ["gx", "How much the horizontal speed changes every tick.", "0"];
+                    const PARTICLE_GY = ["gy", "How much the vertical speed changes every tick. Positive numbers pull the particle down.", "0"];
+                    const PARTICLE_LAYER = ["layer", "An integer defining the canvas to draw to.", "0"];
+                    const PARTICLE_TAGS = ["tags", "An array of strings to label the particle with. See <code>hasTag()</code>.", "[]"];
+
+                    methodsTable([
+                        {
+                            name: "new ChunkParticle",
+                            description: "Makes a square particle.",
+                            details: "Makes a particle that's a filled-in square of color.",
+                            parameters: [
+                                PARTICLE_POSITION,
+                                PARTICLE_LIFE,
+                                ["color", "Hex code for the particle."],
+                                PARTICLE_VELOCITY,
+                            ],
+                            settings: [
+                                PARTICLE_GX,
+                                PARTICLE_GY,
+                                ["size", "The width and height of the square, in pixels.", "1"],
+                                PARTICLE_LAYER,
+                                PARTICLE_TAGS,
+                            ],
+                        },
+                        {
+                            name: "new LineParticle",
+                            description: "Makes a streak particle.",
+                            details: "Makes a particle that's a line pointing the way it's moving, like a spark or rain drop.",
+                            parameters: [
+                                PARTICLE_POSITION,
+                                PARTICLE_LIFE,
+                                ["color", "Hex code for the particle."],
+                                PARTICLE_VELOCITY,
+                            ],
+                            settings: [
+                                PARTICLE_GX,
+                                PARTICLE_GY,
+                                ["length", "How long the line is, in pixels. If no length is given, the line is as long as the particle's speed.", "null"],
+                                PARTICLE_LAYER,
+                                PARTICLE_TAGS,
+                            ],
+                        },
+                        {
+                            name: "new AnimationParticle",
+                            description: "Makes an animated particle.",
+                            details: "Makes a particle that's drawn as an <a href=\"draw.html#animations\">animation</a>. Every particle that shares an animation moves it forward when drawn, so give each particle its own animation for them to play at normal speed.",
+                            parameters: [
+                                PARTICLE_POSITION,
+                                PARTICLE_LIFE,
+                                ["animation", "The animation to draw."],
+                                PARTICLE_VELOCITY,
+                            ],
+                            settings: [
+                                PARTICLE_GX,
+                                PARTICLE_GY,
+                                ["size", "The size of the animation, in pixels. This is used to center the animation on the particle.", "1"],
+                                PARTICLE_LAYER,
+                                PARTICLE_TAGS,
+                            ],
+                        },
+                    ]);
+                </script>
+
+                <h3>Particle Methods</h3>
+
+                <p>Every kind of particle has these methods.</p>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "getX",
+                            description: "Gets the x position.",
+                        },
+                        {
+                            name: "getY",
+                            description: "Gets the y position.",
+                        },
+                        {
+                            name: "hasTag",
+                            description: "Checks if the particle has a tag.",
+                            parameters: [
+                                ["tag", "The tag to look for."],
+                            ],
+                            returns: "<code>true</code> if the particle has the tag.",
+                        },
+                    ]);
+                </script>
+
+                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>

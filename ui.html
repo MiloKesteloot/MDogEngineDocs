@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UI Module - MDog Engine Docs</title>
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <script src="build-tables.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">UI</div>
+
+                <h1>UI Module</h1>
+
+                <p>The UI Module contains "Interactables," which are things on the screen the player can point at, like tilemaps and grids. Interactables can be drawn on their own with <code>MDog.Draw.interactable()</code>, or grouped together into a <code>Page</code>.</p>
+
+                <p>The UI Module's classes can be accessed with <code>new MDog.UI.ClassName()</code>.</p>
+
+                <h2>Page</h2>
+
+                <p>A <code>Page</code> holds a list of interactables, so they can all be updated and drawn at once. Make one with <code>new MDog.UI.Page(MDog.Draw)</code>.</p>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new Page",
+                            description: "Makes a new page.",
+                            parameters: [
+                                ["Draw", "The Draw Module, <code>MDog.Draw</code>."],
+                            ],
+                        },
+                        {
+                            name: "addInteractable",
+                            description: "Adds an interactable to the page.",
+                            parameters: [
+                                ["interactable", "The interactable to add."],
+                            ],
+                        },
+                        {
+                            name: "update",
+                            description: "Updates every interactable.",
+                            details: "Updates every interactable on the page. Call this once per tick.",
+                        },
+                        {
+                            name: "draw",
+                            description: "Draws every interactable.",
+                            details: "Draws every interactable on the page, in the order they were added.",
+                        },
+                    ]);
+                </script>
+
+                <h2>Interactable</h2>
+
+                <p><code>Interactable</code> is the class every other interactable is built on. To make your own, extend <code>MDog.UI.Interactable</code> and give it a <code>_draw(Draw)</code> method, and an <code>_update()</code> method if it needs one. Every interactable has these methods.</p>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new Interactable",
+                            description: "Makes a new interactable.",
+                            parameters: [
+                                ["x, y", "The integer top left of the interactable."],
+                            ],
+                        },
+                        {
+                            name: "getMouseOver",
+                            description: "Checks if the mouse is over it.",
+                            details: "Checks if the mouse is over the interactable. The base <code>Interactable</code> always gives back <code>false</code>.",
+                            returns: "<code>true</code> if the mouse is over the interactable.",
+                        },
+                        {
+                            name: "getX",
+                            description: "Gets the x position.",
+                        },
+                        {
+                            name: "getY",
+                            description: "Gets the y position.",
+                        },
+                        {
+                            name: "setX",
+                            description: "Sets the x position.",
+                            parameters: [
+                                ["x", "The new x position."],
+                            ],
+                        },
+                        {
+                            name: "setY",
+                            description: "Sets the y position.",
+                            parameters: [
+                                ["y", "The new y position."],
+                            ],
+                        },
+                    ]);
+                </script>
+
+                <h2>TilemapInteractable</h2>
+
+                <p>A <code>TilemapInteractable</code> draws a grid of tiles from a sprite sheet, and can tell which tile the mouse is over.</p>
+
+                <p>The tilemap is a string of comma separated tile numbers, with one row per line. Tile <code>0</code> is the top left of the sprite sheet, and the numbers go left to right, then top to bottom. <code>-1</code> is an empty tile. Tilemaps can be loaded from a <code>.csv</code> file with the <a href="asset-manager.html">Asset Manager</a>.</p>
+
+                <pre><code>const tilemap = new MDog.UI.TilemapInteractable(0, 0,
+    "0, 1, 1, 2\n" +
+    "3, 4, 4, 5\n" +
+    "-1, -1, 6, 6",
+    16, "tiles.png", 8, {scale: 2});
+
+MDog.Draw.interactable(tilemap);</code></pre>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new TilemapInteractable",
+                            description: "Makes a new tilemap.",
+                            parameters: [
+                                ["x, y", "The integer top left of the tilemap."],
+                                ["tilemap", "The comma separated tile numbers, with one row per line."],
+                                ["tileSize", "The width and height of one tile in the sprite sheet, in pixels."],
+                                ["spriteSheet", "The name of the sprite sheet image. This is auto-prefixed with \"assets/\"."],
+                                ["spriteSheetWidth", "How many tiles wide the sprite sheet is."],
+                            ],
+                            settings: [
+                                ["scale", "How many pixels each tile pixel maps to.", "1"],
+                            ],
+                        },
+                        {
+                            name: "get",
+                            description: "Gets a tile.",
+                            parameters: [
+                                ["x, y", "The tile position, counted in tiles."],
+                            ],
+                            returns: "The tile number, <code>-1</code> if the tile is empty, or <code>-2</code> if the position is outside the tilemap.",
+                        },
+                        {
+                            name: "set",
+                            description: "Sets a tile.",
+                            details: "Sets a tile. Positions outside of the tilemap are ignored.",
+                            parameters: [
+                                ["x, y", "The tile position, counted in tiles."],
+                                ["mat", "The new tile number. Use <code>-1</code> for an empty tile."],
+                            ],
+                        },
+                        {
+                            name: "getHoveredOverTile",
+                            description: "Gets the tile the mouse is over.",
+                            details: "Gets the tile position the mouse is over. This can be outside of the tilemap, so check <code>getMouseOver()</code> first.",
+                            returns: "A <code>Vector</code> of the tile position.",
+                        },
+                        {
+                            name: "getMouseOver",
+                            description: "Checks if the mouse is over it.",
+                            returns: "<code>true</code> if the mouse is over the tilemap.",
+                        },
+                        {
+                            name: "getWidth",
+                            description: "Gets the width in pixels.",
+                            details: "Gets the width of the whole tilemap on screen, including the scale.",
+                        },
+                        {
+                            name: "getHeight",
+                            description: "Gets the height in pixels.",
+                            details: "Gets the height of the whole tilemap on screen, including the scale.",
+                        },
+                        {
+                            name: "screenToTile",
+                            description: "Turns a screen position into a tile position.",
+                            parameters: [
+                                ["x, y", "The screen position, in art pixels."],
+                            ],
+                            returns: "A <code>Vector</code> of the tile position.",
+                        },
+                        {
+                            name: "tileToScreen",
+                            description: "Turns a tile position into a screen position.",
+                            parameters: [
+                                ["x, y", "The tile position, counted in tiles."],
+                            ],
+                            returns: "A <code>Vector</code> of the top left of the tile on screen.",
+                        },
+                    ]);
+                </script>
+
+                <h2>RectangleGridInteractable</h2>
+
+                <p>A <code>RectangleGridInteractable</code> is an invisible grid of same size cells, used to turn screen positions into grid positions and back.</p>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new RectangleGridInteractable",
+                            description: "Makes a new rectangle grid.",
+                            parameters: [
+                                ["x, y", "The integer top left of the grid."],
+                                ["width, height", "The size of one cell, in pixels."],
+                            ],
+                        },
+                        {
+                            name: "screenToTile",
+                            description: "Turns a screen position into a cell position.",
+                            parameters: [
+                                ["x, y", "The screen position, in art pixels."],
+                            ],
+                            returns: "A <code>Vector</code> of the cell position.",
+                        },
+                        {
+                            name: "tileToScreen",
+                            description: "Turns a cell position into a screen position.",
+                            parameters: [
+                                ["x, y", "The cell position, counted in cells."],
+                            ],
+                            returns: "A <code>Vector</code> of the top left of the cell on screen.",
+                        },
+                    ]);
+                </script>
+
+                <h2>VectorGridInteractable</h2>
+
+                <p>A <code>VectorGridInteractable</code> is a grid where each step across and each step down can be any direction, like for isometric games. Drawing it puts a red dot on every grid point, which is helpful for lining things up.</p>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new VectorGridInteractable",
+                            description: "Makes a new vector grid.",
+                            parameters: [
+                                ["x, y", "The integer screen position of grid point <code>(0, 0)</code>."],
+                                ["width, height", "How many grid points to draw across and down."],
+                                ["xx, xy", "How far one step along the grid's x moves on screen."],
+                                ["yx, yy", "How far one step along the grid's y moves on screen."],
+                            ],
+                        },
+                        {
+                            name: "getPoint",
+                            description: "Turns a grid position into a screen position.",
+                            parameters: [
+                                ["x, y", "The grid position."],
+                            ],
+                            returns: "A <code>Vector</code> of the screen position.",
+                        },
+                    ]);
+                </script>
+
+                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>

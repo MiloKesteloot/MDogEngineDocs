@@ -178,6 +178,15 @@ body {
 /*    }*/
 /*}*/
 
+a.navbar-title {
+    text-decoration: none;
+}
+
+.navbar-button .navbar-title.active {
+    background-color: rgb(54, 59, 61);
+    font-weight: bold;
+}
+
 .navbar-button .navbar-title:hover {
     background-color: rgb(54, 59, 61);
     cursor: pointer;

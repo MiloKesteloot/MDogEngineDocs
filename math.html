@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Math Module - MDog Engine Docs</title>
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <script src="build-tables.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Math</div>
+
+                <h1>Math Module</h1>
+
+                <p>The Math Module contains helpful math functions, and the <code>Vector</code> and <code>Vector3</code> classes.</p>
+
+                <p>The Math Module can be accessed with <code>MDog.Math.method()</code>.</p>
+
+                <h2>Math Methods</h2>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "deltaTime",
+                            description: "Gets the time since the last frame.",
+                            details: "Gets how many seconds passed between the last two frames. Since the active function already runs a fixed number of times per second, most games won't need this.",
+                            returns: "The time in seconds.",
+                        },
+                        {
+                            name: "lerp",
+                            description: "Blends between two numbers.",
+                            details: "Linearly interpolates between two numbers.",
+                            parameters: [
+                                ["v1", "The starting number, returned when <code>t</code> is <code>0</code>."],
+                                ["v2", "The ending number, returned when <code>t</code> is <code>1</code>."],
+                                ["t", "How far to blend from <code>v1</code> to <code>v2</code>."],
+                            ],
+                            returns: "The blended number.",
+                        },
+                    ]);
+                </script>
+
+                <h2>Vector</h2>
+
+                <p>A <code>Vector</code> is a 2D point or direction with an <code>x</code> and a <code>y</code>. Make one with <code>new MDog.Math.Vector(x, y)</code>.</p>
+
+                <p>Methods that change a vector change it in place, and return the same vector so they can be chained, like <code>position.add(velocity).constrain(10)</code>. Use <code>clone()</code> first to keep the original.</p>
+
+                <p>The <code>x</code> and <code>y</code> can also be read and set directly.</p>
+
+                <h3>Constructor</h3>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new Vector",
+                            description: "Makes a new vector.",
+                            details: "Makes a new vector. With no numbers it's <code>(0, 0)</code>, and with only one number both <code>x</code> and <code>y</code> are set to it.",
+                            parameters: [
+                                ["x, y?", "The position of the vector."],
+                            ],
+                        },
+                    ]);
+                </script>
+
+                <h3>Vector Methods</h3>
+
+                <script>
+                    const X_OR_VECTOR = ["x_or_vector, y?", "Either another vector, or an <code>x</code> and a <code>y</code>."];
+
+                    methodsTable([
+                        {
+                            name: "add",
+                            description: "Adds to this vector.",
+                            parameters: [X_OR_VECTOR],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "clone",
+                            description: "Copies this vector.",
+                            returns: "A new vector with the same <code>x</code> and <code>y</code>.",
+                        },
+                        {
+                            name: "constrain",
+                            description: "Limits the length of this vector.",
+                            details: "Shortens this vector if it's longer than a length, without changing its direction.",
+                            parameters: [
+                                ["maxLength", "The longest the vector can be."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "distanceTo",
+                            description: "Gets the distance to another vector.",
+                            parameters: [
+                                ["other", "The other vector."],
+                            ],
+                            returns: "The distance between the two vectors.",
+                        },
+                        {
+                            name: "divide",
+                            description: "Divides this vector by a number.",
+                            parameters: [
+                                ["scalar", "The number to divide by."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "dotProduct",
+                            description: "Gets the dot product.",
+                            parameters: [
+                                ["other", "The other vector."],
+                            ],
+                            returns: "The dot product of the two vectors.",
+                        },
+                        {
+                            name: "equals",
+                            description: "Checks if two vectors are the same.",
+                            parameters: [X_OR_VECTOR],
+                            returns: "<code>true</code> if both <code>x</code> and <code>y</code> match.",
+                        },
+                        {
+                            name: "getAngle",
+                            description: "Gets the angle of this vector.",
+                            details: "Gets the angle of this vector in degrees, from <code>-180</code> to <code>180</code>. <code>0</code> points right. Since y goes down the screen, positive angles go clockwise on screen.",
+                            returns: "The angle in degrees.",
+                        },
+                        {
+                            name: "getX",
+                            description: "Gets the x of this vector.",
+                        },
+                        {
+                            name: "getY",
+                            description: "Gets the y of this vector.",
+                        },
+                        {
+                            name: "length",
+                            description: "Gets the length of this vector.",
+                        },
+                        {
+                            name: "multiply",
+                            description: "Multiplies this vector by a number.",
+                            parameters: [
+                                ["scalar", "The number to multiply by."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "normalize",
+                            description: "Sets the length of this vector to 1.",
+                            details: "Sets the length of this vector to 1, without changing its direction. A vector of <code>(0, 0)</code> stays the same.",
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "rotate",
+                            description: "Rotates this vector.",
+                            details: "Rotates this vector around <code>(0, 0)</code>. Positive angles rotate counter-clockwise on screen.",
+                            parameters: [
+                                ["angleDegrees", "How far to rotate, in degrees."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "set",
+                            description: "Sets this vector.",
+                            parameters: [X_OR_VECTOR],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "setLength",
+                            description: "Sets the length of this vector.",
+                            details: "Sets the length of this vector, without changing its direction.",
+                            parameters: [
+                                ["length", "The new length."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "setX",
+                            description: "Sets the x of this vector.",
+                            parameters: [
+                                ["x", "The new x."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "setY",
+                            description: "Sets the y of this vector.",
+                            parameters: [
+                                ["y", "The new y."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "subtract",
+                            description: "Subtracts from this vector.",
+                            parameters: [X_OR_VECTOR],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "toString",
+                            description: "Gets this vector as text.",
+                            details: "Gets this vector as text, like <code>\"(3, 4)\"</code>.",
+                        },
+                    ]);
+                </script>
+
+                <h2>Vector3</h2>
+
+                <p>A <code>Vector3</code> is a 3D point or direction with an <code>x</code>, <code>y</code>, and <code>z</code>. It's mostly used by the <a href="threedee.html">ThreeDee Module</a>. Make one with <code>new MDog.Math.Vector3(x, y, z)</code>.</p>
+
+                <p>Just like <code>Vector</code>, methods change the vector in place and return it so they can be chained.</p>
+
+                <h3>Constructor</h3>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new Vector3",
+                            description: "Makes a new 3D vector.",
+                            details: "Makes a new 3D vector. With no numbers it's <code>(0, 0, 0)</code>, and with only one number <code>x</code>, <code>y</code>, and <code>z</code> are all set to it.",
+                            parameters: [
+                                ["x, y?, z?", "The position of the vector."],
+                            ],
+                        },
+                    ]);
+                </script>
+
+                <h3>Vector3 Methods</h3>
+
+                <script>
+                    const X_OR_VECTOR3 = ["x_or_vector3, y?, z?", "Either another <code>Vector3</code>, or an <code>x</code>, <code>y</code>, and <code>z</code>."];
+
+                    methodsTable([
+                        {
+                            name: "add",
+                            description: "Adds to this vector.",
+                            parameters: [X_OR_VECTOR3],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "clone",
+                            description: "Copies this vector.",
+                            returns: "A new <code>Vector3</code> with the same <code>x</code>, <code>y</code>, and <code>z</code>.",
+                        },
+                        {
+                            name: "constrain",
+                            description: "Limits the length of this vector.",
+                            details: "Shortens this vector if it's longer than a length, without changing its direction.",
+                            parameters: [
+                                ["maxLength", "The longest the vector can be."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "distanceTo",
+                            description: "Gets the distance to another vector.",
+                            parameters: [
+                                ["other", "The other <code>Vector3</code>."],
+                            ],
+                            returns: "The distance between the two vectors.",
+                        },
+                        {
+                            name: "getX",
+                            description: "Gets the x of this vector.",
+                        },
+                        {
+                            name: "getY",
+                            description: "Gets the y of this vector.",
+                        },
+                        {
+                            name: "getZ",
+                            description: "Gets the z of this vector.",
+                        },
+                        {
+                            name: "length",
+                            description: "Gets the length of this vector.",
+                        },
+                        {
+                            name: "multiply",
+                            description: "Multiplies this vector by a number.",
+                            parameters: [
+                                ["scalar", "The number to multiply by."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "normalize",
+                            description: "Sets the length of this vector to 1.",
+                            details: "Sets the length of this vector to 1, without changing its direction. A vector of <code>(0, 0, 0)</code> stays the same.",
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "set",
+                            description: "Sets this vector.",
+                            parameters: [X_OR_VECTOR3],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "setLength",
+                            description: "Sets the length of this vector.",
+                            details: "Sets the length of this vector, without changing its direction.",
+                            parameters: [
+                                ["length", "The new length."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "setX",
+                            description: "Sets the x of this vector.",
+                            parameters: [
+                                ["x", "The new x."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "setY",
+                            description: "Sets the y of this vector.",
+                            parameters: [
+                                ["y", "The new y."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "setZ",
+                            description: "Sets the z of this vector.",
+                            parameters: [
+                                ["z", "The new z."],
+                            ],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "subtract",
+                            description: "Subtracts from this vector.",
+                            parameters: [X_OR_VECTOR3],
+                            returns: "This vector.",
+                        },
+                        {
+                            name: "toString",
+                            description: "Gets this vector as text.",
+                            details: "Gets this vector as text, like <code>\"(1, 2, 3)\"</code>.",
+                        },
+                    ]);
+                </script>
+
+                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>

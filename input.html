@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Input Module - MDog Engine Docs</title>
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <script src="build-tables.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Input</div>
+
+                <h1>Input Module</h1>
+
+                <p>The Input Module lets you check what the player is doing with the keyboard and mouse.</p>
+
+                <p>Input is checked once per tick. A key or button is "down" for as long as it's held, and "clicked" for only the first tick after it's pressed.</p>
+
+                <p>The Input Module can be accessed with <code>MDog.Input.Keyboard.method()</code> and <code>MDog.Input.Mouse.method()</code>.</p>
+
+                <h2>Keyboard</h2>
+
+                <p>Keys are named the same way as the browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values"><code>KeyboardEvent.key</code></a>. Letters are always lowercase, even when shift is held. Some common keys are <code>"a"</code>, <code>"1"</code>, <code>" "</code> (space), <code>"ArrowUp"</code>, <code>"Shift"</code>, <code>"Enter"</code>, and <code>"Escape"</code>.</p>
+
+                <p>Space and the arrow keys won't scroll the web page while the game is running.</p>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "isDown",
+                            description: "Checks if a key is held.",
+                            details: "Checks if a key is being held down right now.",
+                            parameters: [
+                                ["key", "The name of the key."],
+                            ],
+                            returns: "<code>true</code> if the key is held down.",
+                        },
+                        {
+                            name: "isClicked",
+                            description: "Checks if a key was just pressed.",
+                            details: "Checks if a key was pressed this tick. Holding the key down only counts once.",
+                            parameters: [
+                                ["key", "The name of the key."],
+                            ],
+                            returns: "<code>true</code> if the key was pressed this tick.",
+                        },
+                    ]);
+                </script>
+
+                <h2>Mouse</h2>
+
+                <p>The mouse position is in art pixels, the same as everything you draw. Mouse buttons are numbered <code>0</code> for left, <code>1</code> for middle, and <code>2</code> for right.</p>
+
+                <h3>Mouse Info Methods</h3>
+
+                <script>
+                    const BUTTON = ["button?", "Which mouse button to check. <code>0</code> is left, <code>1</code> is middle, and <code>2</code> is right. Defaults to <code>0</code>."];
+
+                    methodsTable([
+                        {
+                            name: "getClick",
+                            description: "Checks if a button was just pressed.",
+                            details: "Checks if a mouse button was pressed on the game this tick.",
+                            parameters: [BUTTON],
+                            returns: "<code>true</code> if the button was pressed this tick.",
+                        },
+                        {
+                            name: "getDown",
+                            description: "Checks if a button is held.",
+                            details: "Checks if a mouse button is being held down. Only presses that start on the game count.",
+                            parameters: [BUTTON],
+                            returns: "<code>true</code> if the button is held down.",
+                        },
+                        {
+                            name: "getOnScreen",
+                            description: "Checks if the mouse is over the game.",
+                            returns: "<code>true</code> if the mouse is over the game.",
+                        },
+                        {
+                            name: "getX",
+                            description: "Gets the x position of the mouse.",
+                            details: "Gets the x position of the mouse in art pixels. This is the last position the mouse was at over the game.",
+                        },
+                        {
+                            name: "getY",
+                            description: "Gets the y position of the mouse.",
+                            details: "Gets the y position of the mouse in art pixels. This is the last position the mouse was at over the game.",
+                        },
+                    ]);
+                </script>
+
+                <h3>Mouse Cursor Methods</h3>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "requestStyle",
+                            description: "Sets the cursor style.",
+                            details: "Sets what the mouse cursor looks like over the game. The new style is put in place at the end of the tick.",
+                            parameters: [
+                                ["style", "A <a href=\"https://developer.mozilla.org/en-US/docs/Web/CSS/cursor\">CSS cursor</a>, like <code>\"pointer\"</code>, <code>\"crosshair\"</code>, or <code>\"none\"</code>."],
+                            ],
+                        },
+                        {
+                            name: "getNewStyle",
+                            description: "Gets the requested cursor style.",
+                            details: "Gets the cursor style that was last given to <code>requestStyle()</code>.",
+                        },
+                        {
+                            name: "style",
+                            description: "Applies the requested cursor style.",
+                            details: "Puts the style from <code>requestStyle()</code> in place right away, instead of waiting for the end of the tick.",
+                        },
+                        {
+                            name: "show",
+                            description: "Shows the cursor.",
+                            details: "Shows the mouse cursor over the game.",
+                        },
+                        {
+                            name: "hide",
+                            description: "Hides the cursor.",
+                            details: "Hides the mouse cursor over the game.",
+                        },
+                        {
+                            name: "disableContextMenu",
+                            description: "Turns off the right click menu.",
+                            details: "Stops the browser's right click menu from opening over the game. This is useful for games that use the right mouse button.",
+                        },
+                    ]);
+                </script>
+
+                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>

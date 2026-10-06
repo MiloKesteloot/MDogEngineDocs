@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Asset Manager - MDog Engine Docs</title>
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <script src="build-tables.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Asset Manager</div>
+
+                <h1>Asset Manager</h1>
+
+                <p>The Asset Manager loads text files from your assets folder, like levels, tilemaps, and dialogue. Images don't need the Asset Manager, since the Draw Module loads them on its own.</p>
+
+                <p>Files load in the background, so start loading them before the game starts, and wait for <code>doneLoading()</code> before using them.</p>
+
+                <pre><code>MDog.AssetManager.loadFile("levels/level1.csv", "level1");
+
+function main() {
+    if (!MDog.AssetManager.doneLoading()) {
+        return;
+    }
+    const level = MDog.AssetManager.get("level1");
+    ...
+}</code></pre>
+
+                <p>The Asset Manager can be accessed with <code>MDog.AssetManager.method()</code>.</p>
+
+                <h2>Asset Manager Methods</h2>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "loadFile",
+                            description: "Starts loading a text file.",
+                            details: "Starts loading a text file, and saves it under a name once it's loaded.",
+                            parameters: [
+                                ["filePath", "The path of the file. This is auto-prefixed with \"assets/\"."],
+                                ["fileName", "The name to save the file under, to use with <code>get()</code>."],
+                            ],
+                        },
+                        {
+                            name: "doneLoading",
+                            description: "Checks if every file has loaded.",
+                            returns: "<code>true</code> if every file from <code>loadFile()</code> has finished loading.",
+                        },
+                        {
+                            name: "get",
+                            description: "Gets a loaded file.",
+                            parameters: [
+                                ["fileName", "The name the file was saved under."],
+                            ],
+                            returns: "The text of the file, or <code>undefined</code> if it hasn't loaded yet.",
+                        },
+                    ]);
+                </script>
+
+                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>
