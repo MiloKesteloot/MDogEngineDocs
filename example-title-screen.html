@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Title Screen Example - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -20,12 +21,16 @@
                 <h1>Title Screen</h1>
 
                 <p>A title screen that starts the game when space is pressed, and a game that goes back to the title screen when Escape is pressed. It shows how to switch between screens with <code>setActiveFunction()</code>.</p>
+                <script>
+                    demo({source: "#example-code", width: 512, height: 384, keys: [" ","Escape"]});
+                </script>
+
 
                 <h2>The Code</h2>
 
                 <p>Make a project like in <a href="getting-started.html">Getting Started</a>, and put this in <code>game.js</code>. It uses the <code>marsfont.png</code> font, so put that in <code>assets/fonts/</code> (see <a href="getting-started.html#fonts">Adding Text</a>).</p>
 
-                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
+                <pre id="example-code"><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
 
 const font = "fonts/marsfont.png";
 const Keyboard = MDog.Input.Keyboard;
@@ -93,6 +98,7 @@ MDog.setActiveFunction(titleScreen);</code></pre>
         </div>
     </div>
     <script src="page.js"></script>
+    <script src="demos.js"></script>
     <script src="search.js"></script>
 </body>
 </html>

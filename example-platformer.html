@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Platformer Example - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -22,12 +23,16 @@
                 <p>A player that runs and jumps between platforms. It shows how to check collisions with <code>SquareKickbox</code>, and how to move things a set amount every tick.</p>
 
                 <p>Use the left and right arrow keys to move, and the up arrow or space to jump.</p>
+                <script>
+                    demo({source: "#example-code", width: 512, height: 384, keys: ["ArrowLeft","ArrowRight","ArrowUp"]});
+                </script>
+
 
                 <h2>The Code</h2>
 
                 <p>Make a project like in <a href="getting-started.html">Getting Started</a>, and put this in <code>game.js</code>. It doesn't need any assets.</p>
 
-                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
+                <pre id="example-code"><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
 
 const Vector = MDog.Math.Vector;
 const SquareKickbox = MDog.Basics.SquareKickbox;
@@ -146,6 +151,7 @@ MDog.setActiveFunction(main);</code></pre>
         </div>
     </div>
     <script src="page.js"></script>
+    <script src="demos.js"></script>
     <script src="search.js"></script>
 </body>
 </html>

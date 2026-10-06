@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pseudo-3D Road Example - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -22,12 +23,16 @@
                 <p>A road that curves back and forth, like an old racing game, made with the <a href="threedee.html">ThreeDee Module</a>.</p>
 
                 <p>Steer with the left and right arrow keys.</p>
+                <script>
+                    demo({source: "#example-code", width: 512, height: 384, keys: ["ArrowLeft","ArrowRight"]});
+                </script>
+
 
                 <h2>The Code</h2>
 
                 <p>Make a project like in <a href="getting-started.html">Getting Started</a>, and put this in <code>game.js</code>. It doesn't need any assets.</p>
 
-                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
+                <pre id="example-code"><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
 
 const ThreeDee = MDog.ThreeDee;
 const Vector3 = MDog.Math.Vector3;
@@ -101,6 +106,7 @@ MDog.setActiveFunction(main);</code></pre>
         </div>
     </div>
     <script src="page.js"></script>
+    <script src="demos.js"></script>
     <script src="search.js"></script>
 </body>
 </html>

@@ -20,7 +20,10 @@ for (const page of pages) {
     const html = fs.readFileSync(page, "utf8");
 
     // Run the page's inline scripts to get its method tables
-    const context = {document: {currentScript: {insertAdjacentHTML() {}}}};
+    const context = {
+        document: {currentScript: {insertAdjacentHTML() {}}},
+        window: {location: {hostname: "localhost", pathname: "/" + page, search: "", hash: ""}},
+    };
     vm.createContext(context);
     vm.runInContext(buildTables + "\nthis.docsPageEntries = docsPageEntries; this.docsSlugify = docsSlugify; this.docsStripTags = docsStripTags;", context);
     const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);

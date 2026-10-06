@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ThreeDee Module - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -133,6 +134,27 @@ function main() {
                                 ["color", "Hex code for the rectangle fill."],
                             ],
                             settings: [STROKE],
+                            demo: {
+                                code: `
+                                const camera = new MDog.ThreeDee.Camera(0, 0, 0, 40);
+
+                                function main() {
+                                    // Fly forward through square frames
+                                    camera.position.z += 0.05;
+
+                                    const scene = new MDog.ThreeDee.ThreeDeeScene(camera);
+                                    const first = Math.floor(camera.getZ() / 2) * 2 + 2;
+                                    for (let z = first + 20; z >= first; z -= 2) {
+                                        scene.addObject(new MDog.ThreeDee.ThreeDeeRectangle(z, -5, -5, 5, 5, "#00000000", {stroke: "#88ccff"}));
+                                    }
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.threeDeeScene(scene);
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "new ThreeDeeFloor",
@@ -176,6 +198,7 @@ function main() {
         </div>
     </div>
     <script src="page.js"></script>
+    <script src="demos.js"></script>
     <script src="search.js"></script>
 </body>
 </html>

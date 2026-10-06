@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Particles Example - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -22,12 +23,16 @@
                 <p>Explosions and sparkles made with the <a href="fx.html">FX Module</a>.</p>
 
                 <p>Click to make an explosion, and hold the mouse down to leave a trail of sparkles.</p>
+                <script>
+                    demo({source: "#example-code", width: 512, height: 384, keys: []});
+                </script>
+
 
                 <h2>The Code</h2>
 
                 <p>Make a project like in <a href="getting-started.html">Getting Started</a>, and put this in <code>game.js</code>. It doesn't need any assets.</p>
 
-                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
+                <pre id="example-code"><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
 
 const Mouse = MDog.Input.Mouse;
 const particles = new MDog.FX.ParticleSystem();
@@ -89,6 +94,7 @@ MDog.setActiveFunction(main);</code></pre>
         </div>
     </div>
     <script src="page.js"></script>
+    <script src="demos.js"></script>
     <script src="search.js"></script>
 </body>
 </html>

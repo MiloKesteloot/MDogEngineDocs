@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Math Module - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -43,6 +44,23 @@
                                 ["t", "How far to blend from <code>v1</code> to <code>v2</code>."],
                             ],
                             returns: "The blended number.",
+                            demo: {
+                                code: `
+                                let x = 80;
+                                let y = 60;
+
+                                function main() {
+                                    // Move 5% of the way to the mouse every tick, so it slows down as it gets close
+                                    x = MDog.Math.lerp(x, MDog.Input.Mouse.getX(), 0.05);
+                                    y = MDog.Math.lerp(y, MDog.Input.Mouse.getY(), 0.05);
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.circle(Math.round(x), Math.round(y), 6, "#ffcc33");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                     ]);
                 </script>
@@ -166,6 +184,22 @@
                                 ["angleDegrees", "How far to rotate, in degrees."],
                             ],
                             returns: "This vector.",
+                            demo: {
+                                code: `
+                                const hand = new MDog.Math.Vector(0, -45);
+
+                                function main() {
+                                    // Turn the hand a little every tick
+                                    hand.rotate(-0.5);
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.circle(80, 60, 50, "#2c3e50");
+                                    MDog.Draw.line(80, 60, 80 + hand.x, 60 + hand.y, "#ffcc33");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "set",
@@ -357,6 +391,7 @@
         </div>
     </div>
     <script src="page.js"></script>
+    <script src="demos.js"></script>
     <script src="search.js"></script>
 </body>
 </html>

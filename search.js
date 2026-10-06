@@ -120,7 +120,7 @@ function renderResults() {
 }
 
 function resultHref(entry) {
-    return entry.page + (entry.id ? "#" + entry.id : "");
+    return docsPageHref(entry.page) + (entry.id ? "#" + entry.id : "");
 }
 
 function goToResult(entry) {

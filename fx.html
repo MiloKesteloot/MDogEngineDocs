@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>FX Module - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -113,6 +114,24 @@ function main() {
                                 PARTICLE_LAYER,
                                 PARTICLE_TAGS,
                             ],
+                            demo: {
+                                code: `
+                                const particles = new MDog.FX.ParticleSystem();
+
+                                function main() {
+                                    // A fountain: one new particle every tick, shot up and pulled back down
+                                    particles.addParticle(new MDog.FX.ChunkParticle(
+                                        80, 110, 150, "#66ccff", Math.random() - 0.5, -1.4 - Math.random() * 0.4, {gy: 0.02}));
+
+                                    particles.update();
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.particleSystem(particles);
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "new LineParticle",
@@ -131,6 +150,24 @@ function main() {
                                 PARTICLE_LAYER,
                                 PARTICLE_TAGS,
                             ],
+                            demo: {
+                                code: `
+                                const rain = new MDog.FX.ParticleSystem();
+
+                                function main() {
+                                    // Rain drops that streak the way they fall
+                                    rain.addParticle(new MDog.FX.LineParticle(
+                                        Math.random() * 200 - 20, -5, 80, "#88aaff", 0.4, 2, {length: 4}));
+
+                                    rain.update();
+
+                                    MDog.Draw.clear({color: "#101828"});
+                                    MDog.Draw.particleSystem(rain);
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "new AnimationParticle",
@@ -185,6 +222,7 @@ function main() {
         </div>
     </div>
     <script src="page.js"></script>
+    <script src="demos.js"></script>
     <script src="search.js"></script>
 </body>
 </html>

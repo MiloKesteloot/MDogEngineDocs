@@ -1,9 +1,10 @@
 // Things every docs page does once it's loaded: heading links, opening the method in the URL, copy buttons, and cross-links.
 // Include this at the end of <body>, after build-tables.js and docs-index.js are loaded in <head>.
 
-const currentPage = window.location.pathname.split("/").pop() || "index.html";
+const currentPage = docsCurrentPage();
 
 giveHeadingsIds();
+cleanPageLinks();
 
 // The index of every page, but with this page's part made from what's really on it, in case docs-index.js is out of date
 const fullIndex = makeFullIndex();
@@ -28,6 +29,19 @@ function giveHeadingsIds() {
             heading.id = id;
         }
         usedIds.add(heading.id);
+    }
+}
+
+// Links written in the pages, like href="draw.html", lose the ".html" on GitHub Pages (see docsPageHref)
+function cleanPageLinks() {
+    if (!docsCleanUrls) {
+        return;
+    }
+    for (const link of document.querySelectorAll(".page a[href]")) {
+        const match = link.getAttribute("href").match(/^([a-z0-9-]+\.html)(#.*)?$/);
+        if (match) {
+            link.setAttribute("href", docsPageHref(match[1]) + (match[2] ?? ""));
+        }
     }
 }
 
@@ -76,11 +90,11 @@ function setUpMethodLinks() {
     for (const link of document.querySelectorAll(".method-link")) {
         link.addEventListener("click", e => {
             e.preventDefault();
+            // Only copies the link and puts it in the address bar. The page doesn't move.
             const hash = link.getAttribute("href");
             history.replaceState(null, "", hash);
             copyText(window.location.href);
             showToast(link, "Link copied");
-            openTargetFromURL();
         });
     }
 }
@@ -293,7 +307,7 @@ function addCrossLinks() {
 
         const link = document.createElement("a");
         link.className = "cross-link";
-        link.href = (target.page === currentPage ? "" : target.page) + (target.id ? "#" + target.id : "");
+        link.href = (target.page === currentPage ? "" : docsPageHref(target.page)) + (target.id ? "#" + target.id : "");
         code.replaceWith(link);
         link.appendChild(code);
     }

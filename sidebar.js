@@ -29,7 +29,7 @@ function icon(name, classes) {
 function pageLink(href, text) {
     return `
                         <div class="navbar-button">
-                            <a class="navbar-title" href="${href}">
+                            <a class="navbar-title" data-page="${href}" href="${docsPageHref(href)}">
                                 <span class="navbar-title-text">${text}</span>
                             </a>
                         </div>`;
@@ -38,7 +38,7 @@ function pageLink(href, text) {
 const sidebarHTML = `
 <div class="mobile-topbar">
     <button class="menu-button" aria-label="Open menu">${icon("bars", "")}</button>
-    <a class="mobile-title" href="index.html">MDog Engine Docs</a>
+    <a class="mobile-title" href="${docsPageHref("index.html")}">MDog Engine Docs</a>
 </div>
 
 <div class="sidebar-overlay"></div>
@@ -61,14 +61,14 @@ const sidebarHTML = `
             <div class="navbar-padding">
 
                 <div class="navbar-button">
-                    <a class="navbar-title" href="index.html">
+                    <a class="navbar-title" data-page="index.html" href="${docsPageHref("index.html")}">
                         ${icon("mug-hot", "navbar-title-icon navbar-icon")}
                         <span class="navbar-title-text">What is MDog Engine?</span>
                     </a>
                 </div>
 
                 <div class="navbar-button">
-                    <a class="navbar-title" href="getting-started.html">
+                    <a class="navbar-title" data-page="getting-started.html" href="${docsPageHref("getting-started.html")}">
                         ${icon("rocket", "navbar-title-icon navbar-icon")}
                         <span class="navbar-title-text">Getting Started</span>
                     </a>
@@ -170,14 +170,11 @@ function restoreOpenDropdowns(sidebar) {
 
 // Highlights the link to the page we're on, and opens the dropdowns it's inside of
 function highlightCurrentPage(sidebar) {
-    let page = window.location.pathname.split("/").pop();
-    if (page === "") {
-        page = "index.html";
-    }
+    const page = docsCurrentPage();
 
     const links = sidebar.querySelectorAll("a.navbar-title");
     for (const link of links) {
-        if (link.getAttribute("href") !== page) {
+        if (link.dataset.page !== page) {
             continue;
         }
 

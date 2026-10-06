@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Input Module - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -41,6 +42,33 @@
                                 ["key", "The name of the key."],
                             ],
                             returns: "<code>true</code> if the key is held down.",
+                            demo: {
+                                keys: ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"],
+                                code: `
+                                const position = new MDog.Math.Vector(72, 52);
+
+                                function main() {
+                                    const Keyboard = MDog.Input.Keyboard;
+                                    if (Keyboard.isDown("ArrowLeft")) {
+                                        position.x -= 0.5;
+                                    }
+                                    if (Keyboard.isDown("ArrowRight")) {
+                                        position.x += 0.5;
+                                    }
+                                    if (Keyboard.isDown("ArrowUp")) {
+                                        position.y -= 0.5;
+                                    }
+                                    if (Keyboard.isDown("ArrowDown")) {
+                                        position.y += 0.5;
+                                    }
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.rectangleFill(Math.floor(position.x), Math.floor(position.y), 16, 16, "#ffcc33");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "isClicked",
@@ -50,6 +78,25 @@
                                 ["key", "The name of the key."],
                             ],
                             returns: "<code>true</code> if the key was pressed this tick.",
+                            demo: {
+                                keys: [" "],
+                                code: `
+                                const colors = ["#ff5566", "#ffcc33", "#66dd88", "#88ccff"];
+                                let color = 0;
+
+                                function main() {
+                                    // Holding space down only changes the color once
+                                    if (MDog.Input.Keyboard.isClicked(" ")) {
+                                        color = (color + 1) % colors.length;
+                                    }
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.circle(80, 60, 30, colors[color]);
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                     ], "Keyboard");
                 </script>
@@ -70,6 +117,25 @@
                             details: "Checks if a mouse button was pressed on the game this tick.",
                             parameters: [BUTTON],
                             returns: "<code>true</code> if the button was pressed this tick.",
+                            demo: {
+                                code: `
+                                const dots = [];
+
+                                function main() {
+                                    // Click to add a dot
+                                    if (MDog.Input.Mouse.getClick()) {
+                                        dots.push(new MDog.Math.Vector(MDog.Input.Mouse.getX(), MDog.Input.Mouse.getY()));
+                                    }
+
+                                    MDog.Draw.clear();
+                                    for (const dot of dots) {
+                                        MDog.Draw.circle(dot.x, dot.y, 4, "#ff5566");
+                                    }
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "getDown",
@@ -77,6 +143,25 @@
                             details: "Checks if a mouse button is being held down. Only presses that start on the game count.",
                             parameters: [BUTTON],
                             returns: "<code>true</code> if the button is held down.",
+                            demo: {
+                                code: `
+                                const painted = [];
+
+                                function main() {
+                                    // Hold the mouse button down to paint
+                                    if (MDog.Input.Mouse.getDown()) {
+                                        painted.push([MDog.Input.Mouse.getX(), MDog.Input.Mouse.getY()]);
+                                    }
+
+                                    MDog.Draw.clear({color: "#f0ead8"});
+                                    for (const [x, y] of painted) {
+                                        MDog.Draw.rectangleFill(x - 1, y - 1, 3, 3, "#203040");
+                                    }
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "getOnScreen",
@@ -87,6 +172,22 @@
                             name: "getX",
                             description: "Gets the x position of the mouse.",
                             details: "Gets the x position of the mouse in art pixels. This is the last position the mouse was at over the game.",
+                            demo: {
+                                code: `
+                                function main() {
+                                    const x = MDog.Input.Mouse.getX();
+                                    const y = MDog.Input.Mouse.getY();
+
+                                    // Lines that cross where the mouse is
+                                    MDog.Draw.clear();
+                                    MDog.Draw.line(x, 0, x, 119, "#335577");
+                                    MDog.Draw.line(0, y, 159, y, "#335577");
+                                    MDog.Draw.circle(x, y, 3, "#88ccff");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "getY",
@@ -143,6 +244,7 @@
         </div>
     </div>
     <script src="page.js"></script>
+    <script src="demos.js"></script>
     <script src="search.js"></script>
 </body>
 </html>

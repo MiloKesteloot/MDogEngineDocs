@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Getting Started - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -51,7 +52,7 @@
 
                 <p>Put this in <code>game.js</code>.</p>
 
-                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
+                <pre id="game-code"><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
 
 const position = new MDog.Math.Vector(256, 192);
 
@@ -78,6 +79,12 @@ function main() {
 MDog.setActiveFunction(main);</code></pre>
 
                 <p>The <code>import</code> line loads MDog Engine and makes the game screen. <code>MDog.setActiveFunction(main)</code> tells MDog Engine to run <code>main</code> 160 times per second, and each run is called a "tick" (see <a href="core.html">Core</a>). Every tick, the game moves the square if an arrow key is held down, then clears the screen and draws the square.</p>
+
+                <p>Here it is running. Click it, then use the arrow keys:</p>
+
+                <script>
+                    demo({source: "#game-code", width: 512, height: 384, keys: ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]});
+                </script>
 
                 <h2>4. Run the Game</h2>
 
@@ -132,6 +139,7 @@ MDog.setActiveFunction(main);</code></pre>
         </div>
     </div>
     <script src="page.js"></script>
+    <script src="demos.js"></script>
     <script src="search.js"></script>
 </body>
 </html>

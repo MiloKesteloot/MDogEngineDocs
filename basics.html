@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Basics Module - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -63,6 +64,41 @@ if (hitbox.colliding(enemyHitbox)) {
                                 ["otherKickbox", "The other kickbox."],
                             ],
                             returns: "<code>true</code> if the kickboxes overlap.",
+                            demo: {
+                                keys: ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"],
+                                code: `
+                                const Vector = MDog.Math.Vector;
+
+                                const player = new Vector(20, 52);
+                                const playerBox = new MDog.Basics.SquareKickbox(player, 0, 0, 16, 16);
+                                const wallBox = new MDog.Basics.SquareKickbox(new Vector(80, 30), 0, 0, 30, 60);
+
+                                function main() {
+                                    // Move with the arrow keys
+                                    const Keyboard = MDog.Input.Keyboard;
+                                    if (Keyboard.isDown("ArrowLeft")) {
+                                        player.x -= 0.5;
+                                    }
+                                    if (Keyboard.isDown("ArrowRight")) {
+                                        player.x += 0.5;
+                                    }
+                                    if (Keyboard.isDown("ArrowUp")) {
+                                        player.y -= 0.5;
+                                    }
+                                    if (Keyboard.isDown("ArrowDown")) {
+                                        player.y += 0.5;
+                                    }
+
+                                    const touching = playerBox.colliding(wallBox);
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.rectangleFill(wallBox.getLeftX(), wallBox.getTopY(), wallBox.getWidth(), wallBox.getHeight(), "#5a6070");
+                                    MDog.Draw.rectangleFill(playerBox.getLeftX(), playerBox.getTopY(), 16, 16, touching ? "#ff5566" : "#ffcc33");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                     ], "SquareKickbox");
                 </script>
@@ -143,6 +179,7 @@ if (hitbox.colliding(enemyHitbox)) {
         </div>
     </div>
     <script src="page.js"></script>
+    <script src="demos.js"></script>
     <script src="search.js"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Draw Module - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -51,6 +52,37 @@
                                 ["flipY", "Flip the animation vertically.", "false"],
                                 ["update", "Whether drawing the animation moves it forward. Set this to false to draw it without moving it forward.", "true"],
                             ],
+                            demo: {
+                                keys: ["ArrowLeft","ArrowRight"],
+                                code: `
+                                const idle = new MDog.Draw.MultipleFileAnimation("warrior/Idle/Warrior_Idle_?.png", 6, 8);
+                                const run = new MDog.Draw.MultipleFileAnimation("warrior/Run/Warrior_Run_?.png", 8, 12);
+                                let x = 48;
+                                let facingLeft = false;
+
+                                function main() {
+                                    // Run with the arrow keys
+                                    let moving = false;
+                                    if (MDog.Input.Keyboard.isDown("ArrowLeft")) {
+                                        x -= 0.6;
+                                        facingLeft = true;
+                                        moving = true;
+                                    }
+                                    if (MDog.Input.Keyboard.isDown("ArrowRight")) {
+                                        x += 0.6;
+                                        facingLeft = false;
+                                        moving = true;
+                                    }
+                                    x = Math.max(-20, Math.min(x, 116));
+
+                                    MDog.Draw.clear({color: "#203040"});
+                                    MDog.Draw.rectangleFill(0, 84, 160, 36, "#3a5a40");
+                                    MDog.Draw.animation(moving ? run : idle, Math.floor(x), 41, {flipX: facingLeft});
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "circle",
@@ -62,6 +94,23 @@
                                 ["color", "Hex code for the circle fill."],
                             ],
                             settings: [LAYER],
+                            demo: {
+                                code: `
+                                let ticks = 0;
+
+                                function main() {
+                                    ticks++;
+
+                                    // A circle that grows and shrinks
+                                    const radius = 25 + Math.round(Math.sin(ticks / 40) * 10);
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.circle(80, 60, radius, "#ff5566");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "clear",
@@ -94,6 +143,20 @@
                                 ["tint", "Hex code to recolor every non-transparent pixel of the image with. If no tint is given, the image keeps its own colors."],
                             ],
                             returns: "<code>true</code> if the image was drawn, or <code>false</code> if it hasn't finished loading yet.",
+                            demo: {
+                                code: `
+                                function main() {
+                                    MDog.Draw.clear({color: "#203040"});
+
+                                    // The same image three times: normal, flipped, and tinted
+                                    MDog.Draw.image("warrior/Idle/Warrior_Idle_1.png", 0, 38);
+                                    MDog.Draw.image("warrior/Idle/Warrior_Idle_1.png", 48, 38, {flipX: true});
+                                    MDog.Draw.image("warrior/Idle/Warrior_Idle_1.png", 96, 38, {tint: "#ff5566"});
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "interactable",
@@ -113,6 +176,24 @@
                                 ["color", "Hex code for the line."],
                             ],
                             settings: [LAYER],
+                            demo: {
+                                code: `
+                                let angle = 0;
+
+                                function main() {
+                                    angle += 0.01;
+                                    MDog.Draw.clear();
+
+                                    // Eight lines spinning around the middle
+                                    for (let i = 0; i < 8; i++) {
+                                        const a = angle + i * Math.PI / 4;
+                                        MDog.Draw.line(80, 60, 80 + Math.cos(a) * 50, 60 + Math.sin(a) * 50, "#88ccff");
+                                    }
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "particleSystem",
@@ -151,6 +232,27 @@
                                 ["color", "Hex code for the polygon fill."],
                             ],
                             settings: [LAYER],
+                            demo: {
+                                code: `
+                                let angle = 0;
+
+                                function main() {
+                                    angle += 0.5;
+
+                                    // Three points around the middle, turned a bit more every tick
+                                    const points = [];
+                                    for (let i = 0; i < 3; i++) {
+                                        const point = new MDog.Math.Vector(0, -40).rotate(angle + i * 120);
+                                        points.push(new MDog.Math.Vector(80 + Math.round(point.x), 60 + Math.round(point.y)));
+                                    }
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.polygonFill(points, "#66dd88");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "rectangle",
@@ -162,6 +264,17 @@
                                 ["color", "Hex code for the outline."],
                             ],
                             settings: [LAYER],
+                            demo: {
+                                code: `
+                                function main() {
+                                    MDog.Draw.clear();
+                                    MDog.Draw.rectangle(20, 30, 50, 60, "#ffcc33");
+                                    MDog.Draw.rectangleFill(90, 30, 50, 60, "#ffcc33");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "rectangleFill",
@@ -192,6 +305,17 @@
                                 ["letterSpacing", "Adds space between letters. <code>1</code> is normal spacing, and each number above that adds a pixel.", "1"],
                             ],
                             returns: "<code>true</code> if the text was drawn, or <code>false</code> if the font hasn't finished loading yet.",
+                            demo: {
+                                code: `
+                                function main() {
+                                    MDog.Draw.clear({color: "#1a1030"});
+                                    MDog.Draw.textImage("Hello", 80, 25, "#ffcc33", "fonts/marsfont.png", {alignX: "center", size: 4});
+                                    MDog.Draw.textImage("Two fonts", 80, 75, "#ffffff", "fonts/determinationfont.png", {alignX: "center"});
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "threeDeeScene",
@@ -209,6 +333,38 @@
                                 ["x, y", "How far to shift the layer."],
                             ],
                             settings: [LAYER],
+                            demo: {
+                                keys: ["ArrowLeft","ArrowRight"],
+                                code: `
+                                let cameraX = 0;
+
+                                function main() {
+                                    // Look around with the arrow keys
+                                    if (MDog.Input.Keyboard.isDown("ArrowLeft")) {
+                                        cameraX -= 1;
+                                    }
+                                    if (MDog.Input.Keyboard.isDown("ArrowRight")) {
+                                        cameraX += 1;
+                                    }
+
+                                    MDog.Draw.clear({color: "#87b8e8"});
+
+                                    // Everything drawn after this is shifted, so the trees move instead of the camera
+                                    MDog.Draw.translate(-Math.floor(cameraX), 0);
+                                    MDog.Draw.rectangleFill(-1000, 96, 3000, 24, "#4a8f42");
+                                    for (let i = 0; i < 20; i++) {
+                                        MDog.Draw.rectangleFill(i * 40 + 6, 76, 4, 20, "#7a5230");
+                                        MDog.Draw.circle(i * 40 + 8, 70, 10, "#2f7a3a");
+                                    }
+
+                                    // Back to normal for things that shouldn't move
+                                    MDog.Draw.translate(0, 0);
+                                    MDog.Draw.rectangleFill(4, 4, 20, 6, "#ffffff");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "translateX",
@@ -345,6 +501,18 @@ function main() {
                                 FRAMES,
                                 ANIMATION_SPEED,
                             ],
+                            demo: {
+                                code: `
+                                const attack = new MDog.Draw.MultipleFileAnimation("warrior/Attack/Warrior_Attack_?.png", 12, 12);
+
+                                function main() {
+                                    MDog.Draw.clear({color: "#203040"});
+                                    MDog.Draw.animation(attack, 48, 38);
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "new SpriteSheetAnimation",
@@ -356,6 +524,18 @@ function main() {
                                 ANIMATION_SPEED,
                                 ["spriteWidth", "The width of each frame in pixels."],
                             ],
+                            demo: {
+                                code: `
+                                const run = new MDog.Draw.SpriteSheetAnimation("warrior/warrior-run-sheet.png", 8, 12, 64);
+
+                                function main() {
+                                    MDog.Draw.clear({color: "#203040"});
+                                    MDog.Draw.animation(run, 48, 38);
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                     ]);
                 </script>
@@ -397,6 +577,7 @@ function main() {
         </div>
     </div>
     <script src="page.js"></script>
+    <script src="demos.js"></script>
     <script src="search.js"></script>
 </body>
 </html>
