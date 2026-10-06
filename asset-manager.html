@@ -52,7 +52,7 @@ function main() {
                         {
                             name: "doneLoading",
                             description: "Checks if every file has loaded.",
-                            returns: "<code>true</code> if every file from <code>loadFile()</code> has finished loading.",
+                            returns: "<code>true</code> if every file from <code>loadFile()</code> has finished loading. Files that couldn't be loaded count as finished, and an error is shown in the browser console.",
                         },
                         {
                             name: "get",
@@ -60,7 +60,7 @@ function main() {
                             parameters: [
                                 ["fileName", "The name the file was saved under."],
                             ],
-                            returns: "The text of the file, or <code>undefined</code> if it hasn't loaded yet.",
+                            returns: "The text of the file, or <code>undefined</code> if it hasn't loaded yet or couldn't be loaded.",
                         },
                     ]);
                 </script>

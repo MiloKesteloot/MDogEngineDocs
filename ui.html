@@ -101,6 +101,28 @@
                     ], "Interactable");
                 </script>
 
+                <h2>TextInteractable</h2>
+
+                <p>A <code>TextInteractable</code> is pixel font text that can be added to a <code>Page</code>, like a label or a title. It's drawn with <code>MDog.Draw.textImage()</code>, so it uses the same fonts and settings.</p>
+
+                <script>
+                    methodsTable([
+                        {
+                            name: "new TextInteractable",
+                            description: "Makes new text.",
+                            parameters: [
+                                ["x, y", "The integer position of the text. This is the top left unless <code>alignX</code> or <code>alignY</code> are changed."],
+                                ["text", "The text to be drawn."],
+                                ["color", "Hex code for the text."],
+                                ["font", "The font image to use, like <code>\"fonts/marsfont.png\"</code>. See <code>textImage()</code>."],
+                                ["textSettings?", "The settings to draw the text with, like <code>{alignX: \"center\", size: 2}</code>. See <code>textImage()</code> for all of them."],
+                            ],
+                        },
+                    ], "TextInteractable");
+                </script>
+
+                <p>It has the same <code>getX()</code>, <code>getY()</code>, <code>setX()</code>, and <code>setY()</code> as every interactable. Its <code>text</code>, <code>color</code>, and <code>font</code> can be changed directly, like <code>label.text = "Score: 10"</code>.</p>
+
                 <h2>TilemapInteractable</h2>
 
                 <p>A <code>TilemapInteractable</code> draws a grid of tiles from a sprite sheet, and can tell which tile the mouse is over.</p>
@@ -225,7 +247,7 @@ MDog.Draw.interactable(tilemap);</code></pre>
 
                 <h2>RectangleGridInteractable</h2>
 
-                <p>A <code>RectangleGridInteractable</code> is a grid of same size cells, used to turn screen positions into grid positions and back.</p>
+                <p>A <code>RectangleGridInteractable</code> is a grid of same size cells, used to turn screen positions into grid positions and back. Drawing it puts a red dot on every grid corner on the screen.</p>
 
                 <script>
                     methodsTable([
@@ -275,6 +297,24 @@ MDog.Draw.interactable(tilemap);</code></pre>
                         {
                             name: "getPoint",
                             description: "Turns a grid position into a screen position.",
+                            parameters: [
+                                ["x, y", "The grid position."],
+                            ],
+                            returns: "A <code>Vector</code> of the screen position.",
+                        },
+                        {
+                            name: "screenToTile",
+                            description: "Turns a screen position into a grid position.",
+                            details: "Finds which cell of the grid a screen position is in. Each cell is named by the grid point at its <code>(0, 0)</code> corner.",
+                            parameters: [
+                                ["x, y", "The screen position, in art pixels."],
+                            ],
+                            returns: "A <code>Vector</code> of the grid position.",
+                        },
+                        {
+                            name: "tileToScreen",
+                            description: "Turns a grid position into a screen position.",
+                            details: "The same as <code>getPoint()</code>.",
                             parameters: [
                                 ["x, y", "The grid position."],
                             ],

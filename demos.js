@@ -16,6 +16,13 @@ const demoKeyLabels = {ArrowLeft: "◀", ArrowRight: "▶", ArrowUp: "▲", Arro
 // The physical key for each key name, so the engine sees the same thing a real keyboard would send
 const demoKeyCodes = {ArrowLeft: "ArrowLeft", ArrowRight: "ArrowRight", ArrowUp: "ArrowUp", ArrowDown: "ArrowDown", " ": "Space", Escape: "Escape", Enter: "Enter"};
 
+// Resizes a demo's game box when the page width or zoom changes, or when a dropdown with a demo in it opens
+const demoResizeObserver = new ResizeObserver(entries => {
+    for (const entry of entries) {
+        demos.find(d => d.element === entry.target)?.sizeScreen();
+    }
+});
+
 const demos = [...document.querySelectorAll(".demo")].map(element => setUpDemo(element));
 
 // Stop a demo once it's scrolled all the way out of view
@@ -88,6 +95,30 @@ function setUpDemo(element) {
     }
 
     setUpTouchKeys();
+    sizeScreen();
+    demoResizeObserver.observe(element);
+
+    // MDog Engine only scales the game by whole numbers of screen pixels. With display scaling like 125%,
+    // a box that's a round number of CSS pixels isn't a whole multiple of the game's size in screen pixels,
+    // which leaves a black border. So the box is sized to exactly fit the biggest whole scale that fits.
+    function sizeScreen() {
+        const available = element.clientWidth;
+        if (available === 0) {
+            // Hidden, like in a closed dropdown. It gets sized when it's shown.
+            return;
+        }
+        const devicePixelRatio = window.devicePixelRatio || 1;
+        // Small demos stay a reasonable size, and whole games can use the whole width
+        const maxWidth = element.dataset.source ? available : Math.min(available, 520);
+        const scale = Math.max(1, Math.floor(maxWidth * devicePixelRatio / width + 0.01));
+        // Rounded up, since the browser rounds the iframe's inside down to whole CSS pixels, which can leave it
+        // a hair too small for the scale (like 819.2 becoming 819). Rounding up adds less than a pixel.
+        screen.style.width = Math.ceil(width * scale / devicePixelRatio) + "px";
+        screen.style.height = Math.ceil(height * scale / devicePixelRatio) + "px";
+        screen.style.maxWidth = "none";
+        screen.style.aspectRatio = "auto";
+    }
+    d.sizeScreen = sizeScreen;
 
     function fitTextArea() {
         textArea.rows = textArea.value.split("\n").length;

@@ -115,7 +115,7 @@
                         {
                             name: "clear",
                             description: "Clears the screen/layer to a color.",
-                            details: "Clears the screen (or specific layer) to a color (black by default). If no layer is given, every layer is wiped and the screen is filled with the color. The color can be <code>\"transparent\"</code> to see the web page behind the game. If a layer is given, that layer is filled with the color, which covers up the layers below it.",
+                            details: "Clears the screen (or specific layer) to a color (black by default). If no layer is given, every layer is wiped and the screen is filled with the color. The color can be <code>\"transparent\"</code> to see the web page behind the game. If a layer is given, only that layer is filled with the color, which covers up the layers below it. Use <code>\"transparent\"</code> to clear just that layer back to empty.",
                             settings: [
                                 ["color", "Hex code for background clear.", "\"#000000\""],
                                 ["layer", "An integer defining the canvas to clear. If no layer is given, all layers will be cleared.", "null"],
