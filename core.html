@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>Core - MDog Engine Docs</title>
     <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
     <script src="build-tables.js"></script>
 </head>
 <body>
     <div class="screen">
+        <script src="sidebar.js"></script>
         <div class="page-centerer">
             <div class="page">
 
@@ -21,7 +23,7 @@
 
                 <h2>The Game Loop</h2>
 
-                <p>Your game is one function, called the "active function." MDog Engine calls the active function 160 times per second, and each call is called a "tick." Ticks happen at the same speed no matter how fast the player's screen refreshes, so a game can move things by a set amount every tick instead of using <code>deltaTime()</code>.</p>
+                <p>A game's main code goes in one function, called the "active function." MDog Engine runs the active function 160 times per second, and each run is a "tick." Ticks happen at the same speed no matter how fast the player's screen refreshes, so a game can move things by a set amount every tick instead of using <code>deltaTime()</code>.</p>
 
                 <p>After the ticks for a frame are done, every layer is drawn to the screen.</p>
 
@@ -111,8 +113,5 @@
 
         </div>
     </div>
-
-    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
-    <script src="sidebar.js"></script>
 </body>
 </html>

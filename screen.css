@@ -205,6 +205,10 @@ tr.has-dropdown:has(input[type=checkbox]:checked) td code:not(:hover) {
     text-decoration-color: rgba(226, 232, 240, 0.4);
 }
 
+.page p + .methods-grid, .page pre + .methods-grid {
+    margin-top: 1.5rem;
+}
+
 tr.no-dropdown + tr {
     display: none;
 }
@@ -227,11 +231,8 @@ tr.no-dropdown + tr {
     font-size: 16px;
 }
 
-.page li code, .methods-grid td code:not(.outline) code {
-    font-family: monospace;
-}
-
 .page li code {
+    font-family: monospace;
     border-radius: 5px;
     border: hsla(0, 0%, 100%, .1) solid 1px;
     background-color: hsla(0, 0%, 100%, 0.05);
@@ -252,15 +253,6 @@ tr.no-dropdown + tr {
 .page pre, .page pre * {
     font-family: monospace;
     font-size: 14px;
-}
-
-.page .info-box {
-    margin-top: 1.5rem;
-    line-height: 1.5rem;
-}
-
-.page .info-box code {
-    font-family: monospace;
 }
 
 .copyright {

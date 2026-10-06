@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <title>What is MDog Engine? - MDog Engine Docs</title>
     <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
 </head>
 <body>
     <div class="screen">
+        <script src="sidebar.js"></script>
         <div class="page-centerer">
             <div class="page">
 
@@ -16,24 +18,24 @@
 
                 <p>MDog Engine is a retro, web-based game engine designed for quick production of games. Games are written in JavaScript and run right in the browser, so they can be shared with just a link.</p>
 
-                <p>Everything is drawn with crisp, square pixels on a 512 by 384 pixel screen, which is scaled up to fit the browser window.</p>
+                <p>Everything is drawn with crisp, square pixels on a small screen (512 by 384 pixels by default), which is scaled up to fit the browser window. The game loop runs at a fixed speed, so games play the same on every computer.</p>
 
-                <h2>Features</h2>
+                <h2>Modules</h2>
 
                 <ul>
-                    <li>Shapes, images, sprite sheet animations, pixel font text, and layers with the <a href="draw.html">Draw Module</a>.</li>
-                    <li>Keyboard and mouse input with the <a href="input.html">Input Module</a>.</li>
-                    <li>2D and 3D vectors with the <a href="math.html">Math Module</a>.</li>
-                    <li>Tilemaps and grids with the <a href="ui.html">UI Module</a>.</li>
-                    <li>Particle effects with the <a href="fx.html">FX Module</a>.</li>
-                    <li>Retro pseudo-3D scenes with the <a href="threedee.html">ThreeDee Module</a>.</li>
-                    <li>Hitboxes with the <a href="basics.html">Basics Module</a>.</li>
-                    <li>A fixed speed game loop, so games run the same on every screen.</li>
+                    <li><a href="draw.html">Draw</a> - Shapes, images, animations, pixel font text, and layers.</li>
+                    <li><a href="input.html">Input</a> - The keyboard and mouse.</li>
+                    <li><a href="math.html">Math</a> - 2D and 3D vectors.</li>
+                    <li><a href="ui.html">UI</a> - Tilemaps and grids.</li>
+                    <li><a href="fx.html">FX</a> - Particles.</li>
+                    <li><a href="threedee.html">ThreeDee</a> - Retro pseudo-3D scenes.</li>
+                    <li><a href="asset-manager.html">Asset Manager</a> - Loading text files.</li>
+                    <li><a href="basics.html">Basics</a> - Hitboxes.</li>
                 </ul>
 
                 <h2>How it Works</h2>
 
-                <p>There's nothing to install. Your game imports MDog Engine straight from the web, gives it a function to run every tick, and uses the modules inside it to draw and read input. Your game's code and art stay in your own project.</p>
+                <p>There's nothing to download. A game imports MDog Engine from the web, gives it a function to run every tick, and uses its modules to draw and read input. The game's code and art stay in its own project.</p>
 
                 <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.0.0/MDogModules/MDogMain.js";
 
@@ -59,8 +61,5 @@ MDog.setActiveFunction(main);</code></pre>
 
         </div>
     </div>
-
-    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
-    <script src="sidebar.js"></script>
 </body>
 </html>

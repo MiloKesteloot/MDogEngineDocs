@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>Draw Module - MDog Engine Docs</title>
     <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
     <script src="build-tables.js"></script>
 </head>
 <body>
     <div class="screen">
+        <script src="sidebar.js"></script>
         <div class="page-centerer">
             <div class="page">
 
@@ -17,13 +19,13 @@
 
                 <p>The Draw Module contains everything you need to set the pixels on the screen. This includes shapes, images, text, animations, and more.</p>
 
-                <p>The screen is 512 by 384 "art pixels." The canvas is scaled up by a whole number so every art pixel stays crisp and square. All positions are in art pixels, with <code>(0, 0)</code> at the top left and y going down.</p>
+                <p>The screen is 512 by 384 "art pixels" unless it's changed with <code>setScreenSize()</code>. The canvas is scaled up by a whole number so every art pixel stays crisp and square. All positions are in art pixels, with <code>(0, 0)</code> at the top left and y going down.</p>
 
                 <p>The Draw Module creates multiple canvases called "Layers." Layers are numbered, and higher layers are drawn on top of lower ones. At the end of every frame, all of the Layers are combined and drawn to the screen. Layers are not cleared on their own, so most games call <code>clear()</code> at the start of every tick.</p>
 
                 <p>Colors are strings like <code>"#ff0000"</code>.</p>
 
-                <p>The draw Module can be accessed with <code>MDog.Draw.method()</code>.</p>
+                <p>The Draw Module can be accessed with <code>MDog.Draw.method()</code>.</p>
 
                 <script>
                     const LAYER = ["layer", "An integer defining the canvas to draw to. If the layer has never been drawn to, a new canvas will be created. Defaults to the active layer (see <code>setActiveLayer()</code>)."];
@@ -45,7 +47,7 @@
                                 ["scale", "How many pixels each image pixel maps to.", "1"],
                                 ["flipX", "Flip the animation horizontally.", "false"],
                                 ["flipY", "Flip the animation vertically.", "false"],
-                                ["update", "Whether drawing the animation should move it forward. Set this to false to draw the animation frozen.", "true"],
+                                ["update", "Whether drawing the animation moves it forward. Set this to false to draw it without moving it forward.", "true"],
                             ],
                         },
                         {
@@ -62,7 +64,7 @@
                         {
                             name: "clear",
                             description: "Clears the screen/layer to a color.",
-                            details: "Clears the screen (or specific layer) to a color (black by default). If no layer is given, every layer is wiped and the screen is filled with the color. The color can be <code>\"transparent\"</code> to see the web page behind the game.",
+                            details: "Clears the screen (or specific layer) to a color (black by default). If no layer is given, every layer is wiped and the screen is filled with the color. The color can be <code>\"transparent\"</code> to see the web page behind the game. If a layer is given, that layer is filled with the color, which covers up the layers below it.",
                             settings: [
                                 ["color", "Hex code for background clear.", "\"#000000\""],
                                 ["layer", "An integer defining the canvas to clear. If no layer is given, all layers will be cleared.", "null"],
@@ -87,7 +89,7 @@
                                 ["height", "The height of the image relative to <code>offsetY</code>.", "image.height"],
                                 ["flipX", "Flip the image horizontally.", "false"],
                                 ["flipY", "Flip the image vertically.", "false"],
-                                ["tint", "Hex code to recolor every non-transparent pixel of the image with.", "undefined"],
+                                ["tint", "Hex code to recolor every non-transparent pixel of the image with. If no tint is given, the image keeps its own colors."],
                             ],
                             returns: "<code>true</code> if the image was drawn, or <code>false</code> if it hasn't finished loading yet.",
                         },
@@ -162,7 +164,6 @@
                         {
                             name: "rectangleFill",
                             description: "Draws a filled-in rectangle.",
-                            details: "Draws a filled-in rectangle.",
                             parameters: [
                                 ["x, y", "The integer top left of the rectangle."],
                                 ["width, height", "The integer size of the rectangle."],
@@ -176,7 +177,7 @@
                             details: "Draws text using one of the built-in pixel fonts. Each piece of text is drawn once and then saved, so drawing the same text again is fast. Use <code>\\n</code> for new lines. The fonts only have letters, numbers, and <code>!~-.,?[]/:*'\"&gt;&lt;_</code>, and any other character is left as a space.",
                             parameters: [
                                 ["text", "The text to be drawn."],
-                                ["x, y", "The integer position of the text. Which corner this is depends on <code>alignX</code> and <code>alignY</code>."],
+                                ["x, y", "The integer position of the text. This is the top left unless <code>alignX</code> or <code>alignY</code> are changed."],
                                 ["color", "Hex code for the text."],
                                 ["font", "The font image to use. This must be <code>\"fonts/marsfont.png\"</code> (5 by 5 pixel letters) or <code>\"fonts/determinationfont.png\"</code> (8 by 13 pixel letters), and the font image must be in your assets folder (see <a href=\"getting-started.html#fonts\">Getting Started</a>)."],
                             ],
@@ -254,6 +255,14 @@
                             details: "Sets the color of the web page around the game. This starts as black.",
                             parameters: [
                                 ["color", "Hex code for the page background."],
+                            ],
+                        },
+                        {
+                            name: "setScreenSize",
+                            description: "Sets the size of the screen.",
+                            details: "Sets how many art pixels wide and tall the screen is. Call this once at the start of the game, before anything is drawn, since it clears every layer.",
+                            parameters: [
+                                ["width, height", "The new size of the screen, in art pixels."],
                             ],
                         },
                     ]);
@@ -361,7 +370,7 @@ function main() {
                         {
                             name: "getRawFrame",
                             description: "Gets how many frames have passed.",
-                            details: "Gets how many frames have been shown since the animation started, without looping back to the start. This is useful for checking if an animation has finished playing once.",
+                            details: "Gets how many frames have been shown since the animation started, without looping back to the start. Once this reaches the number of frames, the animation has played all the way through.",
                         },
                         {
                             name: "reset",
@@ -372,7 +381,7 @@ function main() {
                             description: "Gets a frame's file name.",
                             details: "Gets the file name of a frame. This is only on <code>MultipleFileAnimation</code>s.",
                             parameters: [
-                                ["frame?", "Which frame to get the file name of. If no frame is given, the current frame is used."],
+                                ["frame?", "Which frame to get the file name of, starting at 0. If no frame is given, the current frame is used."],
                             ],
                             returns: "The file name of the frame.",
                         },
@@ -385,8 +394,5 @@ function main() {
 
         </div>
     </div>
-
-    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
-    <script src="sidebar.js"></script>
 </body>
 </html>

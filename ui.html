@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>UI Module - MDog Engine Docs</title>
     <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
     <script src="build-tables.js"></script>
 </head>
 <body>
     <div class="screen">
+        <script src="sidebar.js"></script>
         <div class="page-centerer">
             <div class="page">
 
@@ -185,7 +187,7 @@ MDog.Draw.interactable(tilemap);</code></pre>
 
                 <h2>RectangleGridInteractable</h2>
 
-                <p>A <code>RectangleGridInteractable</code> is an invisible grid of same size cells, used to turn screen positions into grid positions and back.</p>
+                <p>A <code>RectangleGridInteractable</code> is a grid of same size cells, used to turn screen positions into grid positions and back.</p>
 
                 <script>
                     methodsTable([
@@ -218,7 +220,7 @@ MDog.Draw.interactable(tilemap);</code></pre>
 
                 <h2>VectorGridInteractable</h2>
 
-                <p>A <code>VectorGridInteractable</code> is a grid where each step across and each step down can be any direction, like for isometric games. Drawing it puts a red dot on every grid point, which is helpful for lining things up.</p>
+                <p>A <code>VectorGridInteractable</code> is a grid where each step across and each step down can be any direction, like for isometric games. Drawing it puts a red dot on every grid point.</p>
 
                 <script>
                     methodsTable([
@@ -249,8 +251,5 @@ MDog.Draw.interactable(tilemap);</code></pre>
 
         </div>
     </div>
-
-    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
-    <script src="sidebar.js"></script>
 </body>
 </html>

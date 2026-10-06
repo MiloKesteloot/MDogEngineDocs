@@ -70,7 +70,13 @@ body {
     display: flex;
 }
 
-.searchbar-container > div > i {
+.sidebar-container svg.icon {
+    height: 1em;
+    fill: currentColor;
+    flex-shrink: 0;
+}
+
+.searchbar-container > div > svg {
     color: rgb(133, 133, 133);
     margin-top: 9px;
     margin-left: 8px;

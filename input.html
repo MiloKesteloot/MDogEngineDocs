@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>Input Module - MDog Engine Docs</title>
     <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
     <script src="build-tables.js"></script>
 </head>
 <body>
     <div class="screen">
+        <script src="sidebar.js"></script>
         <div class="page-centerer">
             <div class="page">
 
@@ -23,7 +25,7 @@
 
                 <h2>Keyboard</h2>
 
-                <p>Keys are named the same way as the browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values"><code>KeyboardEvent.key</code></a>. Letters are always lowercase, even when shift is held. Some common keys are <code>"a"</code>, <code>"1"</code>, <code>" "</code> (space), <code>"ArrowUp"</code>, <code>"Shift"</code>, <code>"Enter"</code>, and <code>"Escape"</code>.</p>
+                <p>Keys are named the same way as the browser's <a href="https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values"><code>KeyboardEvent.key</code></a>. Letters are always lowercase, even when shift is held, but other keys can change with shift, like <code>"1"</code> becoming <code>"!"</code>. Some common keys are <code>"a"</code>, <code>"1"</code>, <code>" "</code> (space), <code>"ArrowUp"</code>, <code>"Shift"</code>, <code>"Enter"</code>, and <code>"Escape"</code>.</p>
 
                 <p>Space and the arrow keys won't scroll the web page while the game is running.</p>
 
@@ -138,8 +140,5 @@
 
         </div>
     </div>
-
-    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
-    <script src="sidebar.js"></script>
 </body>
 </html>

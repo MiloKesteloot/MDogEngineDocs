@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <title>Getting Started - MDog Engine Docs</title>
     <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
 </head>
 <body>
     <div class="screen">
+        <script src="sidebar.js"></script>
         <div class="page-centerer">
             <div class="page">
 
@@ -72,13 +74,7 @@ function main() {
 
 MDog.setActiveFunction(main);</code></pre>
 
-                <p>Here's what's happening:</p>
-
-                <ul>
-                    <li>The <code>import</code> line loads MDog Engine and makes the game screen.</li>
-                    <li><code>MDog.setActiveFunction(main)</code> tells MDog Engine to run <code>main</code> 160 times per second. Each run is called a "tick." See <a href="core.html">Core</a>.</li>
-                    <li>Every tick, the game checks the arrow keys with the <a href="input.html">Input Module</a>, clears the screen, and draws the square with the <a href="draw.html">Draw Module</a>.</li>
-                </ul>
+                <p>The <code>import</code> line loads MDog Engine and makes the game screen. <code>MDog.setActiveFunction(main)</code> tells MDog Engine to run <code>main</code> 160 times per second, and each run is called a "tick" (see <a href="core.html">Core</a>). Every tick, the game moves the square if an arrow key is held down, then clears the screen and draws the square.</p>
 
                 <h2>4. Run the Game</h2>
 
@@ -90,7 +86,7 @@ MDog.setActiveFunction(main);</code></pre>
                     <li>Running <code>npx serve</code> or <code>python -m http.server</code> in the game's folder, then going to the address it prints.</li>
                 </ul>
 
-                <p>You should see an orange square you can move around with the arrow keys.</p>
+                <p>An orange square should show up in the middle of the screen, and the arrow keys move it around.</p>
 
                 <h2>5. Add an Image</h2>
 
@@ -98,7 +94,7 @@ MDog.setActiveFunction(main);</code></pre>
 
                 <pre><code>MDog.Draw.image("player.png", position.x - 8, position.y - 8);</code></pre>
 
-                <p>Images load the first time they're drawn, so it's normal for an image to be missing for the first moment of the game.</p>
+                <p>Images load the first time they're drawn, so an image can be missing for the first few ticks.</p>
 
                 <h2 id="fonts">6. Add Text</h2>
 
@@ -115,14 +111,13 @@ MDog.setActiveFunction(main);</code></pre>
 
                 <h2>7. Share It</h2>
 
-                <p>Since the game is just a web page, it can be put online anywhere that hosts web pages, like <a href="https://pages.github.com/">GitHub Pages</a>.</p>
+                <p>The game is a regular web page, so it can be put online anywhere that hosts web pages, like <a href="https://pages.github.com/">GitHub Pages</a>.</p>
 
                 <h2>Tips</h2>
 
                 <ul>
                     <li>To have the game fill the whole window, add <code>?fullscreen=true</code> to the end of the URL.</li>
-                    <li>The <code>@v1.0.0</code> in the import is the version of MDog Engine. Keeping it means your game won't change when MDog Engine is updated.</li>
-                    <li>Every module's methods are listed under Code in the sidebar.</li>
+                    <li>The <code>@v1.0.0</code> in the import is the version of MDog Engine. Your game keeps using that version even after MDog Engine is updated.</li>
                 </ul>
 
                 <div class="copyright">Copyright © 2024. All rights reserved.</div>
@@ -131,8 +126,5 @@ MDog.setActiveFunction(main);</code></pre>
 
         </div>
     </div>
-
-    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
-    <script src="sidebar.js"></script>
 </body>
 </html>

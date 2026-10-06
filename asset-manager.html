@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>Asset Manager - MDog Engine Docs</title>
     <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
     <script src="build-tables.js"></script>
 </head>
 <body>
     <div class="screen">
+        <script src="sidebar.js"></script>
         <div class="page-centerer">
             <div class="page">
 
@@ -15,7 +17,7 @@
 
                 <h1>Asset Manager</h1>
 
-                <p>The Asset Manager loads text files from your assets folder, like levels, tilemaps, and dialogue. Images don't need the Asset Manager, since the Draw Module loads them on its own.</p>
+                <p>The Asset Manager loads text files from your assets folder, like levels and tilemaps. Images don't need the Asset Manager, since the Draw Module loads them on its own.</p>
 
                 <p>Files load in the background, so start loading them before the game starts, and wait for <code>doneLoading()</code> before using them.</p>
 
@@ -66,8 +68,5 @@ function main() {
 
         </div>
     </div>
-
-    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
-    <script src="sidebar.js"></script>
 </body>
 </html>

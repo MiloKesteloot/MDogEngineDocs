@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>Basics Module - MDog Engine Docs</title>
     <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
     <script src="build-tables.js"></script>
 </head>
 <body>
     <div class="screen">
+        <script src="sidebar.js"></script>
         <div class="page-centerer">
             <div class="page">
 
@@ -116,7 +118,7 @@ if (hitbox.colliding(enemyHitbox)) {
                         {
                             name: "getX",
                             description: "Gets an x near the kickbox's edges.",
-                            details: "Gets one of four x positions near the kickbox's left and right edges. These are useful for checking the pixels just outside a kickbox, like to see if a wall is next to it.",
+                            details: "Gets one of four x positions near the kickbox's left and right edges. Use these to check the pixels around a kickbox, like whether there's a wall next to it.",
                             parameters: [
                                 ["index", "<code>0</code> is just outside the left edge, <code>1</code> is the left edge, <code>2</code> is the right edge, and <code>3</code> is just outside the right edge."],
                             ],
@@ -124,7 +126,7 @@ if (hitbox.colliding(enemyHitbox)) {
                         {
                             name: "getY",
                             description: "Gets a y near the kickbox's edges.",
-                            details: "Gets one of four y positions near the kickbox's top and bottom edges. These are useful for checking the pixels just outside a kickbox, like to see if the ground is under it.",
+                            details: "Gets one of four y positions near the kickbox's top and bottom edges. Use these to check the pixels around a kickbox, like whether there's ground under it.",
                             parameters: [
                                 ["index", "<code>0</code> is just above the top edge, <code>1</code> is the top edge, <code>2</code> is the bottom edge, and <code>3</code> is just below the bottom edge."],
                             ],
@@ -138,8 +140,5 @@ if (hitbox.colliding(enemyHitbox)) {
 
         </div>
     </div>
-
-    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
-    <script src="sidebar.js"></script>
 </body>
 </html>

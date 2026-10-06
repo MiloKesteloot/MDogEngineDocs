@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <title>FX Module - MDog Engine Docs</title>
     <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
     <script src="build-tables.js"></script>
 </head>
 <body>
     <div class="screen">
+        <script src="sidebar.js"></script>
         <div class="page-centerer">
             <div class="page">
 
@@ -15,11 +17,11 @@
 
                 <h1>FX Module</h1>
 
-                <p>The FX Module contains particles, for effects like sparks, dust, and explosions.</p>
+                <p>The FX Module contains particles, for effects like sparks and dust.</p>
 
                 <p>Particles are added to a <code>ParticleSystem</code>. Every tick, call the particle system's <code>update()</code> to move the particles, and draw it with <code>MDog.Draw.particleSystem()</code>. Every particle has a life, which is how many ticks it lasts before it's removed.</p>
 
-                <p>Speeds and gravity are in pixels per tick.</p>
+                <p>Speeds are in pixels per tick.</p>
 
                 <pre><code>const sparks = new MDog.FX.ParticleSystem();
 
@@ -180,8 +182,5 @@ function main() {
 
         </div>
     </div>
-
-    <script src="https://kit.fontawesome.com/829bd5b350.js" crossorigin="anonymous"></script>
-    <script src="sidebar.js"></script>
 </body>
 </html>
