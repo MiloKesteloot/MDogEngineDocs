@@ -320,7 +320,7 @@ function docsDemoHTML(options) {
     let html = `<div class="demo" data-width="${width}" data-height="${height}" data-keys="${docsEscape(JSON.stringify(keys))}"` +
         (options.source ? ` data-source="${docsEscape(options.source)}"` : "") + `>` +
         `<div class="demo-screen" style="aspect-ratio: ${width} / ${height}; max-width: ${Math.max(480, width)}px">` +
-        `<button class="demo-start">Click to run</button>` +
+        `<button class="demo-start"><span>Click to run</span></button>` +
         `</div>` +
         `<div class="demo-touch-keys"></div>`;
 

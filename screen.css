@@ -441,7 +441,13 @@ tr.no-dropdown + tr {
     cursor: pointer;
 }
 
-.page .demo-start::before {
+.page .demo-start span {
+    display: inline-block;
+    padding: 9px 18px;
+    border-radius: 999px;
+}
+
+.page .demo-start span::before {
     content: "▶";
     margin-right: 10px;
     color: var(--info-blue);
@@ -489,26 +495,57 @@ tr.no-dropdown + tr {
     margin-top: 8px;
 }
 
-.page .demo-code {
-    display: block;
-    width: 100%;
-    padding: 10px 12px;
+/* The demo editor: a see-through textarea on top of a colored copy of the code (see demos.js) */
+
+.page .demo-code-wrap {
+    position: relative;
     border-radius: 8px;
     border: 1px solid hsla(0, 0%, 100%, .1);
     background-color: hsla(0, 0%, 100%, 0.05);
-    color: var(--text-color);
+}
+
+.page .demo-code-wrap:focus-within {
+    border-color: rgba(168, 203, 245, 0.5);
+}
+
+/* The textarea and the colored copy need exactly the same text layout, or the cursor won't line up with the colors */
+.page .demo-code, .page .demo-highlight {
+    margin: 0;
+    border: none;
+    padding: 36px 12px 10px;
     font-family: monospace;
     font-size: 14px;
     line-height: 1.4rem;
+    letter-spacing: normal;
     tab-size: 4;
     white-space: pre;
+}
+
+.page .demo-code {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--text-color);
     overflow-x: auto;
+    overflow-y: hidden;
     resize: vertical;
     outline: none;
 }
 
-.page .demo-code:focus {
-    border-color: rgba(168, 203, 245, 0.5);
+.page .demo-code::selection {
+    background-color: rgba(120, 160, 220, 0.35);
+}
+
+.page .demo-highlight {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    color: #d4d4d4;
+    background: none;
 }
 
 .page .demo-bar {
@@ -562,4 +599,158 @@ tr.no-dropdown + tr {
 
 .page .demo-error:empty {
     display: none;
+}
+
+/* Code colors, like VS Code's dark theme (see syntax.js) */
+
+.page .tok-comment { color: #6a9955; }
+.page .tok-string { color: #ce9178; }
+.page .tok-number { color: #b5cea8; }
+.page .tok-keyword { color: #569cd6; }
+.page .tok-control { color: #c586c0; }
+.page .tok-function { color: #dcdcaa; }
+.page .tok-class { color: #4ec9b0; }
+.page .tok-variable { color: #9cdcfe; }
+.page .tok-tag { color: #569cd6; }
+.page .tok-attribute { color: #9cdcfe; }
+.page .tok-punctuation { color: #808080; }
+
+.page pre {
+    color: #d4d4d4;
+    padding-top: 36px;
+}
+
+/* The language name at the top of each code block */
+.page .code-language {
+    position: absolute;
+    top: 9px;
+    left: 15px;
+    z-index: 2;
+    color: rgba(226, 232, 240, 0.45);
+    font-family: gitlab-sans, sans-serif !important;
+    font-size: 12px !important;
+    pointer-events: none;
+    user-select: none;
+}
+
+.page .demo-code-wrap .code-language {
+    left: 12px;
+}
+
+/* The assets a demo uses */
+
+.page .demo-assets {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid hsla(0, 0%, 100%, .1);
+}
+
+.page .demo-assets-title {
+    color: var(--text-color);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.page .demo-assets-title span {
+    color: rgba(226, 232, 240, 0.5);
+}
+
+.page .demo-assets-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.page .demo-asset {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 5px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    text-decoration: none;
+}
+
+.page .demo-asset:hover {
+    border-color: rgba(168, 203, 245, 0.5);
+    background-color: hsla(0, 0%, 100%, 0.04);
+}
+
+.page .demo-asset img {
+    display: block;
+    image-rendering: pixelated;
+    /* A checkerboard behind the image, so the see-through parts are easy to spot */
+    background-color: #2a2d33;
+    background-image: linear-gradient(45deg, #34383f 25%, transparent 25%, transparent 75%, #34383f 75%),
+        linear-gradient(45deg, #34383f 25%, transparent 25%, transparent 75%, #34383f 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 4px 4px;
+}
+
+.page .demo-asset-name {
+    font-family: monospace !important;
+    font-size: 12px;
+    color: rgba(226, 232, 240, 0.7);
+    overflow-wrap: anywhere;
+}
+
+.page .demo-asset-file {
+    padding: 6px 10px;
+    border-color: hsla(0, 0%, 100%, .1);
+}
+
+.page .demo-asset-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.page .demo-asset-frames {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+
+.page .demo-asset-frames .demo-asset {
+    padding: 3px;
+}
+
+/* Demo previews: the first frame is shown behind the start button (see makePreview in demos.js) */
+
+/* The hidden iframe a preview is made in. It's moved off screen instead of hidden, so it works like a normal page. */
+.demo-preview-iframe {
+    position: fixed;
+    left: -10000px;
+    top: 0;
+    width: 320px;
+    height: 240px;
+    border: none;
+    pointer-events: none;
+}
+
+.page .demo.has-preview .demo-screen {
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+/* The frame is dimmed a little, and the label gets its own dark pill so it can be read on top of any picture */
+.page .demo.has-preview .demo-start {
+    background-color: rgba(10, 12, 16, 0.3);
+}
+
+.page .demo.has-preview .demo-start:hover {
+    background-color: rgba(10, 12, 16, 0.1);
+}
+
+.page .demo.has-preview .demo-start span {
+    background-color: rgba(17, 19, 24, 0.85);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.page .demo.has-preview .demo-start:hover span {
+    background-color: rgba(30, 34, 42, 0.95);
 }

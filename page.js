@@ -10,7 +10,7 @@ cleanPageLinks();
 const fullIndex = makeFullIndex();
 
 addCrossLinks();
-addCopyButtons();
+decorateCodeBlocks();
 setUpMethodLinks();
 openTargetFromURL();
 window.addEventListener("hashchange", openTargetFromURL);
@@ -100,8 +100,20 @@ function setUpMethodLinks() {
 }
 
 // Adds a copy button to every code block
-function addCopyButtons() {
+// Colors every code block, labels its language, and adds a copy button.
+// The language is guessed, or can be set with data-lang="js", "html", or "text" on the <pre>.
+// data-label changes what the label says, like data-label="Files" for a list of files.
+function decorateCodeBlocks() {
     for (const pre of document.querySelectorAll(".page pre")) {
+        const code = pre.querySelector("code");
+        const language = pre.dataset.lang ?? docsGuessLanguage(code.textContent);
+        code.innerHTML = docsHighlight(code.textContent, language);
+
+        const label = document.createElement("div");
+        label.className = "code-language";
+        label.textContent = pre.dataset.label ?? docsLanguageNames[language] ?? language;
+        pre.appendChild(label);
+
         const button = document.createElement("button");
         button.className = "copy-button";
         button.textContent = "Copy";
