@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pseudo-3D Road Example - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Examples</div>
+
+                <h1>Pseudo-3D Road</h1>
+
+                <p>A road that curves back and forth, like an old racing game, made with the <a href="threedee.html">ThreeDee Module</a>.</p>
+
+                <p>Steer with the left and right arrow keys.</p>
+
+                <h2>The Code</h2>
+
+                <p>Make a project like in <a href="getting-started.html">Getting Started</a>, and put this in <code>game.js</code>. It doesn't need any assets.</p>
+
+                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
+
+const ThreeDee = MDog.ThreeDee;
+const Vector3 = MDog.Math.Vector3;
+const Keyboard = MDog.Input.Keyboard;
+
+// The ground is 10 below the camera
+const groundY = 10;
+const camera = new ThreeDee.Camera(0, 0, 0, 100);
+const stripeLength = 4;
+const viewDistance = 80;
+
+function main() {
+    // Drive forward, and steer with the arrow keys
+    camera.position.z += 0.15;
+    if (Keyboard.isDown("ArrowLeft")) {
+        camera.position.x -= 0.1;
+    }
+    if (Keyboard.isDown("ArrowRight")) {
+        camera.position.x += 0.1;
+    }
+
+    // Scenes can't remove objects, so a new scene is made every tick with just the stripes in view
+    const scene = new ThreeDee.ThreeDeeScene(camera);
+
+    // Stripes are added from farthest to closest, so the closer ones are drawn on top.
+    // The closest edge stays a little in front of the camera, since points at the camera's z can't be drawn.
+    const near = camera.getZ() + 3;
+    const far = camera.getZ() + viewDistance;
+    for (let z = Math.floor(far / stripeLength) * stripeLength; z + stripeLength &gt; near; z -= stripeLength) {
+        const zFar = z + stripeLength;
+        const zNear = Math.max(z, near);
+        const light = Math.floor(z / stripeLength) % 2 === 0;
+
+        // Grass
+        scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, zFar, zNear, light ? "#4a8f42" : "#3f7d3a"));
+
+        // Road
+        scene.addObject(new ThreeDee.ThreeDeeShape([
+            new Vector3(roadCenter(zNear) - 6, groundY, zNear),
+            new Vector3(roadCenter(zNear) + 6, groundY, zNear),
+            new Vector3(roadCenter(zFar) + 6, groundY, zFar),
+            new Vector3(roadCenter(zFar) - 6, groundY, zFar),
+        ], light ? "#666666" : "#5a5a5a"));
+    }
+
+    MDog.Draw.clear({color: "#87b8e8"});
+    MDog.Draw.threeDeeScene(scene);
+}
+
+// The road curves back and forth
+function roadCenter(z) {
+    return Math.sin(z / 40) * 12;
+}
+
+MDog.setActiveFunction(main);</code></pre>
+
+                <h2>How it Works</h2>
+
+                <p>The camera drives forward by adding to <code>camera.position.z</code> every tick, and steers by changing <code>camera.position.x</code>.</p>
+
+                <p>The ground is split into stripes that switch between two colors, which is what makes it look like it's moving. Each stripe is a <code>ThreeDeeFloor</code> for the grass and a <code>ThreeDeeShape</code> for the road.</p>
+
+                <p>Scenes don't have a way to remove objects, so a new scene is made every tick with only the stripes in front of the camera. Objects are drawn in the order they're added, so the stripes are added from farthest to closest.</p>
+
+                <p>The middle of the road moves side to side with <code>Math.sin()</code>, which makes it curve.</p>
+
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="page.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

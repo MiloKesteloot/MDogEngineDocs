@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Getting Started - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
     <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
 </head>
 <body>
     <div class="screen">
@@ -48,7 +51,7 @@
 
                 <p>Put this in <code>game.js</code>.</p>
 
-                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.0.0/MDogModules/MDogMain.js";
+                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
 
 const position = new MDog.Math.Vector(256, 192);
 
@@ -101,8 +104,8 @@ MDog.setActiveFunction(main);</code></pre>
                 <p>MDog Engine draws text with pixel fonts, which are images in your assets folder. Download one or both of the font images and put them in <code>assets/fonts/</code>:</p>
 
                 <ul>
-                    <li><a href="https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.0.0/assets/fonts/marsfont.png"><code>marsfont.png</code></a> - A small 5 by 5 pixel font.</li>
-                    <li><a href="https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.0.0/assets/fonts/determinationfont.png"><code>determinationfont.png</code></a> - A larger 8 by 13 pixel font.</li>
+                    <li><a href="https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/assets/fonts/marsfont.png"><code>marsfont.png</code></a> - A small 5 by 5 pixel font.</li>
+                    <li><a href="https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/assets/fonts/determinationfont.png"><code>determinationfont.png</code></a> - A larger 8 by 13 pixel font.</li>
                 </ul>
 
                 <p>Then draw text with <code>textImage()</code>:</p>
@@ -113,18 +116,22 @@ MDog.setActiveFunction(main);</code></pre>
 
                 <p>The game is a regular web page, so it can be put online anywhere that hosts web pages, like <a href="https://pages.github.com/">GitHub Pages</a>.</p>
 
+                <p>Once this is working, the <a href="example-platformer.html">Examples</a> have some bigger games to look through.</p>
+
                 <h2>Tips</h2>
 
                 <ul>
                     <li>To have the game fill the whole window, add <code>?fullscreen=true</code> to the end of the URL.</li>
-                    <li>The <code>@v1.0.0</code> in the import is the version of MDog Engine. Your game keeps using that version even after MDog Engine is updated.</li>
+                    <li>The <code>@v1.1.0</code> in the import is the version of MDog Engine. Your game keeps using that version even after MDog Engine is updated.</li>
                 </ul>
 
-                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
 
             </div>
 
         </div>
     </div>
+    <script src="page.js"></script>
+    <script src="search.js"></script>
 </body>
 </html>

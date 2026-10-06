@@ -43,13 +43,17 @@ body {
     width: var(--sidebar-container-width);
     min-width: var(--sidebar-container-width);
     border-right: var(--border);
-    height: calc(100vh);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 
     background-color: rgb(36, 40, 42);
 }
 
 .searchbar-container {
+    position: relative;
     height: 47px;
+    min-height: 47px;
     width: 100%;
 
     display: flex;
@@ -59,7 +63,7 @@ body {
     background-color: #1c1c1c;
 }
 
-.searchbar-container > div {
+.searchbar-container > .searchbar {
     outline: none;
     border: var(--border);
     border-radius: 3px;
@@ -68,6 +72,11 @@ body {
     background-color: rgb(51, 55, 58);
 
     display: flex;
+    align-items: center;
+}
+
+.searchbar-container > .searchbar:focus-within {
+    border-color: rgb(120, 140, 170);
 }
 
 .sidebar-container svg.icon {
@@ -76,33 +85,119 @@ body {
     flex-shrink: 0;
 }
 
-.searchbar-container > div > svg {
+.searchbar > svg {
     color: rgb(133, 133, 133);
-    margin-top: 9px;
     margin-left: 8px;
     font-size: 14px;
 }
 
-.searchbar-container > div > input {
-    margin-top: 3px;
+.searchbar > input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
     margin-left: 6px;
     background-color: transparent;
     border: none;
     outline: none;
     color: rgb(203, 208, 208);
+    font-size: 14px;
+}
+
+.searchbar > .search-shortcut {
+    margin-right: 7px;
+    padding: 0 5px;
+    border: 1px solid rgb(90, 95, 98);
+    border-radius: 3px;
+    color: rgb(133, 133, 133);
+    font-family: monospace;
+    font-size: 11px;
+    line-height: 15px;
+}
+
+.searchbar:focus-within > .search-shortcut {
+    display: none;
+}
+
+.search-results {
+    display: none;
+    position: absolute;
+    top: calc(100% - 4px);
+    left: var(--searchbar-padding);
+    right: var(--searchbar-padding);
+    max-height: 70vh;
+    overflow-y: auto;
+    z-index: 10;
+
+    background-color: rgb(44, 48, 51);
+    border: 1px solid rgb(70, 75, 78);
+    border-radius: 5px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.search-results.open {
+    display: block;
+}
+
+.search-result {
+    display: block;
+    padding: 7px 10px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.search-result:last-child {
+    border-bottom: none;
+}
+
+.search-result.active, .search-result:hover {
+    background-color: rgb(58, 66, 78);
+}
+
+.search-result-title {
+    color: rgb(230, 234, 234);
+    font-family: monospace !important;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.search-result-info {
+    margin-top: 2px;
+    color: rgb(150, 155, 158);
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-empty {
+    padding: 10px;
+    color: rgb(150, 155, 158);
+    font-size: 13px;
 }
 
 .navbar-container {
     background-color: rgb(36, 40, 42);
-    height: calc(100% - 50px);
+    flex: 1;
+    min-height: 0;
     width: 100%;
     border-top: var(--border);
+    display: flex;
+    flex-direction: column;
 }
 
 .navbar-container .navbar-padding {
-    height: calc(100% - 50px);
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     width: calc(100% - var(--navbar-dropdown-spacing)*2);
     margin-left: var(--navbar-dropdown-spacing);
+}
+
+.navbar-container .navbar-footer {
+    width: calc(100% - var(--navbar-dropdown-spacing)*2);
+    margin: 0 var(--navbar-dropdown-spacing) var(--navbar-dropdown-spacing);
+    padding-top: 4px;
+    border-top: 1px solid rgba(203, 208, 208, 0.1);
 }
 
 .navbar-container > .header-text {
@@ -279,3 +374,88 @@ a.navbar-title {
 /*        min-height: var(--checkbox-height);*/
 /*    }*/
 /*}*/
+/* The top bar and menu button only show on narrow screens */
+
+.mobile-topbar {
+    display: none;
+}
+
+.sidebar-overlay {
+    display: none;
+}
+
+@media (max-width: 800px) {
+    .mobile-topbar {
+        display: flex;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 48px;
+        z-index: 20;
+        background-color: rgb(36, 40, 42);
+        border-bottom: var(--border);
+    }
+
+    .menu-button {
+        height: 100%;
+        padding: 0 16px;
+        background: none;
+        border: none;
+        color: rgb(203, 208, 208);
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+
+    .menu-button svg.icon {
+        height: 1em;
+        fill: currentColor;
+    }
+
+    .mobile-title {
+        color: rgb(203, 208, 208);
+        text-decoration: none;
+        font-family: gitlab-sans, sans-serif;
+        font-size: 17px;
+        font-weight: bold;
+    }
+
+    /* The sidebar slides in over the page instead of taking up space next to it */
+    .sidebar-container {
+        width: 0;
+        min-width: 0;
+        height: 0;
+    }
+
+    .sidebar-container .sidebar-fixed {
+        top: 0;
+        left: 0;
+        height: 100dvh;
+        z-index: 30;
+        transform: translateX(-100%);
+        transition: transform 0.2s;
+    }
+
+    body.sidebar-open .sidebar-container .sidebar-fixed {
+        transform: none;
+    }
+
+    body.sidebar-open .sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 25;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .searchbar > .search-shortcut {
+        display: none;
+    }
+
+    .searchbar > input {
+        font-size: 16px; /* Smaller than 16px makes phones zoom in when the search bar is tapped */
+    }
+}

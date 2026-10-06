@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Particles Example - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Examples</div>
+
+                <h1>Particles</h1>
+
+                <p>Explosions and sparkles made with the <a href="fx.html">FX Module</a>.</p>
+
+                <p>Click to make an explosion, and hold the mouse down to leave a trail of sparkles.</p>
+
+                <h2>The Code</h2>
+
+                <p>Make a project like in <a href="getting-started.html">Getting Started</a>, and put this in <code>game.js</code>. It doesn't need any assets.</p>
+
+                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
+
+const Mouse = MDog.Input.Mouse;
+const particles = new MDog.FX.ParticleSystem();
+const colors = ["#ffcc33", "#ff8833", "#ff4455"];
+
+function main() {
+    // Click to make an explosion
+    if (Mouse.getClick()) {
+        explode(Mouse.getX(), Mouse.getY());
+    }
+
+    // Hold the mouse down to leave a trail of sparkles
+    if (Mouse.getDown() &amp;&amp; Math.random() &lt; 0.3) {
+        particles.addParticle(new MDog.FX.ChunkParticle(
+            Mouse.getX(), Mouse.getY(), 80, "#88ccff", random(-0.3, 0.3), random(-0.6, -0.2), {gy: 0.005}));
+    }
+
+    particles.update();
+
+    MDog.Draw.clear({color: "#101018"});
+    MDog.Draw.particleSystem(particles);
+}
+
+function explode(x, y) {
+    // Chunks that fly out and fall
+    for (let i = 0; i &lt; 40; i++) {
+        // A random direction, made by turning a vector by a random angle
+        const velocity = new MDog.Math.Vector(random(0.5, 2), 0).rotate(random(0, 360));
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const life = Math.floor(random(60, 140));
+        particles.addParticle(new MDog.FX.ChunkParticle(x, y, life, color, velocity.x, velocity.y, {gy: 0.02, size: 2}));
+    }
+
+    // Fast white streaks
+    for (let i = 0; i &lt; 12; i++) {
+        const velocity = new MDog.Math.Vector(random(2, 3), 0).rotate(random(0, 360));
+        particles.addParticle(new MDog.FX.LineParticle(x, y, 30, "#ffffff", velocity.x, velocity.y, {length: 6}));
+    }
+}
+
+function random(min, max) {
+    return min + Math.random() * (max - min);
+}
+
+MDog.setActiveFunction(main);</code></pre>
+
+                <h2>How it Works</h2>
+
+                <p>All of the particles are in one <code>ParticleSystem</code>. Every tick, <code>ParticleSystem.update()</code> moves the particles and removes the ones whose life ran out, then <code>MDog.Draw.particleSystem()</code> draws them.</p>
+
+                <p>Each explosion is made of two kinds of particles: <code>ChunkParticle</code>s that fly out and fall with gravity, and <code>LineParticle</code>s that streak outward.</p>
+
+                <p>The random directions come from making a <code>Vector</code> that points right, then turning it a random amount with <code>rotate()</code>.</p>
+
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="page.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

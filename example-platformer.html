@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Platformer Example - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Examples</div>
+
+                <h1>Platformer</h1>
+
+                <p>A player that runs and jumps between platforms. It shows how to check collisions with <code>SquareKickbox</code>, and how to move things a set amount every tick.</p>
+
+                <p>Use the left and right arrow keys to move, and the up arrow or space to jump.</p>
+
+                <h2>The Code</h2>
+
+                <p>Make a project like in <a href="getting-started.html">Getting Started</a>, and put this in <code>game.js</code>. It doesn't need any assets.</p>
+
+                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
+
+const Vector = MDog.Math.Vector;
+const SquareKickbox = MDog.Basics.SquareKickbox;
+const Keyboard = MDog.Input.Keyboard;
+
+// The player is 12 by 16 pixels. Its kickbox is attached to its position, so it moves with it.
+const player = new Vector(40, 300);
+const velocity = new Vector(0, 0);
+const playerBox = new SquareKickbox(player, 0, 0, 12, 16);
+
+const platforms = [
+    makePlatform(0, 352, 512, 32),
+    makePlatform(110, 300, 90, 12),
+    makePlatform(240, 250, 90, 12),
+    makePlatform(370, 200, 90, 12),
+    makePlatform(200, 150, 60, 12),
+];
+
+function makePlatform(x, y, width, height) {
+    return new SquareKickbox(new Vector(x, y), 0, 0, width, height);
+}
+
+function main() {
+    const onGround = isOnGround();
+    if (onGround &amp;&amp; velocity.y &gt; 0) {
+        velocity.y = 0;
+    }
+
+    // Walk
+    velocity.x = 0;
+    if (Keyboard.isDown("ArrowLeft")) {
+        velocity.x = -0.8;
+    }
+    if (Keyboard.isDown("ArrowRight")) {
+        velocity.x = 0.8;
+    }
+
+    // Jump
+    if (onGround &amp;&amp; (Keyboard.isClicked("ArrowUp") || Keyboard.isClicked(" "))) {
+        velocity.y = -2.2;
+    }
+
+    // Gravity, with a top falling speed
+    velocity.y = Math.min(velocity.y + 0.03, 3);
+
+    moveX(velocity.x);
+    moveY(velocity.y);
+
+    draw();
+}
+
+// Moves sideways, and stops at walls
+function moveX(amount) {
+    player.x += amount;
+    for (const platform of platforms) {
+        if (playerBox.colliding(platform)) {
+            if (amount &gt; 0) {
+                player.x = platform.getLeftX() - playerBox.getWidth();
+            } else {
+                player.x = platform.getRightX() + 1;
+            }
+        }
+    }
+
+    // Stay on the screen
+    player.x = Math.max(0, Math.min(player.x, MDog.Draw.getScreenWidthInArtPixels() - playerBox.getWidth()));
+}
+
+// Moves up or down, and stops at floors and ceilings
+function moveY(amount) {
+    player.y += amount;
+    for (const platform of platforms) {
+        if (playerBox.colliding(platform)) {
+            if (amount &gt; 0) {
+                player.y = platform.getTopY() - playerBox.getHeight();
+            } else {
+                player.y = platform.getBottomY() + 1;
+            }
+            velocity.y = 0;
+        }
+    }
+}
+
+// Checks if there's a platform one pixel below the player
+function isOnGround() {
+    player.y += 1;
+    const touching = platforms.some(platform =&gt; playerBox.colliding(platform));
+    player.y -= 1;
+    return touching;
+}
+
+function draw() {
+    MDog.Draw.clear({color: "#1d2b3a"});
+    for (const platform of platforms) {
+        MDog.Draw.rectangleFill(platform.getLeftX(), platform.getTopY(), platform.getWidth(), platform.getHeight(), "#5e8c4a");
+    }
+    MDog.Draw.rectangleFill(playerBox.getLeftX(), playerBox.getTopY(), 12, 16, "#ffcc33");
+}
+
+MDog.setActiveFunction(main);</code></pre>
+
+                <h2>How it Works</h2>
+
+                <p>Every platform is a <code>SquareKickbox</code> attached to its own <code>Vector</code>. The player's kickbox is attached to the player's position, so moving the player moves its kickbox too.</p>
+
+                <p>The player moves along x and y separately. After each move, if the player's kickbox overlaps a platform, the player is pushed back out to the platform's edge. Moving one direction at a time makes it easy to tell if the player hit a wall, a floor, or a ceiling.</p>
+
+                <p><code>isOnGround()</code> moves the player down one pixel, checks for platforms, and moves back up. The player can only jump when it's on the ground.</p>
+
+                <p>Speeds are in pixels per tick, and the game runs 160 ticks per second, so a walking speed of <code>0.8</code> is 128 pixels per second.</p>
+
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="page.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

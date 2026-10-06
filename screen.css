@@ -33,8 +33,14 @@ body, .screen * {
     /*max-width: 100%;*/
 }
 
+/* Keeps the same space for the scrollbar on every page, so short pages without one don't shift sideways */
+html {
+    scrollbar-gutter: stable;
+}
+
 .page-centerer {
     width: 100%;
+    min-width: 0; /* Lets long code blocks scroll instead of making the page wider */
     display: flex;
     justify-content: center;
 }
@@ -260,4 +266,137 @@ tr.no-dropdown + tr {
     margin-bottom: 10px;
     color: white;
     font-size: 13px;
+}
+/* Links to methods and headings */
+
+.page [id] {
+    scroll-margin-top: 16px;
+}
+
+.methods-grid .method-link {
+    margin-left: 8px;
+    color: rgba(226, 232, 240, 0.4);
+    opacity: 0;
+    vertical-align: middle;
+}
+
+.methods-grid tr:hover .method-link, .methods-grid .method-link:focus {
+    opacity: 1;
+}
+
+.methods-grid .method-link:hover {
+    color: var(--text-color);
+}
+
+.methods-grid .method-link svg.icon {
+    height: 0.8em;
+    fill: currentColor;
+}
+
+@keyframes targeted-flash {
+    0% { background-color: rgba(168, 203, 245, 0.25); }
+    100% { background-color: transparent; }
+}
+
+.methods-grid tr.targeted, .page h2.targeted, .page h3.targeted {
+    animation: targeted-flash 2s ease-out;
+}
+
+.toast {
+    position: fixed;
+    transform: translateY(-50%);
+    padding: 3px 8px;
+    border-radius: 4px;
+    background-color: rgb(58, 66, 78);
+    color: var(--text-color);
+    font-family: gitlab-sans, sans-serif;
+    font-size: 13px;
+    pointer-events: none;
+    z-index: 50;
+}
+
+/* Code that links to a method or class */
+
+.page a.cross-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.page a.cross-link code {
+    color: var(--info-blue);
+}
+
+.page a.cross-link:hover code {
+    text-decoration: underline;
+}
+
+/* Copy buttons on code blocks */
+
+.page pre {
+    position: relative;
+}
+
+.page pre .copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    border: 1px solid hsla(0, 0%, 100%, .15);
+    background-color: rgb(44, 47, 56);
+    color: var(--text-color);
+    font-family: gitlab-sans, sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0;
+}
+
+.page pre:hover .copy-button, .page pre .copy-button:focus {
+    opacity: 1;
+}
+
+.page pre .copy-button:hover {
+    background-color: rgb(58, 66, 78);
+}
+
+/* Phones */
+
+@media (max-width: 800px) {
+    .page {
+        padding: 70px 16px 27px;
+    }
+
+    .page [id] {
+        scroll-margin-top: 60px;
+    }
+
+    .page h1 {
+        font-size: 32px;
+    }
+
+    .page h2 {
+        font-size: 26px;
+    }
+
+    .page h3 {
+        font-size: 20px;
+    }
+
+    .methods-grid td, .methods-grid th {
+        padding: 8px 10px;
+        font-size: 15px;
+    }
+
+    .methods-grid td code {
+        overflow-wrap: anywhere;
+    }
+
+    .page pre, .page pre * {
+        font-size: 13px;
+    }
+
+    /* There's no hover on phones, so these are always shown */
+    .methods-grid .method-link, .page pre .copy-button {
+        opacity: 1;
+    }
 }

@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>FX Module - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
     <link rel="stylesheet" type="text/css" href="sidebar.css">
     <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
 </head>
 <body>
     <div class="screen">
@@ -77,7 +79,7 @@ function main() {
                             description: "Moves every particle.",
                             details: "Takes one tick off of every particle's life, removes the particles that ran out, and moves the rest. Call this once per tick.",
                         },
-                    ]);
+                    ], "ParticleSystem");
                 </script>
 
                 <h2>Particles</h2>
@@ -173,14 +175,16 @@ function main() {
                             ],
                             returns: "<code>true</code> if the particle has the tag.",
                         },
-                    ]);
+                    ], "Particle");
                 </script>
 
-                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
 
             </div>
 
         </div>
     </div>
+    <script src="page.js"></script>
+    <script src="search.js"></script>
 </body>
 </html>

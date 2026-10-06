@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title Screen Example - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Examples</div>
+
+                <h1>Title Screen</h1>
+
+                <p>A title screen that starts the game when space is pressed, and a game that goes back to the title screen when Escape is pressed. It shows how to switch between screens with <code>setActiveFunction()</code>.</p>
+
+                <h2>The Code</h2>
+
+                <p>Make a project like in <a href="getting-started.html">Getting Started</a>, and put this in <code>game.js</code>. It uses the <code>marsfont.png</code> font, so put that in <code>assets/fonts/</code> (see <a href="getting-started.html#fonts">Adding Text</a>).</p>
+
+                <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.1.0/MDogModules/MDogMain.js";
+
+const font = "fonts/marsfont.png";
+const Keyboard = MDog.Input.Keyboard;
+
+let ticks = 0;
+const ball = new MDog.Math.Vector();
+const ballVelocity = new MDog.Math.Vector();
+
+function titleScreen() {
+    ticks++;
+
+    MDog.Draw.clear({color: "#1a1030"});
+    MDog.Draw.textImage("Bouncy Ball", 256, 140, "#ffcc33", font, {alignX: "center", size: 5});
+
+    // Blink on and off about twice a second
+    if (Math.floor(ticks / 40) % 2 === 0) {
+        MDog.Draw.textImage("Press space to start", 256, 230, "#ffffff", font, {alignX: "center", size: 2});
+    }
+
+    if (Keyboard.isClicked(" ")) {
+        startGame();
+    }
+}
+
+function startGame() {
+    ball.set(256, 192);
+    ballVelocity.set(1.2, 0.9);
+    MDog.setActiveFunction(game);
+}
+
+function game() {
+    ball.add(ballVelocity);
+
+    // Bounce off the edges of the screen
+    if (ball.x &lt; 6 || ball.x &gt; MDog.Draw.getScreenWidthInArtPixels() - 6) {
+        ballVelocity.x *= -1;
+    }
+    if (ball.y &lt; 6 || ball.y &gt; MDog.Draw.getScreenHeightInArtPixels() - 6) {
+        ballVelocity.y *= -1;
+    }
+
+    MDog.Draw.clear({color: "#102030"});
+    MDog.Draw.circle(Math.floor(ball.x), Math.floor(ball.y), 6, "#ff5566");
+    MDog.Draw.textImage("Escape to go back", 8, 8, "#ffffff", font);
+
+    if (Keyboard.isClicked("Escape")) {
+        MDog.setActiveFunction(titleScreen);
+    }
+}
+
+MDog.setActiveFunction(titleScreen);</code></pre>
+
+                <h2>How it Works</h2>
+
+                <p>Each screen is its own function. <code>MDog.setActiveFunction()</code> changes which one runs every tick, so switching screens only takes one line.</p>
+
+                <p><code>startGame()</code> puts the ball back in the middle before switching, so the game starts over every time.</p>
+
+                <p>The blinking text uses a count of ticks. <code>Math.floor(ticks / 40) % 2</code> switches between <code>0</code> and <code>1</code> every 40 ticks, which is a quarter of a second.</p>
+
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="page.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

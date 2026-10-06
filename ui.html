@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>UI Module - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
     <link rel="stylesheet" type="text/css" href="sidebar.css">
     <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
 </head>
 <body>
     <div class="screen">
@@ -51,7 +53,7 @@
                             description: "Draws every interactable.",
                             details: "Draws every interactable on the page, in the order they were added.",
                         },
-                    ]);
+                    ], "Page");
                 </script>
 
                 <h2>Interactable</h2>
@@ -95,7 +97,7 @@
                                 ["y", "The new y position."],
                             ],
                         },
-                    ]);
+                    ], "Interactable");
                 </script>
 
                 <h2>TilemapInteractable</h2>
@@ -182,7 +184,7 @@ MDog.Draw.interactable(tilemap);</code></pre>
                             ],
                             returns: "A <code>Vector</code> of the top left of the tile on screen.",
                         },
-                    ]);
+                    ], "TilemapInteractable");
                 </script>
 
                 <h2>RectangleGridInteractable</h2>
@@ -215,7 +217,7 @@ MDog.Draw.interactable(tilemap);</code></pre>
                             ],
                             returns: "A <code>Vector</code> of the top left of the cell on screen.",
                         },
-                    ]);
+                    ], "RectangleGridInteractable");
                 </script>
 
                 <h2>VectorGridInteractable</h2>
@@ -242,14 +244,16 @@ MDog.Draw.interactable(tilemap);</code></pre>
                             ],
                             returns: "A <code>Vector</code> of the screen position.",
                         },
-                    ]);
+                    ], "VectorGridInteractable");
                 </script>
 
-                <div class="copyright">Copyright © 2024. All rights reserved.</div>
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
 
             </div>
 
         </div>
     </div>
+    <script src="page.js"></script>
+    <script src="search.js"></script>
 </body>
 </html>
