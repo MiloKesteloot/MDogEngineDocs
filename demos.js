@@ -7,7 +7,7 @@
 // address, like draw.html?engine=http://localhost:5500/MDogModules/MDogMain.js. It's remembered until the tab is closed.
 
 // The engine the demos use. Keep this the same version as the import lines in the docs.
-const demoEngineURL = "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.2.0/MDogModules/MDogMain.js";
+const demoEngineURL = "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.3.0/MDogModules/MDogMain.js";
 
 const demoEngineOverride = getEngineOverride();
 

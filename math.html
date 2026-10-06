@@ -179,7 +179,7 @@
                         {
                             name: "rotate",
                             description: "Rotates this vector.",
-                            details: "Rotates this vector around <code>(0, 0)</code>. Positive angles rotate counter-clockwise on screen.",
+                            details: "Rotates this vector around <code>(0, 0)</code>. Positive angles turn it clockwise on screen, the same direction <code>getAngle()</code> counts in.",
                             parameters: [
                                 ["angleDegrees", "How far to rotate, in degrees."],
                             ],
@@ -190,7 +190,7 @@
 
                                 function main() {
                                     // Turn the hand a little every tick
-                                    hand.rotate(-0.5);
+                                    hand.rotate(0.5);
 
                                     MDog.Draw.clear();
                                     MDog.Draw.circle(80, 60, 50, "#2c3e50");
