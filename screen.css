@@ -1,608 +1,343 @@
+/* Styles for the docs pages. The sidebar has its own styles in sidebar.css, which uses the colors defined here. */
+
 @font-face {
     font-family: gitlab-sans;
     src: url(GitLabSans.ttf);
+    font-display: fallback;
 }
 
+/* ===== Colors and sizes ===== */
+
 :root {
-    --info-blue: rgb(191, 219, 254);
-    --table-header-color: rgb(168, 203, 245);
-    --text-color: rgb(241, 245, 249);
+    color-scheme: dark;
+
+    --bg: #1b1c1f;
+    --surface: #212327;
+    --surface-raised: #2a2d33;
+    --code-bg: rgba(255, 255, 255, 0.035);
+    --hover-bg: rgba(255, 255, 255, 0.045);
+
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.15);
+
+    --text: #e6e9ee;
+    --text-muted: #a2a9b4;
+    --text-faint: #6e7581;
+
+    --accent: #8cb8ff;
+    --accent-bg: rgba(140, 184, 255, 0.12);
+    --accent-strong: #3466b0;
+    --error: #ff8a8a;
+
+    --font-sans: gitlab-sans, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: Consolas, "SF Mono", Menlo, "Liberation Mono", monospace;
+
+    --radius: 8px;
+    --radius-small: 5px;
+}
+
+/* ===== Page layout ===== */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    /* Keeps the same space for the scrollbar on every page, so short pages without one don't shift sideways */
+    scrollbar-gutter: stable;
 }
 
 body {
-    background-color: rgb(28, 28, 28);
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
 }
 
-body, .screen * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+::selection {
+    background-color: rgba(140, 184, 255, 0.3);
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Thin, dark scrollbars everywhere: the page, the sidebar, search results, code blocks, and demo editors.
+   Firefox and Chrome use scrollbar-width and scrollbar-color. Safari only understands the ::-webkit-scrollbar rules. */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+*:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    /* The see-through border makes the thumb look thinner than the space it takes, with room around it */
+    border: 3px solid transparent;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.18);
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.32);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
 }
 
 .screen {
     display: flex;
     width: 100%;
     min-height: 100vh;
-    /*rgb(51, 61, 65);*/
-}
-
-.page {
-    padding: 27px 50px;
-    /*width: 100%;*/
-    width: calc(min(1000px, 100%));
-    /*max-width: 100%;*/
-}
-
-/* Keeps the same space for the scrollbar on every page, so short pages without one don't shift sideways */
-html {
-    scrollbar-gutter: stable;
 }
 
 .page-centerer {
-    width: 100%;
-    min-width: 0; /* Lets long code blocks scroll instead of making the page wider */
     display: flex;
     justify-content: center;
+    width: 100%;
+    min-width: 0; /* Lets long code blocks scroll instead of making the page wider */
+}
+
+.page {
+    width: min(1000px, 100%);
+    padding: 40px 50px 32px;
+    font-size: 16px;
+    line-height: 1.7;
 }
 
 .page * {
-    font-family: gitlab-sans, sans-serif;
+    margin: 0;
+    font-family: var(--font-sans);
 }
 
+/* ===== Text ===== */
+
+/* The line above the title showing where the page is, like "Docs › Code › Draw" (filled in by page.js) */
 .page .breadcrums {
-    font-size: 15px;
-    color: var(--text-color);
-}
-
-.page h1, .page h2, .page h3 {
-    color: var(--text-color);
-}
-
-.page h1 {
-    font-size: 43px;
-}
-
-.page h2 {
-    font-size: 33px;
-    margin-bottom: 20px;
-    margin-top: 30px;
-}
-
-.page h3 {
-    font-size: 23px;
-}
-
-.page p {
-    color: var(--text-color);
-    line-height: 1.75rem;
-    margin-top: 1.5rem;
-    overflow-wrap: break-word;
-    font-size: 16px;
-}
-
-.page p code {
-    border-radius: 5px;
-    border: hsla(0, 0%, 100%, .1) solid 1px;
-    background-color: hsla(0, 0%, 100%, 0.05);
-    padding: .125rem .25em;
-    font-family: monospace;
-}
-
-.methods-grid td code {
-    font-family: monospace;
-}
-
-.methods-grid td code.outline {
-    border-radius: 5px;
-    border: hsla(0, 0%, 100%, .1) solid 1px;
-    background-color: hsla(0, 0%, 100%, 0.05);
-    padding: 1px .25em 2px;
-}
-
-.methods-grid td code .optional {
-    font-family: monospace;
-    color: rgba(226, 232, 240, 0.5);
-}
-
-.info-box {
-    width: 100%;
-    padding: 15px;
-    border-radius: 10px;
-
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-
-    font-size: 16px;
-}
-
-.info-box i {
-    font-size: 23px;
-    margin-right: 11px;
-}
-
-.info-box-blue {
-    color: var(--info-blue);
-    border: 1px #485772 solid;
-    background-color: #151E36;
-}
-
-.page .methods-grid {
-    border-collapse: collapse;
-    color: var(--text-color);
-    width: 100%;
-    min-width: 100%;
-    /*table-layout: fixed; !*fixed; What's this?'*!*/
-}
-
-.methods-grid td, .methods-grid th {
-    font-size: 16px;
-}
-
-.methods-grid td {
-    border: 1px solid rgba(93, 93, 100, 0.2);
-    padding: 11px 15px;
-}
-
-.methods-grid th {
-    text-align: left;
-    border: 1px solid var(--table-header-color);
-    padding: 11px 15px;
-    color: rgb(28, 28, 28);
-    /*padding: 15px;*/
-}
-
-.methods-grid tr:has(th) {
-    background-color: var(--table-header-color);
-}
-
-.methods-grid tr:nth-child(4n):not(:first-child), .methods-grid tr:nth-child(4n+1):not(:first-child) {
-    background-color: rgba(44, 47, 56, 0.3);
-    /*background-color: rgba(255, 0, 0, 0.76);*/
-
-}
-
-.methods-grid .method-info {
-    line-height: 23px;
-}
-
-tr.has-dropdown input[type=checkbox] {
-    display: none;
-}
-
-
-
-
-
-tr.has-dropdown:has(input[type=checkbox]:checked) + tr {
-    display: table-row;
-}
-
-tr.has-dropdown + tr {
-    display: none;
-    position: relative;
-}
-
-tr.has-dropdown + tr .method-info {
-    /*position: absolute;*/
-    width: 100%;
-    max-width: 100%;
-    top: 0;
-}
-
-tr.has-dropdown + tr div {
-    /*for dad*/
-}
-
-tr.has-dropdown + tr div .method-info {
-    /*for dad*/
-}
-
-tr.has-dropdown td code:hover {
-    text-decoration: underline;
-    text-decoration-color: var(--text-color);
-    cursor: pointer;
-}
-
-tr.has-dropdown:has(input[type=checkbox]:checked) td code {
-    text-decoration: underline;
-}
-
-tr.has-dropdown:has(input[type=checkbox]:checked) td code:not(:hover) {
-    text-decoration-color: rgba(226, 232, 240, 0.4);
-}
-
-.page p + .methods-grid, .page pre + .methods-grid {
-    margin-top: 1.5rem;
-}
-
-tr.no-dropdown + tr {
-    display: none;
-}
-
-/*.methods-grid tr:hover {background-color: #ddd;}*/
-
-.page h3 {
-    margin-top: 25px;
-}
-
-.page a {
-    color: var(--info-blue);
-}
-
-.page ul, .page ol {
-    color: var(--text-color);
-    line-height: 1.75rem;
-    margin-top: 1rem;
-    margin-left: 25px;
-    font-size: 16px;
-}
-
-.page li code {
-    font-family: monospace;
-    border-radius: 5px;
-    border: hsla(0, 0%, 100%, .1) solid 1px;
-    background-color: hsla(0, 0%, 100%, 0.05);
-    padding: .125rem .25em;
-}
-
-.page pre {
-    margin-top: 1rem;
-    padding: 15px;
-    border-radius: 10px;
-    border: hsla(0, 0%, 100%, .1) solid 1px;
-    background-color: hsla(0, 0%, 100%, 0.05);
-    color: var(--text-color);
-    overflow-x: auto;
-    line-height: 1.4rem;
-}
-
-.page pre, .page pre * {
-    font-family: monospace;
+    gap: 7px;
+    margin-bottom: 4px;
+    color: var(--text-faint);
     font-size: 14px;
 }
 
-.copyright {
-    margin-top: 40px;
-    margin-bottom: 10px;
-    color: white;
+.page .breadcrums a {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+.page .breadcrums a:hover {
+    color: var(--accent);
+}
+
+.page .breadcrums .breadcrumb-current {
+    color: var(--text-muted);
+}
+
+/* Previous and next page links at the bottom (added by page.js) */
+.page .page-nav {
+    display: flex;
+    gap: 16px;
+    margin-top: 64px;
+}
+
+.page .page-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: calc(50% - 8px);
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.page .page-nav-link:hover {
+    border-color: rgba(140, 184, 255, 0.45);
+    background-color: var(--hover-bg);
+}
+
+.page .page-nav-next {
+    margin-left: auto;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.page .page-nav-label {
+    color: var(--text-faint);
     font-size: 13px;
 }
-/* Links to methods and headings */
 
-.page [id] {
-    scroll-margin-top: 16px;
+.page .page-nav-title {
+    color: var(--accent);
+    font-size: 16px;
 }
 
-.methods-grid .method-link {
-    margin-left: 8px;
-    color: rgba(226, 232, 240, 0.4);
-    opacity: 0;
-    vertical-align: middle;
+.page .page-nav-section {
+    color: var(--text-muted);
 }
 
-.methods-grid tr:hover .method-link, .methods-grid .method-link:focus {
-    opacity: 1;
+.page .page-nav + .copyright {
+    margin-top: 32px;
 }
 
-.methods-grid .method-link:hover {
-    color: var(--text-color);
+.page h1, .page h2, .page h3 {
+    color: var(--text);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
 }
 
-.methods-grid .method-link svg.icon {
-    height: 0.8em;
-    fill: currentColor;
+.page h1 {
+    font-size: 40px;
 }
 
-@keyframes targeted-flash {
-    0% { background-color: rgba(168, 203, 245, 0.25); }
-    100% { background-color: transparent; }
+.page h2 {
+    font-size: 28px;
+    margin-top: 48px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
 }
 
-.methods-grid tr.targeted, .page h2.targeted, .page h3.targeted {
-    animation: targeted-flash 2s ease-out;
+.page h3 {
+    font-size: 21px;
+    margin-top: 32px;
 }
 
-.toast {
-    position: fixed;
-    transform: translateY(-50%);
-    padding: 3px 8px;
-    border-radius: 4px;
-    background-color: rgb(58, 66, 78);
-    color: var(--text-color);
-    font-family: gitlab-sans, sans-serif;
-    font-size: 13px;
-    pointer-events: none;
-    z-index: 50;
+.page p {
+    margin-top: 1.1rem;
+    overflow-wrap: break-word;
+}
+
+.page h2 + p, .page h3 + p {
+    margin-top: 0.8rem;
+}
+
+.page a {
+    color: var(--accent);
+    text-underline-offset: 2px;
+}
+
+.page ul, .page ol {
+    margin-top: 0.8rem;
+    padding-left: 25px;
+}
+
+.page li + li {
+    margin-top: 2px;
+}
+
+/* Code inside sentences, and the parameter names in method details */
+.page p code, .page li code, .page .method-info code, .methods-grid code.outline {
+    padding: 1px 5px;
+    border-radius: var(--radius-small);
+    border: 1px solid var(--border);
+    background-color: var(--code-bg);
+    font-family: var(--font-mono);
+    font-size: 0.88em;
 }
 
 /* Code that links to a method or class */
-
 .page a.cross-link {
     color: inherit;
     text-decoration: none;
 }
 
 .page a.cross-link code {
-    color: var(--info-blue);
+    color: var(--accent);
 }
 
 .page a.cross-link:hover code {
-    text-decoration: underline;
+    border-color: rgba(140, 184, 255, 0.4);
+    background-color: var(--accent-bg);
 }
 
-/* Copy buttons on code blocks */
+.copyright {
+    margin-top: 64px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--text-faint);
+    font-size: 13px;
+}
+
+/* ===== Code blocks ===== */
 
 .page pre {
     position: relative;
+    margin-top: 1rem;
+    padding: 36px 16px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background-color: var(--code-bg);
+    color: #d4d4d4;
+    overflow-x: auto;
+    line-height: 1.45;
+}
+
+.page pre, .page pre * {
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+
+/* The language name at the top of each code block */
+.page .code-language {
+    position: absolute;
+    top: 9px;
+    left: 16px;
+    z-index: 2;
+    color: var(--text-faint);
+    font-family: var(--font-sans) !important;
+    font-size: 12px !important;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Small buttons, like Copy and the demo buttons */
+.page pre .copy-button, .page .demo-bar button, .page .demo-touch-key {
+    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    background-color: var(--surface-raised);
+    color: var(--text);
+    font-family: var(--font-sans);
+    cursor: pointer;
+}
+
+.page pre .copy-button:hover, .page .demo-bar button:hover {
+    background-color: #353941;
 }
 
 .page pre .copy-button {
     position: absolute;
-    top: 8px;
+    top: 7px;
     right: 8px;
-    padding: 3px 9px;
-    border-radius: 4px;
-    border: 1px solid hsla(0, 0%, 100%, .15);
-    background-color: rgb(44, 47, 56);
-    color: var(--text-color);
-    font-family: gitlab-sans, sans-serif;
+    padding: 2px 10px;
     font-size: 12px;
-    cursor: pointer;
     opacity: 0;
+    transition: opacity 0.15s;
 }
 
-.page pre:hover .copy-button, .page pre .copy-button:focus {
+.page pre:hover .copy-button, .page pre .copy-button:focus-visible {
     opacity: 1;
 }
 
-.page pre .copy-button:hover {
-    background-color: rgb(58, 66, 78);
-}
-
-/* Phones */
-
-@media (max-width: 800px) {
-    .page {
-        padding: 70px 16px 27px;
-    }
-
-    .page [id] {
-        scroll-margin-top: 60px;
-    }
-
-    .page h1 {
-        font-size: 32px;
-    }
-
-    .page h2 {
-        font-size: 26px;
-    }
-
-    .page h3 {
-        font-size: 20px;
-    }
-
-    .methods-grid td, .methods-grid th {
-        padding: 8px 10px;
-        font-size: 15px;
-    }
-
-    .methods-grid td code {
-        overflow-wrap: anywhere;
-    }
-
-    .page pre, .page pre * {
-        font-size: 13px;
-    }
-
-    /* There's no hover on phones, so these are always shown */
-    .methods-grid .method-link, .page pre .copy-button {
-        opacity: 1;
-    }
-}
-
-/* Demos (see demos.js) */
-
-.page .demo {
-    margin-top: 8px;
-}
-
-.page p + .demo, .page pre + .demo, .page .demo + p {
-    margin-top: 1.5rem;
-}
-
-.page .demo-screen {
-    position: relative;
-    width: 100%;
-    background-color: #000;
-    /* A shadow instead of a border, since a border would make the game area a pixel too small to scale up evenly */
-    box-shadow: 0 0 0 1px hsla(0, 0%, 100%, .1);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.page .demo-iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-.page .demo-start {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-    background-color: #111318;
-    color: var(--text-color);
-    font-size: 17px;
-    cursor: pointer;
-}
-
-.page .demo-start span {
-    display: inline-block;
-    padding: 9px 18px;
-    border-radius: 999px;
-}
-
-.page .demo-start span::before {
-    content: "▶";
-    margin-right: 10px;
-    color: var(--info-blue);
-}
-
-.page .demo-start:hover {
-    background-color: #181b22;
-}
-
-.page .demo-touch-keys {
-    display: none;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 8px;
-}
-
-/* Only touch screens get buttons for the keys */
-@media (pointer: coarse) {
-    .page .demo-touch-keys {
-        display: flex;
-    }
-}
-
-.page .demo-touch-key {
-    min-width: 60px;
-    height: 50px;
-    padding: 0 12px;
-    border-radius: 8px;
-    border: 1px solid hsla(0, 0%, 100%, .15);
-    background-color: rgb(44, 47, 56);
-    color: var(--text-color);
-    font-size: 18px;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-}
-
-.page .demo-touch-key:active {
-    background-color: rgb(58, 66, 78);
-}
-
-.page .demo-editor {
-    margin-top: 8px;
-}
-
-/* The demo editor: a see-through textarea on top of a colored copy of the code (see demos.js) */
-
-.page .demo-code-wrap {
-    position: relative;
-    border-radius: 8px;
-    border: 1px solid hsla(0, 0%, 100%, .1);
-    background-color: hsla(0, 0%, 100%, 0.05);
-}
-
-.page .demo-code-wrap:focus-within {
-    border-color: rgba(168, 203, 245, 0.5);
-}
-
-/* The textarea and the colored copy need exactly the same text layout, or the cursor won't line up with the colors */
-.page .demo-code, .page .demo-highlight {
-    margin: 0;
-    border: none;
-    padding: 36px 12px 10px;
-    font-family: monospace;
-    font-size: 14px;
-    line-height: 1.4rem;
-    letter-spacing: normal;
-    tab-size: 4;
-    white-space: pre;
-}
-
-.page .demo-code {
-    position: relative;
-    z-index: 1;
-    display: block;
-    width: 100%;
-    background: transparent;
-    color: transparent;
-    caret-color: var(--text-color);
-    overflow-x: auto;
-    overflow-y: hidden;
-    resize: vertical;
-    outline: none;
-}
-
-.page .demo-code::selection {
-    background-color: rgba(120, 160, 220, 0.35);
-}
-
-.page .demo-highlight {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-    color: #d4d4d4;
-    background: none;
-}
-
-.page .demo-bar {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 6px;
-}
-
-.page .demo-bar button {
-    padding: 4px 12px;
-    border-radius: 5px;
-    border: 1px solid hsla(0, 0%, 100%, .15);
-    background-color: rgb(44, 47, 56);
-    color: var(--text-color);
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.page .demo-bar button:hover {
-    background-color: rgb(58, 66, 78);
-}
-
-.page .demo-bar .demo-run {
-    background-color: rgb(52, 78, 120);
-}
-
-.page .demo-bar .demo-run:hover {
-    background-color: rgb(64, 94, 142);
-}
-
-.page .demo-hint {
-    color: rgba(226, 232, 240, 0.5);
-    font-size: 13px;
-}
-
-@media (pointer: coarse) {
-    .page .demo-hint {
-        display: none;
-    }
-}
-
-.page .demo-error {
-    margin-top: 4px;
-    color: #ff8a8a;
-    font-family: monospace;
-    font-size: 13px;
-    white-space: pre-wrap;
-}
-
-.page .demo-error:empty {
-    display: none;
-}
-
 /* Code colors, like VS Code's dark theme (see syntax.js) */
-
 .page .tok-comment { color: #6a9955; }
 .page .tok-string { color: #ce9178; }
 .page .tok-number { color: #b5cea8; }
@@ -615,45 +350,317 @@ tr.no-dropdown + tr {
 .page .tok-attribute { color: #9cdcfe; }
 .page .tok-punctuation { color: #808080; }
 
-.page pre {
-    color: #d4d4d4;
-    padding-top: 36px;
+/* ===== Method tables (see build-tables.js) ===== */
+
+.page .methods-grid {
+    width: 100%;
+    margin-top: 1rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    line-height: 1.5;
 }
 
-/* The language name at the top of each code block */
-.page .code-language {
-    position: absolute;
-    top: 9px;
-    left: 15px;
-    z-index: 2;
-    color: rgba(226, 232, 240, 0.45);
-    font-family: gitlab-sans, sans-serif !important;
-    font-size: 12px !important;
+.methods-grid th {
+    padding: 9px 16px;
+    background-color: var(--surface);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.methods-grid td {
+    padding: 11px 16px;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.methods-grid td:first-child {
+    width: 55%;
+}
+
+.methods-grid td:last-child {
+    color: var(--text-muted);
+}
+
+.methods-grid td code {
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+
+.methods-grid td code .optional {
+    font-family: var(--font-mono);
+    color: var(--text-faint);
+}
+
+/* Rows that open: the whole first cell is clickable, with an arrow that turns when it's open */
+tr.has-dropdown input[type=checkbox] {
+    display: none;
+}
+
+tr.has-dropdown label {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 9px;
+    cursor: pointer;
+}
+
+tr.has-dropdown label::before {
+    content: "";
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid var(--text-faint);
+    transform: translateY(-1px);
+    transition: transform 0.15s;
+}
+
+tr.has-dropdown:has(input:checked) label::before {
+    transform: translateY(-1px) rotate(90deg);
+    border-left-color: var(--accent);
+}
+
+tr.has-dropdown:hover {
+    background-color: var(--hover-bg);
+}
+
+tr.has-dropdown:hover label code, tr.has-dropdown:has(input:checked) label code {
+    color: var(--accent);
+}
+
+tr.has-dropdown:has(input:checked) {
+    background-color: var(--hover-bg);
+}
+
+/* Rows without a dropdown get an empty row after them, which is never shown */
+tr.no-dropdown + tr {
+    display: none;
+}
+
+/* Rows without a dropdown are indented the same as rows with an arrow, so the method names line up */
+tr.no-dropdown td:first-child {
+    padding-left: 31px;
+}
+
+/* The details under an open row */
+tr.has-dropdown + tr {
+    display: none;
+}
+
+tr.has-dropdown:has(input:checked) + tr {
+    display: table-row;
+}
+
+.methods-grid .method-info {
+    padding: 4px 16px 18px 31px;
+    border-top: none;
+    background-color: var(--hover-bg);
+    color: var(--text);
+    line-height: 1.7;
+}
+
+.methods-grid .method-info b {
+    color: var(--text);
+}
+
+/* The link icon next to each method */
+.methods-grid .method-link {
+    margin-left: 8px;
+    color: var(--text-faint);
+    opacity: 0;
+    vertical-align: middle;
+    transition: opacity 0.15s;
+}
+
+.methods-grid tr:hover .method-link, .methods-grid .method-link:focus-visible {
+    opacity: 1;
+}
+
+.methods-grid .method-link:hover {
+    color: var(--text);
+}
+
+.methods-grid .method-link svg.icon {
+    height: 0.8em;
+    fill: currentColor;
+}
+
+/* A short flash on the method or heading a link went to */
+@keyframes targeted-flash {
+    0% { background-color: rgba(140, 184, 255, 0.22); }
+    100% { background-color: transparent; }
+}
+
+.methods-grid tr.targeted, .page h2.targeted, .page h3.targeted {
+    animation: targeted-flash 2s ease-out;
+}
+
+.page [id] {
+    scroll-margin-top: 16px;
+}
+
+.toast {
+    position: fixed;
+    z-index: 50;
+    transform: translateY(-50%);
+    padding: 3px 9px;
+    border-radius: var(--radius-small);
+    background-color: var(--surface-raised);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 13px;
     pointer-events: none;
-    user-select: none;
 }
 
-.page .demo-code-wrap .code-language {
-    left: 12px;
+/* ===== Demos (see demos.js) ===== */
+
+.page .demo {
+    margin-top: 10px;
+}
+
+.page p + .demo, .page pre + .demo, .page .demo + p {
+    margin-top: 1.25rem;
+}
+
+.page .demo-screen {
+    position: relative;
+    width: 100%;
+    background-color: #000;
+    /* A shadow instead of a border, since a border would make the game area a pixel too small to scale up evenly */
+    box-shadow: 0 0 0 1px var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.page .demo-iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* The start button covers the whole game area */
+.page .demo-start {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: #111318;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.page .demo-start:hover {
+    background-color: #171a20;
+}
+
+.page .demo-start span {
+    display: inline-block;
+    padding: 9px 18px;
+    border-radius: 999px;
+    transition: background-color 0.15s;
+}
+
+.page .demo-start span::before {
+    content: "▶";
+    margin-right: 10px;
+    color: var(--accent);
+}
+
+/* With a preview, the first frame is dimmed a little, and the label gets a dark pill so it can be read on any picture */
+.page .demo.has-preview .demo-screen {
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+.page .demo.has-preview .demo-start {
+    background-color: rgba(10, 12, 16, 0.3);
+}
+
+.page .demo.has-preview .demo-start:hover {
+    background-color: rgba(10, 12, 16, 0.1);
+}
+
+.page .demo.has-preview .demo-start span {
+    background-color: rgba(17, 19, 24, 0.85);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.page .demo.has-preview .demo-start:hover span {
+    background-color: rgba(32, 36, 44, 0.95);
+}
+
+/* The hidden iframe a preview is made in. It's moved off screen instead of hidden, so it works like a normal page. */
+.demo-preview-iframe {
+    position: fixed;
+    left: -10000px;
+    top: 0;
+    width: 320px;
+    height: 240px;
+    border: none;
+    pointer-events: none;
+}
+
+/* Buttons for the keys, only on touch screens */
+.page .demo-touch-keys {
+    display: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+@media (pointer: coarse) {
+    .page .demo-touch-keys {
+        display: flex;
+    }
+}
+
+.page .demo-touch-key {
+    min-width: 60px;
+    height: 50px;
+    padding: 0 12px;
+    border-radius: var(--radius);
+    font-size: 18px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.page .demo-touch-key:active {
+    background-color: #3a3f48;
 }
 
 /* The assets a demo uses */
-
 .page .demo-assets {
-    margin-top: 8px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid hsla(0, 0%, 100%, .1);
+    margin-top: 10px;
+    padding: 10px 14px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
 }
 
 .page .demo-assets-title {
-    color: var(--text-color);
-    font-size: 14px;
     margin-bottom: 8px;
+    color: var(--text);
+    font-size: 14px;
 }
 
 .page .demo-assets-title span {
-    color: rgba(226, 232, 240, 0.5);
+    color: var(--text-faint);
 }
 
 .page .demo-assets-list {
@@ -675,8 +682,8 @@ tr.no-dropdown + tr {
 }
 
 .page .demo-asset:hover {
-    border-color: rgba(168, 203, 245, 0.5);
-    background-color: hsla(0, 0%, 100%, 0.04);
+    border-color: rgba(140, 184, 255, 0.45);
+    background-color: var(--hover-bg);
 }
 
 .page .demo-asset img {
@@ -691,15 +698,15 @@ tr.no-dropdown + tr {
 }
 
 .page .demo-asset-name {
-    font-family: monospace !important;
+    color: var(--text-muted);
+    font-family: var(--font-mono) !important;
     font-size: 12px;
-    color: rgba(226, 232, 240, 0.7);
     overflow-wrap: anywhere;
 }
 
 .page .demo-asset-file {
     padding: 6px 10px;
-    border-color: hsla(0, 0%, 100%, .1);
+    border-color: var(--border);
 }
 
 .page .demo-asset-group {
@@ -718,39 +725,170 @@ tr.no-dropdown + tr {
     padding: 3px;
 }
 
-/* Demo previews: the first frame is shown behind the start button (see makePreview in demos.js) */
+/* The demo editor: a see-through textarea on top of a colored copy of the code */
+.page .demo-editor {
+    margin-top: 10px;
+}
 
-/* The hidden iframe a preview is made in. It's moved off screen instead of hidden, so it works like a normal page. */
-.demo-preview-iframe {
-    position: fixed;
-    left: -10000px;
-    top: 0;
-    width: 320px;
-    height: 240px;
+.page .demo-code-wrap {
+    position: relative;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background-color: var(--code-bg);
+}
+
+.page .demo-code-wrap:focus-within {
+    border-color: rgba(140, 184, 255, 0.5);
+}
+
+.page .demo-code-wrap .code-language {
+    left: 12px;
+}
+
+/* The textarea and the colored copy need exactly the same text layout, or the cursor won't line up with the colors */
+.page .demo-code, .page .demo-highlight {
+    margin: 0;
     border: none;
+    padding: 36px 12px 10px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.45;
+    letter-spacing: normal;
+    tab-size: 4;
+    white-space: pre;
+}
+
+.page .demo-code {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--text);
+    overflow-x: auto;
+    overflow-y: hidden;
+    resize: vertical;
+    outline: none;
+}
+
+.page .demo-code::selection {
+    background-color: rgba(120, 160, 220, 0.35);
+}
+
+.page .demo-highlight {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 0;
+    background: none;
+    color: #d4d4d4;
     pointer-events: none;
 }
 
-.page .demo.has-preview .demo-screen {
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    image-rendering: pixelated;
+.page .demo-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
 }
 
-/* The frame is dimmed a little, and the label gets its own dark pill so it can be read on top of any picture */
-.page .demo.has-preview .demo-start {
-    background-color: rgba(10, 12, 16, 0.3);
+.page .demo-bar button {
+    padding: 4px 14px;
+    font-size: 14px;
 }
 
-.page .demo.has-preview .demo-start:hover {
-    background-color: rgba(10, 12, 16, 0.1);
+.page .demo-bar .demo-run {
+    border-color: transparent;
+    background-color: var(--accent-strong);
 }
 
-.page .demo.has-preview .demo-start span {
-    background-color: rgba(17, 19, 24, 0.85);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+.page .demo-bar .demo-run:hover {
+    background-color: #3d75c6;
 }
 
-.page .demo.has-preview .demo-start:hover span {
-    background-color: rgba(30, 34, 42, 0.95);
+.page .demo-hint {
+    color: var(--text-faint);
+    font-size: 13px;
+}
+
+@media (pointer: coarse) {
+    .page .demo-hint {
+        display: none;
+    }
+}
+
+.page .demo-error {
+    margin-top: 6px;
+    color: var(--error);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    white-space: pre-wrap;
+}
+
+.page .demo-error:empty {
+    display: none;
+}
+
+/* ===== Phones ===== */
+
+@media (max-width: 800px) {
+    .page {
+        padding: 72px 16px 28px;
+    }
+
+    .page [id] {
+        scroll-margin-top: 60px;
+    }
+
+    .page h1 {
+        font-size: 32px;
+    }
+
+    .page h2 {
+        font-size: 24px;
+        margin-top: 40px;
+    }
+
+    .page h3 {
+        font-size: 19px;
+    }
+
+    .methods-grid td, .methods-grid th {
+        padding: 9px 10px;
+    }
+
+    .methods-grid td:first-child {
+        width: auto;
+    }
+
+    tr.no-dropdown td:first-child {
+        padding-left: 25px;
+    }
+
+    .methods-grid .method-info {
+        padding: 4px 10px 14px 25px;
+    }
+
+    .methods-grid td code {
+        overflow-wrap: anywhere;
+    }
+
+    .page pre, .page pre * {
+        font-size: 13px;
+    }
+
+    /* There's no hover on phones, so these are always shown */
+    .methods-grid .method-link, .page pre .copy-button {
+        opacity: 1;
+    }
+
+    .page .demo-start {
+        font-size: 14px;
+    }
+
+    .page .demo-start span {
+        padding: 6px 12px;
+    }
 }

@@ -1,82 +1,31 @@
-@font-face {
-    font-family: gitlab-sans;
-    src: url(GitLabSans.ttf);
-}
+/* Styles for the sidebar (see sidebar.js). The colors come from screen.css. */
 
 :root {
-    --searchbar-padding: 8px;
-
-    --border: black 1px solid;
-
-    --checkbox-height: 32px;
-
-    --sidebar-container-width: 256px;
-    --navbar-dropdown-spacing: 4px;
-
-    --indent: 35px;
+    --sidebar-width: 256px;
+    --nav-item-height: 32px;
+    --nav-indent: 35px;
 }
 
-body {
+.sidebar-container *, .mobile-topbar * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-}
-
-.sidebar-container * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-
-    font-family: gitlab-sans, sans-serif;
+    font-family: var(--font-sans);
 }
 
 .sidebar-container {
-    /*TODO: Fix this color bs*/
-    /*background-color: rgb(36, 40, 42);*/
-    width: var(--sidebar-container-width);
-    min-width: var(--sidebar-container-width);
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
     height: 100vh;
 }
 
 .sidebar-container .sidebar-fixed {
     position: fixed;
-    width: var(--sidebar-container-width);
-    min-width: var(--sidebar-container-width);
-    border-right: var(--border);
-    height: 100vh;
     display: flex;
     flex-direction: column;
-
-    background-color: rgb(36, 40, 42);
-}
-
-.searchbar-container {
-    position: relative;
-    height: 47px;
-    min-height: 47px;
-    width: 100%;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    background-color: #1c1c1c;
-}
-
-.searchbar-container > .searchbar {
-    outline: none;
-    border: var(--border);
-    border-radius: 3px;
-    height: calc(100% - var(--searchbar-padding)*2);
-    width: calc(100% - var(--searchbar-padding)*2);
-    background-color: rgb(51, 55, 58);
-
-    display: flex;
-    align-items: center;
-}
-
-.searchbar-container > .searchbar:focus-within {
-    border-color: rgb(120, 140, 170);
+    width: var(--sidebar-width);
+    height: 100vh;
+    border-right: 1px solid var(--border);
+    background-color: var(--surface);
 }
 
 .sidebar-container svg.icon {
@@ -85,33 +34,58 @@ body {
     flex-shrink: 0;
 }
 
+/* ===== Search ===== */
+
+.searchbar-container {
+    position: relative;
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.searchbar-container > .searchbar {
+    display: flex;
+    align-items: center;
+    height: 34px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.searchbar-container > .searchbar:focus-within {
+    border-color: rgba(140, 184, 255, 0.6);
+}
+
 .searchbar > svg {
-    color: rgb(133, 133, 133);
-    margin-left: 8px;
-    font-size: 14px;
+    margin-left: 10px;
+    color: var(--text-faint);
+    font-size: 13px;
 }
 
 .searchbar > input {
     flex: 1;
     min-width: 0;
     height: 100%;
-    margin-left: 6px;
-    background-color: transparent;
+    margin-left: 8px;
     border: none;
     outline: none;
-    color: rgb(203, 208, 208);
+    background-color: transparent;
+    color: var(--text);
     font-size: 14px;
 }
 
+.searchbar > input::placeholder {
+    color: var(--text-faint);
+}
+
 .searchbar > .search-shortcut {
-    margin-right: 7px;
-    padding: 0 5px;
-    border: 1px solid rgb(90, 95, 98);
-    border-radius: 3px;
-    color: rgb(133, 133, 133);
-    font-family: monospace;
+    margin-right: 8px;
+    padding: 0 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border-strong);
+    color: var(--text-faint);
+    font-family: var(--font-mono);
     font-size: 11px;
-    line-height: 15px;
+    line-height: 16px;
 }
 
 .searchbar:focus-within > .search-shortcut {
@@ -121,17 +95,16 @@ body {
 .search-results {
     display: none;
     position: absolute;
-    top: calc(100% - 4px);
-    left: var(--searchbar-padding);
-    right: var(--searchbar-padding);
+    top: calc(100% - 6px);
+    left: 10px;
+    right: 10px;
+    z-index: 10;
     max-height: 70vh;
     overflow-y: auto;
-    z-index: 10;
-
-    background-color: rgb(44, 48, 51);
-    border: 1px solid rgb(70, 75, 78);
-    border-radius: 5px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-strong);
+    background-color: var(--surface-raised);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .search-results.open {
@@ -140,9 +113,9 @@ body {
 
 .search-result {
     display: block;
-    padding: 7px 10px;
+    padding: 8px 11px;
+    border-bottom: 1px solid var(--border);
     text-decoration: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .search-result:last-child {
@@ -150,19 +123,19 @@ body {
 }
 
 .search-result.active, .search-result:hover {
-    background-color: rgb(58, 66, 78);
+    background-color: var(--accent-bg);
 }
 
 .search-result-title {
-    color: rgb(230, 234, 234);
-    font-family: monospace !important;
+    color: var(--text);
+    font-family: var(--font-mono) !important;
     font-size: 13px;
     overflow-wrap: anywhere;
 }
 
 .search-result-info {
     margin-top: 2px;
-    color: rgb(150, 155, 158);
+    color: var(--text-muted);
     font-size: 12px;
     white-space: nowrap;
     overflow: hidden;
@@ -170,86 +143,92 @@ body {
 }
 
 .search-empty {
-    padding: 10px;
-    color: rgb(150, 155, 158);
+    padding: 10px 12px;
+    color: var(--text-muted);
     font-size: 13px;
 }
 
+/* ===== Navigation ===== */
+
 .navbar-container {
-    background-color: rgb(36, 40, 42);
-    flex: 1;
-    min-height: 0;
-    width: 100%;
-    border-top: var(--border);
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.navbar-container > .header-text {
+    margin: 14px 18px 6px;
+    color: var(--text-faint);
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .navbar-container .navbar-padding {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    width: calc(100% - var(--navbar-dropdown-spacing)*2);
-    margin-left: var(--navbar-dropdown-spacing);
+    padding: 0 8px 8px;
 }
 
 .navbar-container .navbar-footer {
-    width: calc(100% - var(--navbar-dropdown-spacing)*2);
-    margin: 0 var(--navbar-dropdown-spacing) var(--navbar-dropdown-spacing);
-    padding-top: 4px;
-    border-top: 1px solid rgba(203, 208, 208, 0.1);
-}
-
-.navbar-container > .header-text {
-    color: rgb(203, 208, 208);
-    font-size: 12px;
-    font-weight: bold;
-    margin-top: 8px;
-    margin-left: 11px;
-    margin-bottom: 8px;
+    padding: 6px 8px 8px;
+    border-top: 1px solid var(--border);
 }
 
 .navbar-container .navbar-button {
     display: flex;
     flex-direction: column;
-    width: 100%;
     margin-top: 2px;
 }
 
 .navbar-container .indent {
-    width: calc(100% - var(--indent));
-    margin-left: var(--indent);
+    margin-left: var(--nav-indent);
 }
 
-.navbar-button > .navbar-title {
-    border-radius: 3px;
-    height: var(--checkbox-height);
-    width: 100%;
+.navbar-button .navbar-title {
     display: flex;
+    align-items: center;
+    height: var(--nav-item-height);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 15px;
+    text-decoration: none;
+    cursor: pointer;
 }
 
+.navbar-button .navbar-title:hover {
+    background-color: var(--hover-bg);
+    color: var(--text);
+}
+
+.navbar-button .navbar-title.active {
+    background-color: var(--accent-bg);
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.navbar-button .navbar-title input[type=checkbox] {
+    display: none;
+}
+
+/* Every icon gets the same width, so the names next to them line up */
+.navbar-button .navbar-title .navbar-icon {
+    width: 18px !important;
+    margin-left: 10px;
+}
+
+.navbar-button .navbar-title .navbar-title-text {
+    margin-left: 12px;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Dropdowns, like Code and Examples */
 .navbar-dropdown > .navbar-title {
     justify-content: space-between;
-}
-
-.navbar-button .navbar-children {
-    display: none;
-    position: relative;
-}
-
-.navbar-children > .sidebar-sideline {
-    position: absolute;
-    height: calc(100% - var(--checkbox-height) + 1px + var(--checkbox-height)/4);
-    width: 3px;
-    background-color: rgba(203, 208, 208, 0.29);
-    left: -12px;
-    top: calc(var(--checkbox-height)/4);
-    border-radius: 100px;
-}
-
-.navbar-title:has(input[type=checkbox]:checked) + .navbar-children {
-    display: block;
-    /*animation: open-dropdown 2s;*/
 }
 
 .spacer {
@@ -257,8 +236,8 @@ body {
 }
 
 .dropdown-indicator {
-    margin-top: 1px;
-    margin-right: 11px;
+    margin-right: 12px;
+    font-size: 12px;
 }
 
 .navbar-title:has(input[type=checkbox]:checked) .open-i, .navbar-title:has(input[type=checkbox]:not(:checked)) .closed-i {
@@ -269,112 +248,27 @@ body {
     display: none;
 }
 
-/*@keyframes open-dropdown {*/
-/*    0% {*/
-/*        max-height: 0;*/
-/*    }*/
-
-/*    100% {*/
-/*        max-height: 1000px;*/
-/*    }*/
-/*}*/
-
-a.navbar-title {
-    text-decoration: none;
-}
-
-.navbar-button .navbar-title.active {
-    background-color: rgb(54, 59, 61);
-    font-weight: bold;
-}
-
-.navbar-button .navbar-title:hover {
-    background-color: rgb(54, 59, 61);
-    cursor: pointer;
-}
-
-.navbar-button .navbar-title input[type=checkbox] {
+.navbar-button .navbar-children {
     display: none;
+    position: relative;
 }
 
-.navbar-button .navbar-title {
-    color: rgb(203, 208, 208);
-    display: flex;
-    align-items: center;
+.navbar-title:has(input[type=checkbox]:checked) + .navbar-children {
+    display: block;
 }
 
-.navbar-button .navbar-title .navbar-icon {
-    margin-top: -1px;
-    margin-left: 14px;
+/* The line down the left of a dropdown's pages, centered under the icons above it */
+.navbar-children > .sidebar-sideline {
+    position: absolute;
+    top: 6px;
+    bottom: 4px;
+    left: -17px;
+    width: 2px;
+    border-radius: 2px;
+    background-color: var(--border-strong);
 }
 
-.navbar-button .navbar-title .navbar-title-text {
-    margin-left: 13px;
-    pointer-events: none;
-    user-select: none;
-}
-
-/*.navbar-dropdown:first-child {*/
-/*    margin-top: var(--navbar-dropdown-spacing);*/
-
-/*}*/
-
-/*.navbar-dropdown {*/
-/*    position: relative;*/
-/*    display: flex;*/
-/*    width: calc(100% - var(--navbar-dropdown-spacing));*/
-/*    margin-left: var(--navbar-dropdown-spacing);*/
-/*    min-height: var(--checkbox-height);*/
-/*}*/
-
-/*.navbar-dropdown-top {*/
-/*    position: absolute;*/
-/*    width: calc(100%);*/
-/*}*/
-
-/*.navbar-dropdown input[type=checkbox] {*/
-/*    !*position: absolute;*!*/
-
-/*    !*background-color: rgba(255, 0, 0, 0.44);*!*/
-/*    border-radius: 3px;*/
-/*    height: var(--checkbox-height);*/
-/*    width: 100%;*/
-/*    appearance: none;*/
-/*}*/
-
-/*.navbar-dropdown input[type=checkbox]:hover {*/
-/*    background-color: rgb(54, 59, 61);*/
-/*    cursor: pointer;*/
-/*}*/
-
-/*.navbar-title {*/
-/*    position: absolute;*/
-/*    top: 6px;*/
-/*    left: 6px;*/
-/*    display: flex;*/
-/*    color: rgb(203, 208, 208);*/
-/*    pointer-events: none;*/
-/*}*/
-
-/*.navbar-title i {*/
-/*    margin-top: 1px;*/
-/*    margin-left: 7px;*/
-/*}*/
-
-/*.navbar-title-text {*/
-/*    margin-left: 13px;*/
-/*}*/
-
-/*.navbar-dropdown:has(input[type=checkbox]:hover) .navbar-title-text {*/
-/*    !*text-decoration: underline;*!*/
-/*}*/
-
-/*@keyframes animation {*/
-/*    0% {*/
-/*        min-height: var(--checkbox-height);*/
-/*    }*/
-/*}*/
-/* The top bar and menu button only show on narrow screens */
+/* ===== Phones: a top bar with a menu button, and the sidebar slides in ===== */
 
 .mobile-topbar {
     display: none;
@@ -392,22 +286,22 @@ a.navbar-title {
         top: 0;
         left: 0;
         right: 0;
-        height: 48px;
         z-index: 20;
-        background-color: rgb(36, 40, 42);
-        border-bottom: var(--border);
+        height: 48px;
+        border-bottom: 1px solid var(--border);
+        background-color: var(--surface);
     }
 
     .menu-button {
-        height: 100%;
-        padding: 0 16px;
-        background: none;
-        border: none;
-        color: rgb(203, 208, 208);
-        font-size: 20px;
-        cursor: pointer;
         display: flex;
         align-items: center;
+        height: 100%;
+        padding: 0 16px;
+        border: none;
+        background: none;
+        color: var(--text-muted);
+        font-size: 20px;
+        cursor: pointer;
     }
 
     .menu-button svg.icon {
@@ -416,11 +310,10 @@ a.navbar-title {
     }
 
     .mobile-title {
-        color: rgb(203, 208, 208);
-        text-decoration: none;
-        font-family: gitlab-sans, sans-serif;
+        color: var(--text);
         font-size: 17px;
         font-weight: bold;
+        text-decoration: none;
     }
 
     /* The sidebar slides in over the page instead of taking up space next to it */
@@ -433,14 +326,15 @@ a.navbar-title {
     .sidebar-container .sidebar-fixed {
         top: 0;
         left: 0;
-        height: 100dvh;
         z-index: 30;
+        height: 100dvh;
         transform: translateX(-100%);
         transition: transform 0.2s;
     }
 
     body.sidebar-open .sidebar-container .sidebar-fixed {
         transform: none;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
     }
 
     body.sidebar-open .sidebar-overlay {

@@ -5,6 +5,8 @@ const currentPage = docsCurrentPage();
 
 giveHeadingsIds();
 cleanPageLinks();
+addBreadcrumbs();
+addPageNav();
 
 // The index of every page, but with this page's part made from what's really on it, in case docs-index.js is out of date
 const fullIndex = makeFullIndex();
@@ -43,6 +45,69 @@ function cleanPageLinks() {
             link.setAttribute("href", docsPageHref(match[1]) + (match[2] ?? ""));
         }
     }
+}
+
+// The pages in the sidebar, in order, each with its name and the dropdown it's in (like "Code")
+function getSidebarPages() {
+    const links = document.querySelectorAll(".sidebar-container a.navbar-title[data-page]");
+    return [...links].map(link => {
+        const dropdown = link.parentElement.closest(".navbar-dropdown");
+        return {
+            page: link.dataset.page,
+            name: link.querySelector(".navbar-title-text").textContent.trim(),
+            section: dropdown ? dropdown.querySelector(":scope > .navbar-title .navbar-title-text").textContent.trim() : null,
+        };
+    });
+}
+
+// Fills in the line above the title with where the page is, like "Docs › Code › Draw"
+function addBreadcrumbs() {
+    const breadcrumbs = document.querySelector(".page .breadcrums");
+    if (!breadcrumbs) {
+        return;
+    }
+    const here = getSidebarPages().find(p => p.page === currentPage);
+
+    const parts = [];
+    if (here && currentPage !== "index.html") {
+        parts.push(`<a href="${docsPageHref("index.html")}">Docs</a>`);
+        if (here.section) {
+            parts.push(`<span>${here.section}</span>`);
+        }
+        parts.push(`<span class="breadcrumb-current">${here.name}</span>`);
+    } else {
+        parts.push(`<span class="breadcrumb-current">Docs</span>`);
+    }
+
+    breadcrumbs.setAttribute("aria-label", "Breadcrumbs");
+    breadcrumbs.innerHTML = parts.join(`<span class="breadcrumb-separator" aria-hidden="true">›</span>`);
+}
+
+// Adds links to the previous and next pages at the bottom, in the same order as the sidebar
+function addPageNav() {
+    const pages = getSidebarPages();
+    const index = pages.findIndex(p => p.page === currentPage);
+    const footer = document.querySelector(".page .copyright");
+    if (index === -1 || !footer) {
+        return;
+    }
+
+    const link = (target, direction) => {
+        if (!target) {
+            return "";
+        }
+        const section = target.section ? `<span class="page-nav-section">${target.section} › </span>` : "";
+        return `<a class="page-nav-link page-nav-${direction}" href="${docsPageHref(target.page)}">
+                    <span class="page-nav-label">${direction === "previous" ? "← Previous" : "Next →"}</span>
+                    <span class="page-nav-title">${section}${target.name}</span>
+                </a>`;
+    };
+
+    const nav = document.createElement("nav");
+    nav.className = "page-nav";
+    nav.setAttribute("aria-label", "Previous and next pages");
+    nav.innerHTML = link(pages[index - 1], "previous") + link(pages[index + 1], "next");
+    footer.before(nav);
 }
 
 function makeFullIndex() {
