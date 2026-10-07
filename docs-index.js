@@ -1,9 +1,9 @@
 // Made by build-index.js. Don't edit this by hand, run "node build-index.js" instead.
 const docsIndex = [
     {"page":"index.html","kind":"page","id":"","title":"What is MDog Engine?"},
+    {"page":"index.html","kind":"heading","id":"made-with-mdog-engine","title":"Made with MDog Engine","context":"What is MDog Engine?"},
     {"page":"index.html","kind":"heading","id":"modules","title":"Modules","context":"What is MDog Engine?"},
     {"page":"index.html","kind":"heading","id":"how-it-works","title":"How it Works","context":"What is MDog Engine?"},
-    {"page":"index.html","kind":"heading","id":"example-games","title":"Example Games","context":"What is MDog Engine?"},
     {"page":"getting-started.html","kind":"page","id":"","title":"Getting Started"},
     {"page":"getting-started.html","kind":"heading","id":"1-make-the-project","title":"1. Make the Project","context":"Getting Started"},
     {"page":"getting-started.html","kind":"heading","id":"2-make-the-web-page","title":"2. Make the Web Page","context":"Getting Started"},

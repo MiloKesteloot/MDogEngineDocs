@@ -520,6 +520,201 @@ tr.has-dropdown:has(input:checked) + tr {
     pointer-events: none;
 }
 
+/* ===== Playable games on the home page (see showcase.js) ===== */
+
+.page .showcase {
+    margin-top: 1rem;
+}
+
+/* The three games side by side */
+.page .showcase-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.page .showcase-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    color: var(--text);
+    text-align: left;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+}
+
+.page .showcase-card:hover {
+    border-color: rgba(140, 184, 255, 0.45);
+    transform: translateY(-2px);
+}
+
+.page .showcase-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+}
+
+.page .showcase-card-cover {
+    display: block;
+    aspect-ratio: 4 / 3;
+    background-color: #000;
+}
+
+.page .showcase-card-cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.page .showcase-card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px 4px;
+}
+
+.page .showcase-card-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.page .showcase-card-tagline {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.page .showcase-card-play {
+    padding: 4px 12px 12px;
+    color: var(--accent);
+    font-size: 14px;
+}
+
+.page .showcase-card-play::before {
+    content: "▶";
+    margin-right: 7px;
+    font-size: 11px;
+}
+
+
+/* The big player that opens under the cards */
+.page .showcase-player {
+    margin-top: 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    overflow: hidden;
+    scroll-margin: 16px;
+}
+
+.page .showcase-player[hidden] {
+    display: none;
+}
+
+.page .showcase-player-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px 8px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.page .showcase-player-name {
+    font-weight: 600;
+}
+
+.page .showcase-close {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.page .showcase-close:hover {
+    background-color: var(--hover-bg);
+    color: var(--text);
+}
+
+.page .showcase-screen {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background-color: #000;
+}
+
+.page .showcase-iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.page .showcase-info {
+    padding: 12px 16px 14px;
+    border-top: 1px solid var(--border);
+}
+
+.page .showcase-info p {
+    margin-top: 0;
+}
+
+.page .showcase-controls {
+    margin-top: 4px !important;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.page .showcase-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.page .showcase-actions button {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--accent);
+    font-size: 14px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+/* On narrow screens the cards become small thumbnails with just the name */
+@media (max-width: 600px) {
+    .page .showcase-cards {
+        gap: 8px;
+    }
+
+    .page .showcase-card-text {
+        padding: 6px 8px 2px;
+    }
+
+    .page .showcase-card-name {
+        font-size: 13px;
+    }
+
+    .page .showcase-card-tagline {
+        display: none;
+    }
+
+    .page .showcase-card-play {
+        padding: 2px 8px 8px;
+        font-size: 12px;
+    }
+}
+
 /* ===== Demos (see demos.js) ===== */
 
 .page .demo {

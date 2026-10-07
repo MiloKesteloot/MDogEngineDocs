@@ -24,6 +24,30 @@
 
                 <p>Everything is drawn with crisp, square pixels on a small screen (512 by 384 pixels by default), which is scaled up to fit the browser window. The game loop runs at a fixed speed, so games play the same on every computer.</p>
 
+                <h2>Made with MDog Engine</h2>
+
+                <p>Pick a game to play it right here.</p>
+
+                <!-- The games, as cards that open a big player below them (see showcase.js) -->
+                <div class="showcase">
+                    <div class="showcase-cards"></div>
+                    <div class="showcase-player" hidden>
+                        <div class="showcase-player-header">
+                            <span class="showcase-player-name"></span>
+                            <button class="showcase-close" aria-label="Close the game">Close ✕</button>
+                        </div>
+                        <div class="showcase-screen"></div>
+                        <div class="showcase-info">
+                            <p class="showcase-description"></p>
+                            <p class="showcase-controls"></p>
+                            <div class="showcase-actions">
+                                <button class="showcase-fullscreen">Full screen</button>
+                                <a class="showcase-open" target="_blank" rel="noopener">Open in a new tab ↗</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <h2>Modules</h2>
 
                 <ul>
@@ -52,13 +76,6 @@ MDog.setActiveFunction(main);</code></pre>
 
                 <p>To make your first game, see <a href="getting-started.html">Getting Started</a>.</p>
 
-                <h2>Example Games</h2>
-
-                <ul>
-                    <li><a href="https://www.milo.games/projects/cattale">Cat Tale</a> - Cat Tale is an Undertale fan battle made in MDog Engine.</li>
-                    <li><a href="https://www.milo.games/projects/modern-forest">Modern Forest</a> - Modern Forest is a time-trial platformer made in MDog Engine.</li>
-                </ul>
-
                 <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
 
             </div>
@@ -68,6 +85,7 @@ MDog.setActiveFunction(main);</code></pre>
     <script src="syntax.js"></script>
     <script src="page.js"></script>
     <script src="demos.js"></script>
+    <script src="showcase.js"></script>
     <script src="search.js"></script>
 </body>
 </html>
