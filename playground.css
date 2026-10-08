@@ -157,7 +157,7 @@ html {
 }
 
 .pg-main[data-view="split"] {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, var(--pg-code-width, 1fr)) minmax(0, 1fr);
 }
 
 .pg-main[data-view="code"] .pg-game-column, .pg-main[data-view="game"] .pg-code-column {
@@ -172,6 +172,7 @@ html {
 }
 
 .pg-code-column {
+    position: relative;
     border-right: 1px solid var(--border);
 }
 
@@ -256,14 +257,83 @@ html {
 .pg-panels {
     display: flex;
     flex-direction: column;
-    height: 38%;
-    min-height: 120px;
+    position: relative;
+    height: var(--pg-panels-height, 38%);
+    min-height: 70px;
     border-top: 1px solid var(--border);
     background-color: var(--surface);
 }
 
 .pg-main[data-view="game"] .pg-panels {
-    height: 28%;
+    height: var(--pg-panels-height, 28%);
+}
+
+/* The lines that can be dragged to resize the code, game, and console (see setUpDividers in playground.js).
+   Each is an invisible strip over the border that lights up when the mouse is on it. */
+.pg-divider {
+    position: absolute;
+    z-index: 5;
+    touch-action: none;
+}
+
+.pg-divider::after {
+    content: "";
+    position: absolute;
+    background-color: transparent;
+    transition: background-color 0.15s;
+}
+
+.pg-divider:hover::after, .pg-divider.dragging::after {
+    background-color: var(--accent);
+}
+
+.pg-divider-columns {
+    top: 0;
+    right: -5px;
+    bottom: 0;
+    width: 9px;
+    cursor: col-resize;
+}
+
+.pg-divider-columns::after {
+    top: 0;
+    bottom: 0;
+    left: 3px;
+    width: 3px;
+}
+
+.pg-main:not([data-view="split"]) .pg-divider-columns {
+    display: none;
+}
+
+.pg-divider-rows {
+    top: -5px;
+    left: 0;
+    right: 0;
+    height: 9px;
+    cursor: row-resize;
+}
+
+.pg-divider-rows::after {
+    left: 0;
+    right: 0;
+    top: 3px;
+    height: 3px;
+}
+
+/* While dragging, the game can't take the mouse, and the cursor stays the same everywhere */
+.playground.resizing .pg-frame {
+    pointer-events: none;
+}
+
+.playground.resizing-columns, .playground.resizing-columns * {
+    cursor: col-resize !important;
+    user-select: none;
+}
+
+.playground.resizing-rows, .playground.resizing-rows * {
+    cursor: row-resize !important;
+    user-select: none;
 }
 
 .pg-panel-tabs {

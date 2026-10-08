@@ -24,6 +24,7 @@ const engineImport = `import MDog from "${engineURL}";`;
 const codeKey = "mdog-playground-code";
 const viewKey = "mdog-playground-view";
 const autorunKey = "mdog-playground-autorun";
+const sizesKey = "mdog-playground-sizes";
 
 const defaultCode = `${engineImport}
 
@@ -818,6 +819,81 @@ function setView(view) {
     }
 }
 
+// The lines between the code and game, and between the game and console, can be dragged to resize them. The sizes are
+// saved as how much of the space each part takes, so they still fit if the window changes size. Double-click to reset.
+function setUpDividers() {
+    const gameColumn = root.querySelector(".pg-game-column");
+    let sizes = {};
+    try {
+        sizes = JSON.parse(localStorage.getItem(sizesKey)) ?? {};
+    } catch (error) {}
+
+    function apply() {
+        // The code's share of the width, written as a grid fraction next to the game's 1fr
+        if (sizes.code) {
+            main.style.setProperty("--pg-code-width", (sizes.code / (1 - sizes.code)) + "fr");
+        } else {
+            main.style.removeProperty("--pg-code-width");
+        }
+        if (sizes.panels) {
+            main.style.setProperty("--pg-panels-height", (sizes.panels * 100) + "%");
+        } else {
+            main.style.removeProperty("--pg-panels-height");
+        }
+    }
+
+    function save() {
+        try {
+            localStorage.setItem(sizesKey, JSON.stringify(sizes));
+        } catch (error) {}
+    }
+
+    function makeDraggable(divider, name, getSize) {
+        let dragging = false;
+        divider.addEventListener("pointerdown", e => {
+            if (e.button !== 0) {
+                return;
+            }
+            e.preventDefault();
+            dragging = true;
+            divider.classList.add("dragging");
+            root.classList.add("resizing", "resizing-" + (name === "code" ? "columns" : "rows"));
+        });
+        // On the whole window, so the drag keeps going when the mouse moves faster than the line
+        window.addEventListener("pointermove", e => {
+            if (dragging) {
+                sizes[name] = Math.min(0.85, Math.max(0.15, getSize(e)));
+                apply();
+            }
+        });
+        const stop = () => {
+            if (dragging) {
+                dragging = false;
+                divider.classList.remove("dragging");
+                root.classList.remove("resizing", "resizing-columns", "resizing-rows");
+                save();
+            }
+        };
+        window.addEventListener("pointerup", stop);
+        window.addEventListener("pointercancel", stop);
+        divider.addEventListener("dblclick", () => {
+            delete sizes[name];
+            apply();
+            save();
+        });
+    }
+
+    makeDraggable(root.querySelector(".pg-divider-columns"), "code", e => {
+        const rect = main.getBoundingClientRect();
+        return (e.clientX - rect.left) / rect.width;
+    });
+    makeDraggable(root.querySelector(".pg-divider-rows"), "panels", e => {
+        const rect = gameColumn.getBoundingClientRect();
+        return (rect.bottom - e.clientY) / rect.height;
+    });
+    apply();
+}
+
 function showPanel(name) {
     for (const button of root.querySelectorAll(".pg-panel-tabs [data-panel]")) {
         button.classList.toggle("selected", button.dataset.panel === name);
@@ -1114,6 +1190,7 @@ function setUpControls() {
 
 buildModel();
 setUpControls();
+setUpDividers();
 
 let startView = "split";
 try {
