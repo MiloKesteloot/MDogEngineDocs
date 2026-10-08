@@ -1,0 +1,40 @@
+<!DOCTYPE html><html><head><title>running</title></head><body style="margin:0">
+<iframe id="f" style="width:1400px;height:850px;border:0"></iframe>
+<script>
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const p = new URLSearchParams(location.search);
+(async () => {
+    localStorage.setItem("sidebar-collapsed", p.get("collapsed") || "false");
+    const f = document.getElementById("f");
+    f.src = p.get("page") || "playground.html";
+    await sleep(6000);
+    const w = f.contentWindow, d = w.document;
+    const out = ["sidebar=" + Math.round(d.querySelector(".sidebar-fixed").getBoundingClientRect().width)];
+    if (p.get("templates")) {
+        d.querySelector(".pg-templates").click();
+        await sleep(500);
+        if (p.get("pick")) {
+            const before = d.querySelector(".cm-content").textContent.slice(0, 60);
+            d.querySelectorAll(".pg-template-card")[3].click();
+            await sleep(1500);
+            out.push("loaded=" + d.querySelector(".cm-content").textContent.slice(0, 30));
+            d.querySelector(".pg-notice button").click();
+            await sleep(500);
+            out.push("undone=" + (d.querySelector(".cm-content").textContent.slice(0, 60) === before));
+        }
+    }
+    if (p.get("expand")) {
+        d.querySelectorAll(".navbar-dropdown > .navbar-title")[0].click();
+        await sleep(300);
+        out.push("afterClickCode=" + Math.round(d.querySelector(".sidebar-fixed").getBoundingClientRect().width) + " saved=" + localStorage.getItem("sidebar-collapsed") + " body=" + d.body.className + " anims=" + d.querySelector(".sidebar-fixed").getAnimations().map(a => a.playState + ":" + a.currentTime).join(",") + " target=" + w.getComputedStyle(d.body).getPropertyValue("--sidebar-width"));
+    }
+    if (p.get("slash")) {
+        const content = d.querySelector(".cm-content");
+        content.focus();
+        content.dispatchEvent(new w.KeyboardEvent("keydown", {key: "/", bubbles: true, cancelable: true}));
+        await sleep(100);
+        out.push("slashFocus=" + d.activeElement.className);
+    }
+    document.title = out.join(" | ");
+})().catch(e => document.title = "ERR " + e.message);
+</script></body></html>

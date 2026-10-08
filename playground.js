@@ -13,11 +13,12 @@
 
 import {EditorView, basicSetup} from "https://esm.sh/codemirror@6.0.1";
 import {keymap} from "https://esm.sh/@codemirror/view@^6.0.0";
-import {EditorState} from "https://esm.sh/@codemirror/state@^6.0.0";
-import {indentWithTab} from "https://esm.sh/@codemirror/commands@^6.0.0";
+import {EditorState, Transaction} from "https://esm.sh/@codemirror/state@^6.0.0";
+import {indentWithTab, undo} from "https://esm.sh/@codemirror/commands@^6.0.0";
 import {javascript, javascriptLanguage} from "https://esm.sh/@codemirror/lang-javascript@^6.0.0";
 import {HighlightStyle, syntaxHighlighting, indentUnit} from "https://esm.sh/@codemirror/language@^6.0.0";
 import {tags} from "https://esm.sh/@lezer/highlight@^1.0.0";
+import {search} from "https://esm.sh/@codemirror/search@^6.0.0";
 
 const engineURL = docsEngineBaseURL + "MDogModules/MDogMain.js";
 const engineImport = `import MDog from "${engineURL}";`;
@@ -66,14 +67,15 @@ MDog.setActiveFunction(main);
 `;
 
 // Templates come from the pages they're shown on, so they're always the same as the docs
+// Each one's picture is assets/templates/<id>.png, a screenshot of it running (Blank doesn't have one).
 const templates = [
-    {name: "Blank", code: async () => blankCode},
-    {name: "Moving square", code: async () => defaultCode},
-    {name: "Tutorial: Warrior platformer", code: () => tutorialStepCode(6)},
-    {name: "Example: Platformer", code: () => pageCode("example-platformer.html", "#example-code")},
-    {name: "Example: Particles", code: () => pageCode("example-particles.html", "#example-code")},
-    {name: "Example: Title Screen", code: () => pageCode("example-title-screen.html", "#example-code")},
-    {name: "Example: Pseudo-3D Road", code: () => pageCode("example-road.html", "#example-code")},
+    {id: "blank", name: "Blank", description: "An empty game loop, ready for your own code.", code: async () => blankCode},
+    {id: "square", name: "Moving square", description: "A square you move around with the arrow keys.", code: async () => defaultCode},
+    {id: "warrior", name: "Warrior platformer", description: "The game from the Tutorial. Run, jump between platforms, and collect coins.", code: () => tutorialStepCode(6)},
+    {id: "platformer", name: "Platformer", description: "A player that runs and jumps between platforms.", code: () => pageCode("example-platformer.html", "#example-code")},
+    {id: "particles", name: "Particles", description: "Explosions and sparkles. Click, or hold the mouse down.", code: () => pageCode("example-particles.html", "#example-code")},
+    {id: "title-screen", name: "Title screen", description: "A title screen that starts the game, and switching between screens.", code: () => pageCode("example-title-screen.html", "#example-code")},
+    {id: "road", name: "Pseudo-3D road", description: "A curving road like an old racing game, made with ThreeDee.", code: () => pageCode("example-road.html", "#example-code")},
 ];
 
 async function fetchPage(page) {
@@ -193,28 +195,26 @@ function formatSize(bytes) {
     return bytes < 1024 ? bytes + " B" : (bytes / 1024).toFixed(1) + " KB";
 }
 
+// Each file is shown as a tile with a picture of it. Clicking the picture copies a line of code that uses it.
 function renderAssets() {
     root.querySelector(".pg-assets-count").textContent = assets.length ? "(" + assets.length + ")" : "";
     assetList.innerHTML = "";
+    if (assets.length === 0) {
+        assetList.innerHTML = `<div class="pg-asset-empty">Nothing added yet.</div>`;
+    }
     for (const asset of assets) {
-        const item = document.createElement("div");
-        item.className = "pg-asset";
-        item.innerHTML = `
-            <span class="pg-asset-thumb">${isImage(asset.name) ? `<img src="${asset.url}" alt="">` : "📄"}</span>
-            <span class="pg-asset-text">
-                <button class="pg-asset-name" title="Copy a line of code that uses this">${docsEscape(asset.name)}</button>
-                <span class="pg-asset-size">${formatSize(asset.blob.size)}</span>
-            </span>
-            <span class="pg-asset-buttons">
-                <button data-action="rename">Rename</button>
-                <a href="${asset.url}" download="${docsEscape(asset.name)}">Download</a>
-                <button data-action="delete">Delete</button>
-            </span>`;
-        item.querySelector(".pg-asset-name").addEventListener("click", e => {
-            copyText(assetUsage(asset.name));
-            notify("Copied " + assetUsage(asset.name));
+        const tile = makeAssetTile({
+            name: asset.name,
+            info: formatSize(asset.blob.size),
+            usage: assetUsage(asset.name),
+            image: isImage(asset.name) ? asset.url : null,
         });
-        item.querySelector('[data-action="rename"]').addEventListener("click", async () => {
+        const buttons = tile.querySelector(".pg-asset-buttons");
+        buttons.innerHTML = `
+            <button data-action="rename">Rename</button>
+            <a href="${asset.url}" download="${docsEscape(asset.name)}">Download</a>
+            <button data-action="delete">Delete</button>`;
+        buttons.querySelector('[data-action="rename"]').addEventListener("click", async () => {
             const name = prompt("New name for " + asset.name, asset.name);
             if (name && name.trim() && name !== asset.name) {
                 asset.name = name.trim();
@@ -222,7 +222,7 @@ function renderAssets() {
                 await saveAssets();
             }
         });
-        item.querySelector('[data-action="delete"]').addEventListener("click", async () => {
+        buttons.querySelector('[data-action="delete"]').addEventListener("click", async () => {
             if (confirm("Delete " + asset.name + "?")) {
                 URL.revokeObjectURL(asset.url);
                 assets = assets.filter(a => a !== asset);
@@ -230,9 +230,182 @@ function renderAssets() {
                 await saveAssets();
             }
         });
-        assetList.appendChild(item);
+        assetList.appendChild(tile);
     }
 }
+
+// The files in the docs' assets folder. Animations are shown playing, at the speed the docs use them at.
+const builtInAssets = [
+    {name: "warrior/Idle/Warrior_Idle_?.png", frames: 6, speed: 8, usage: `new MDog.Draw.MultipleFileAnimation("warrior/Idle/Warrior_Idle_?.png", 6, 8)`},
+    {name: "warrior/Run/Warrior_Run_?.png", frames: 8, speed: 12, usage: `new MDog.Draw.MultipleFileAnimation("warrior/Run/Warrior_Run_?.png", 8, 12)`},
+    {name: "warrior/Attack/Warrior_Attack_?.png", frames: 12, speed: 12, usage: `new MDog.Draw.MultipleFileAnimation("warrior/Attack/Warrior_Attack_?.png", 12, 12)`},
+    {name: "warrior/warrior-run-sheet.png", info: "Sprite sheet, 8 frames", frames: 8, speed: 12, frameWidth: 64, usage: `new MDog.Draw.SpriteSheetAnimation("warrior/warrior-run-sheet.png", 8, 12, 64)`},
+    {name: "tiles.png", info: "4 tiles, 16 by 16", usage: `MDog.Draw.image("tiles.png", 0, 0);`},
+    {name: "fonts/marsfont.png", info: "Font", wide: true, usage: `MDog.Draw.textImage("Hello", 0, 0, "#ffffff", "fonts/marsfont.png");`},
+    {name: "fonts/determinationfont.png", info: "Font", wide: true, usage: `MDog.Draw.textImage("Hello", 0, 0, "#ffffff", "fonts/determinationfont.png");`},
+];
+
+function renderBuiltInAssets() {
+    const list = root.querySelector(".pg-builtin-list");
+    for (const asset of builtInAssets) {
+        const frameFiles = asset.frames && !asset.frameWidth
+            ? Array.from({length: asset.frames}, (_, i) => "assets/" + asset.name.replace("?", i + 1))
+            : null;
+        const tile = makeAssetTile({
+            name: asset.name,
+            info: asset.info ?? asset.frames + " frames",
+            usage: asset.usage,
+            image: frameFiles ? frameFiles : "assets/" + asset.name,
+            frameWidth: asset.frameWidth,
+            speed: asset.speed,
+            wide: asset.wide,
+        });
+        const buttons = tile.querySelector(".pg-asset-buttons");
+        if (frameFiles) {
+            // A set of frames is many files, so they're downloaded together in a .zip
+            const button = document.createElement("button");
+            button.textContent = "Download .zip";
+            button.title = "Download all " + frameFiles.length + " frames";
+            button.addEventListener("click", () => downloadZip(frameFiles, asset.name.split("/").at(-1).replace(/_?\?\.png$/, "") + ".zip"));
+            buttons.appendChild(button);
+        } else {
+            buttons.innerHTML = `<a href="assets/${asset.name}" download>Download</a>`;
+        }
+        list.appendChild(tile);
+    }
+}
+
+// Downloads files together as one .zip. Zips can store files without compressing them, which is simple enough to do by
+// hand, and PNGs are already compressed anyway.
+async function downloadZip(urls, zipName) {
+    const files = await Promise.all(urls.map(async url => ({
+        name: url.split("/").at(-1),
+        data: new Uint8Array(await (await fetch(url)).arrayBuffer()),
+    })));
+    const parts = [];
+    const directory = [];
+    let offset = 0;
+    for (const file of files) {
+        const name = new TextEncoder().encode(file.name);
+        const crc = crc32(file.data);
+        const header = zipHeader(0x04034b50, [[20, 2], [0, 2], [0, 2], [0, 2], [0, 2], [crc, 4], [file.data.length, 4], [file.data.length, 4], [name.length, 2], [0, 2]]);
+        directory.push(zipHeader(0x02014b50, [[20, 2], [20, 2], [0, 2], [0, 2], [0, 2], [0, 2], [crc, 4], [file.data.length, 4], [file.data.length, 4], [name.length, 2], [0, 2], [0, 2], [0, 2], [0, 2], [0, 4], [offset, 4]]), name);
+        parts.push(header, name, file.data);
+        offset += header.length + name.length + file.data.length;
+    }
+    const directorySize = directory.reduce((total, part) => total + part.length, 0);
+    const end = zipHeader(0x06054b50, [[0, 2], [0, 2], [files.length, 2], [files.length, 2], [directorySize, 4], [offset, 4], [0, 2]]);
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([...parts, ...directory, end], {type: "application/zip"}));
+    link.download = zipName;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+}
+
+// A zip record: a 4 byte signature, then each [value, number of bytes] written little-endian
+function zipHeader(signature, fields) {
+    const bytes = new Uint8Array(4 + fields.reduce((total, [, size]) => total + size, 0));
+    const view = new DataView(bytes.buffer);
+    view.setUint32(0, signature, true);
+    let position = 4;
+    for (const [value, size] of fields) {
+        if (size === 2) {
+            view.setUint16(position, value, true);
+        } else {
+            view.setUint32(position, value, true);
+        }
+        position += size;
+    }
+    return bytes;
+}
+
+// The checksum zips use to check each file
+function crc32(data) {
+    let crc = 0xffffffff;
+    for (const byte of data) {
+        crc ^= byte;
+        for (let bit = 0; bit < 8; bit++) {
+            crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+        }
+    }
+    return (crc ^ 0xffffffff) >>> 0;
+}
+
+// A tile for one file. image is a URL, a list of frame URLs (an animation), or null for a file that isn't a picture.
+// frameWidth makes it a sprite sheet animation instead.
+function makeAssetTile({name, info, usage, image, frameWidth, speed, wide}) {
+    const tile = document.createElement("div");
+    tile.className = "pg-asset" + (wide ? " pg-asset-wide" : "");
+    tile.innerHTML = `
+        <button class="pg-asset-preview" title="Copy: ${docsEscape(usage)}"></button>
+        <div class="pg-asset-name" title="${docsEscape(name)}">${docsEscape(name)}</div>
+        <div class="pg-asset-info">${docsEscape(info)}</div>
+        <div class="pg-asset-buttons"></div>`;
+    const preview = tile.querySelector(".pg-asset-preview");
+    preview.addEventListener("click", () => {
+        copyText(usage);
+        notify("Copied " + usage);
+    });
+
+    if (!image) {
+        preview.innerHTML = `<span class="pg-asset-file">${docsEscape((name.split(".").pop() || "file").toUpperCase())}</span>`;
+        return tile;
+    }
+
+    // Drawn on a canvas, so animations can be played and pixel art stays sharp
+    const canvas = document.createElement("canvas");
+    preview.appendChild(canvas);
+    const context = canvas.getContext("2d");
+    const urls = Array.isArray(image) ? image : [image];
+    const images = urls.map(url => Object.assign(new Image(), {src: url}));
+    const frameCount = frameWidth ? null : images.length;
+
+    Promise.all(images.map(img => img.decode().catch(() => {}))).then(() => {
+        const first = images[0];
+        if (!first.naturalWidth) {
+            preview.innerHTML = `<span class="pg-asset-file">?</span>`;
+            return;
+        }
+        const width = frameWidth ?? first.naturalWidth;
+        const height = first.naturalHeight;
+        canvas.width = width;
+        canvas.height = height;
+        if (!wide) {
+            // The picture area is at least 146 by 104 (the tab can be hidden now, so it isn't measured)
+            const room = Math.min(134 / width, 92 / height);
+            // Whole-number sizes keep pixel art even, unless it has to shrink to fit
+            const scale = room >= 1 ? Math.floor(room) : room;
+            canvas.style.width = width * scale + "px";
+            canvas.style.height = height * scale + "px";
+        }
+        const frames = frameWidth ? Math.floor(first.naturalWidth / frameWidth) : frameCount;
+        const draw = frame => {
+            context.clearRect(0, 0, width, height);
+            if (frameWidth) {
+                context.drawImage(first, frame * frameWidth, 0, frameWidth, height, 0, 0, width, height);
+            } else {
+                context.drawImage(images[frame], 0, 0);
+            }
+        };
+        draw(0);
+        if (frames > 1) {
+            playingPreviews.push({draw, frames, speed: speed ?? 10, element: canvas});
+        }
+    });
+    return tile;
+}
+
+// Animated previews only play while the Assets tab can be seen
+const playingPreviews = [];
+setInterval(() => {
+    if (root.querySelector(".pg-assets").hidden || main.dataset.view === "code") {
+        return;
+    }
+    const time = performance.now() / 1000;
+    for (const preview of playingPreviews) {
+        preview.draw(Math.floor(time * preview.speed) % preview.frames);
+    }
+}, 1000 / 24);
 
 // ===== What autofill knows about: built from the docs =====
 
@@ -462,6 +635,55 @@ const editorTheme = EditorView.theme({
     ".cm-completionDetail": {color: "var(--text-faint)", fontStyle: "normal", marginLeft: "8px"},
     ".cm-completionInfo": {padding: "6px 10px", maxWidth: "320px", fontFamily: "var(--font-sans)", color: "var(--text-muted)"},
     ".cm-foldPlaceholder": {backgroundColor: "var(--surface-raised)", border: "none", color: "var(--text-muted)"},
+    // Find and replace. Laid out in two rows like VS Code's: the search box, the option toggles, and the buttons, then
+    // the replace box and its buttons. ".cm-panel.cm-search" is used so these win over CodeMirror's own styles.
+    ".cm-panels": {backgroundColor: "var(--surface)", color: "var(--text)"},
+    ".cm-panels.cm-panels-top": {borderBottom: "1px solid var(--border)"},
+    ".cm-panel.cm-search": {
+        display: "grid", gridTemplateColumns: "minmax(80px, 320px) repeat(6, auto)", justifyContent: "start", alignItems: "center",
+        gap: "6px", padding: "8px 44px 8px 12px", fontFamily: "var(--font-sans)", fontSize: "13px",
+    },
+    ".cm-panel.cm-search br": {display: "none"},
+    ".cm-panel.cm-search input, .cm-panel.cm-search button, .cm-panel.cm-search label": {margin: "0", height: "30px", boxSizing: "border-box"},
+    ".cm-panel.cm-search [name=search]": {gridRow: "1", gridColumn: "1"},
+    ".cm-panel.cm-search label:nth-of-type(1)": {gridRow: "1", gridColumn: "2"},
+    ".cm-panel.cm-search label:nth-of-type(2)": {gridRow: "1", gridColumn: "3"},
+    ".cm-panel.cm-search label:nth-of-type(3)": {gridRow: "1", gridColumn: "4"},
+    ".cm-panel.cm-search [name=prev]": {gridRow: "1", gridColumn: "5"},
+    ".cm-panel.cm-search [name=next]": {gridRow: "1", gridColumn: "6"},
+    ".cm-panel.cm-search [name=select]": {gridRow: "1", gridColumn: "7"},
+    ".cm-panel.cm-search [name=replace]": {gridRow: "2", gridColumn: "1"},
+    ".cm-panel.cm-search [name=replace].cm-button": {gridColumn: "2 / 6"},
+    ".cm-panel.cm-search [name=replaceAll]": {gridRow: "2", gridColumn: "6 / 8"},
+    ".cm-panel.cm-search .cm-textfield": {
+        width: "100%", padding: "0 9px", border: "1px solid var(--border-strong)", borderRadius: "var(--radius-small)",
+        backgroundColor: "rgba(255, 255, 255, 0.04)", color: "var(--text)", fontFamily: "var(--font-mono)", fontSize: "13px", outline: "none",
+    },
+    ".cm-panel.cm-search .cm-textfield:focus": {borderColor: "var(--accent)"},
+    ".cm-panel.cm-search .cm-button": {
+        padding: "0 11px", border: "1px solid var(--border-strong)", borderRadius: "var(--radius-small)",
+        backgroundImage: "none", backgroundColor: "var(--surface-raised)", color: "var(--text)", fontSize: "13px", cursor: "pointer",
+    },
+    ".cm-panel.cm-search .cm-button:hover": {borderColor: "var(--accent)"},
+    ".cm-panel.cm-search .cm-button:active": {backgroundImage: "none", backgroundColor: "var(--accent-bg)"},
+    // The options are toggle buttons, lit up when they're on. The checkbox inside is hidden but still works.
+    ".cm-panel.cm-search label": {
+        position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: "30px", padding: "0 6px",
+        border: "1px solid transparent", borderRadius: "var(--radius-small)", color: "var(--text-muted)",
+        fontFamily: "var(--font-mono)", fontSize: "13px", cursor: "pointer", userSelect: "none",
+    },
+    ".cm-panel.cm-search label:hover": {backgroundColor: "var(--hover-bg)", color: "var(--text)"},
+    ".cm-panel.cm-search label:has(input:checked)": {borderColor: "rgba(140, 184, 255, 0.5)", backgroundColor: "var(--accent-bg)", color: "var(--accent)"},
+    ".cm-panel.cm-search label:has(input:focus-visible)": {outline: "2px solid var(--accent)"},
+    ".cm-panel.cm-search input[type=checkbox]": {position: "absolute", opacity: "0", width: "0", height: "0", pointerEvents: "none"},
+    ".cm-panel.cm-search button[name=close]": {
+        position: "absolute", top: "8px", right: "8px", width: "30px", padding: "0", border: "none", borderRadius: "var(--radius-small)",
+        backgroundColor: "transparent", color: "var(--text-muted)", font: "22px/1 var(--font-sans)", cursor: "pointer",
+    },
+    ".cm-panel.cm-search button[name=close]:hover": {backgroundColor: "var(--hover-bg)", color: "var(--text)"},
+    ".cm-searchMatch": {backgroundColor: "rgba(255, 200, 80, 0.22)", outline: "none"},
+    ".cm-searchMatch.cm-searchMatch-selected": {backgroundColor: "rgba(255, 200, 80, 0.5)"},
+    ".cm-selectionMatch": {backgroundColor: "rgba(140, 184, 255, 0.12)"},
 }, {dark: true});
 
 let saveTimer = null;
@@ -478,6 +700,13 @@ const editor = new EditorView({
             javascriptLanguage.data.of({autocomplete: mdogCompletions}),
             syntaxHighlighting(highlightStyle),
             editorTheme,
+            // Find and replace (Ctrl+F) opens above the code, with the words capitalized
+            search({top: true}),
+            EditorState.phrases.of({
+                "Find": "Find", "Replace": "Replace with", "next": "Next", "previous": "Previous", "all": "All",
+                "match case": "Aa", "regexp": ".*", "by word": "ab",
+                "replace": "Replace", "replace all": "Replace all", "close": "Close",
+            }),
             EditorState.tabSize.of(4),
             indentUnit.of("    "),
             keymap.of([
@@ -492,17 +721,33 @@ const editor = new EditorView({
                 if (update.docChanged || update.selectionSet) {
                     updateCallHint(update.state);
                 }
+                nameSearchToggles(update.view);
             }),
         ],
     }),
 });
 
+// The find options are shown as "Aa", ".*", and "ab", so they get names that show when the mouse is over them
+const searchToggleNames = {case: "Match case", re: "Use regular expression", word: "Match whole word"};
+function nameSearchToggles(view) {
+    for (const input of view.dom.querySelectorAll(".cm-search input[type=checkbox]:not([aria-label])")) {
+        const name = searchToggleNames[input.name] ?? "";
+        input.setAttribute("aria-label", name);
+        input.parentElement.title = name;
+    }
+}
+
 function getCode() {
     return editor.state.doc.toString();
 }
 
-function setCode(code) {
-    editor.dispatch({changes: {from: 0, to: editor.state.doc.length, insert: code}});
+// Replaces all the code. When undoable is true, Undo (Ctrl+Z) puts the old code back. Loading the saved code when the
+// page opens isn't undoable, so Ctrl+Z can't empty the editor.
+function setCode(code, undoable = false) {
+    editor.dispatch({
+        changes: {from: 0, to: editor.state.doc.length, insert: code},
+        annotations: undoable ? [] : [Transaction.addToHistory.of(false)],
+    });
     variables = findVariables(code);
 }
 
@@ -817,10 +1062,30 @@ function setView(view) {
     if (view !== "game") {
         editor.requestMeasure();
     }
+    layOut();
 }
+
+// Set by setUpDividers. Works out the sizes of the code, game, and console again.
+let layOut = () => {};
+
+// The game's size in art pixels, like {width: 256, height: 192}, once it's running
+let gameArtSize = null;
+
+// Games can set their size any time, so it's checked every so often
+setInterval(() => {
+    const canvas = gameFrame?.contentDocument?.querySelector("canvas");
+    if (canvas && (canvas.width !== gameArtSize?.width || canvas.height !== gameArtSize?.height)) {
+        gameArtSize = {width: canvas.width, height: canvas.height};
+        layOut();
+    }
+}, 250);
 
 // The lines between the code and game, and between the game and console, can be dragged to resize them. The sizes are
 // saved as how much of the space each part takes, so they still fit if the window changes size. Double-click to reset.
+//
+// Until a line is dragged, the game's box is made exactly the size the game draws at, so there are no black bars
+// around it. MDog Engine makes each art pixel a whole number of screen pixels, so the biggest whole number is picked
+// that keeps the game to half the width (in Split view) and leaves room for the console.
 function setUpDividers() {
     const gameColumn = root.querySelector(".pg-game-column");
     let sizes = {};
@@ -829,17 +1094,40 @@ function setUpDividers() {
     } catch (error) {}
 
     function apply() {
+        const fit = fitGame();
+
         // The code's share of the width, written as a grid fraction next to the game's 1fr
         if (sizes.code) {
-            main.style.setProperty("--pg-code-width", (sizes.code / (1 - sizes.code)) + "fr");
+            main.style.setProperty("--pg-columns", `minmax(0, ${sizes.code / (1 - sizes.code)}fr) minmax(0, 1fr)`);
+        } else if (fit && main.dataset.view === "split") {
+            main.style.setProperty("--pg-columns", `minmax(0, 1fr) ${fit.width}px`);
         } else {
-            main.style.removeProperty("--pg-code-width");
+            main.style.removeProperty("--pg-columns");
         }
+
         if (sizes.panels) {
             main.style.setProperty("--pg-panels-height", (sizes.panels * 100) + "%");
+        } else if (fit) {
+            main.style.setProperty("--pg-panels-height", `calc(100% - ${fit.height}px)`);
         } else {
             main.style.removeProperty("--pg-panels-height");
         }
+    }
+
+    // The size the game's box should be to fit the game exactly, in CSS pixels. This only uses the default limits, never
+    // the dragged sizes, so dragging one line can't move the other.
+    function fitGame() {
+        if (!gameArtSize || main.dataset.view === "code") {
+            return null;
+        }
+        const rect = main.getBoundingClientRect();
+        const ratio = window.devicePixelRatio || 1;
+        const maxWidth = main.dataset.view === "split" ? rect.width / 2 : rect.width;
+        const maxHeight = rect.height - 150;
+        const scale = Math.max(1, Math.floor(Math.min(maxWidth * ratio / gameArtSize.width, maxHeight * ratio / gameArtSize.height)));
+        // Rounded up to a whole CSS pixel, since the game's page is given a whole number of pixels to draw in. Rounding
+        // down there would leave it a hair too small, and the game would drop to the next size down.
+        return {width: Math.ceil(gameArtSize.width * scale / ratio), height: Math.ceil(gameArtSize.height * scale / ratio)};
     }
 
     function save() {
@@ -891,6 +1179,10 @@ function setUpDividers() {
         const rect = gameColumn.getBoundingClientRect();
         return (rect.bottom - e.clientY) / rect.height;
     });
+    layOut = apply;
+    // Again whenever the playground changes size, like when the window is resized or the sidebar is collapsed.
+    // Waits a frame, since apply() changes the layout too.
+    new ResizeObserver(() => requestAnimationFrame(apply)).observe(main);
     apply();
 }
 
@@ -1029,7 +1321,7 @@ async function importFile(file) {
     } catch (error) {}
 
     leaveShared(false);
-    setCode(gameScript.textContent.replace(/<\\\/script/gi, "</script").trim() + "\n");
+    setCode(gameScript.textContent.replace(/<\\\/script/gi, "</script").trim() + "\n", true);
     setAssets(assetsFromSaved(saved));
     saveCode(false);
     await saveAssets();
@@ -1073,43 +1365,83 @@ async function loadOwnProject() {
     setAssets(await loadSavedAssets());
 }
 
-// A message at the bottom of the screen for a few seconds
+// A message at the bottom of the screen for a few seconds. action is an optional button, like {label: "Undo", run}.
 let notice = null;
-function notify(message) {
+function notify(message, action) {
     notice?.remove();
     notice = document.createElement("div");
     notice.className = "pg-notice";
     notice.setAttribute("role", "status");
     notice.textContent = message;
-    document.body.appendChild(notice);
     const shown = notice;
-    setTimeout(() => shown.remove(), 1500 + message.length * 40);
+    if (action) {
+        const button = document.createElement("button");
+        button.textContent = action.label;
+        button.addEventListener("click", () => {
+            shown.remove();
+            action.run();
+        });
+        notice.appendChild(button);
+    }
+    document.body.appendChild(notice);
+    setTimeout(() => shown.remove(), (action ? 6000 : 1500) + message.length * 40);
+}
+
+// ===== Templates =====
+
+const templateDialog = root.querySelector(".pg-template-dialog");
+
+function setUpTemplates() {
+    const list = templateDialog.querySelector(".pg-template-list");
+    for (const template of templates) {
+        const card = document.createElement("button");
+        card.className = "pg-template-card";
+        card.innerHTML = `
+            <span class="pg-template-picture">${template.id === "blank"
+                ? `<span class="pg-template-blank">{ }</span>`
+                : `<img src="assets/templates/${template.id}.png" alt="" loading="lazy">`}</span>
+            <span class="pg-template-name">${docsEscape(template.name)}</span>
+            <span class="pg-template-description">${docsEscape(template.description)}</span>`;
+        card.addEventListener("click", () => useTemplate(template));
+        list.appendChild(card);
+    }
+    root.querySelector(".pg-templates").addEventListener("click", () => templateDialog.showModal());
+    templateDialog.querySelector(".pg-dialog-close").addEventListener("click", () => templateDialog.close());
+    // Clicking outside the box closes it
+    templateDialog.addEventListener("click", e => {
+        if (e.target === templateDialog) {
+            templateDialog.close();
+        }
+    });
+}
+
+async function useTemplate(template) {
+    let code;
+    try {
+        code = await template.code();
+    } catch (error) {
+        notify("That template couldn't be loaded.");
+        return;
+    }
+    templateDialog.close();
+    // Replacing the code is one change in the editor's history, so Undo puts the old code back
+    setCode(code, true);
+    saveCode(false);
+    run();
+    notify(`Loaded "${template.name}".`, {
+        label: "Undo",
+        run: () => {
+            undo(editor);
+            variables = findVariables(getCode());
+            run();
+        },
+    });
 }
 
 // ===== Starting up =====
 
 function setUpControls() {
-    const templateSelect = root.querySelector(".pg-template");
-    for (const [i, template] of templates.entries()) {
-        const option = document.createElement("option");
-        option.value = i;
-        option.textContent = template.name;
-        templateSelect.appendChild(option);
-    }
-    templateSelect.addEventListener("change", async () => {
-        const template = templates[templateSelect.value];
-        templateSelect.value = "";
-        if (!template || !confirm(`Replace your code with "${template.name}"? Your files are kept.`)) {
-            return;
-        }
-        try {
-            setCode(await template.code());
-            saveCode(false);
-            run();
-        } catch (error) {
-            notify("That template couldn't be loaded.");
-        }
-    });
+    setUpTemplates();
 
     root.querySelector(".pg-run").addEventListener("click", () => run(true));
 
@@ -1189,6 +1521,7 @@ function setUpControls() {
 }
 
 buildModel();
+renderBuiltInAssets();
 setUpControls();
 setUpDividers();
 

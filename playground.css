@@ -49,12 +49,14 @@ html {
 
 /* ===== Toolbar ===== */
 
+/* The same height as the sidebar's search bar area, so their bottom lines meet */
 .pg-toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    padding: 10px 16px;
+    min-height: 55px;
+    padding: 6px 16px;
     border-bottom: 1px solid var(--border);
     background-color: var(--surface);
 }
@@ -64,7 +66,14 @@ html {
     font-size: 18px;
 }
 
-.pg-button, .pg-template, .pg-views button, .pg-panel-tabs button, .pg-asset-buttons button, .pg-asset-buttons a {
+/* Room is tight on smaller windows, and the sidebar already shows this is the Playground */
+@media (max-width: 1200px) {
+    .pg-title, .pg-saved {
+        display: none;
+    }
+}
+
+.pg-button, .pg-views button, .pg-panel-tabs button, .pg-asset-buttons button, .pg-asset-buttons a {
     padding: 5px 12px;
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-small);
@@ -75,7 +84,7 @@ html {
     cursor: pointer;
 }
 
-.pg-button:hover, .pg-template:hover, .pg-views button:hover, .pg-asset-buttons button:hover, .pg-asset-buttons a:hover {
+.pg-button:hover, .pg-views button:hover, .pg-asset-buttons button:hover, .pg-asset-buttons a:hover {
     border-color: var(--accent);
 }
 
@@ -104,8 +113,17 @@ html {
     color: var(--text-muted);
 }
 
+/* The buttons overlap by their borders, and the one under the mouse comes to the front so its whole border shows */
+.pg-views button {
+    position: relative;
+}
+
 .pg-views button + button {
-    border-left: none;
+    margin-left: -1px;
+}
+
+.pg-views button:hover {
+    z-index: 1;
 }
 
 .pg-views button:first-child {
@@ -157,7 +175,7 @@ html {
 }
 
 .pg-main[data-view="split"] {
-    grid-template-columns: minmax(0, var(--pg-code-width, 1fr)) minmax(0, 1fr);
+    grid-template-columns: var(--pg-columns, minmax(0, 1fr) minmax(0, 1fr));
 }
 
 .pg-main[data-view="code"] .pg-game-column, .pg-main[data-view="game"] .pg-code-column {
@@ -376,7 +394,7 @@ html {
     font-size: 13px;
 }
 
-.pg-console-empty, .pg-builtin {
+.pg-console-empty {
     padding: 10px 14px;
     color: var(--text-faint);
     font-family: var(--font-sans);
@@ -447,68 +465,117 @@ html {
     color: var(--accent);
 }
 
-.pg-asset {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 14px;
-    border-bottom: 1px solid var(--border);
+.pg-asset-heading {
+    padding: 4px 14px 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: bold;
 }
 
-.pg-asset-thumb {
+.pg-asset-heading span {
+    margin-left: 6px;
+    color: var(--text-faint);
+    font-weight: normal;
+}
+
+.pg-asset-list + .pg-asset-heading {
+    margin-top: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.pg-asset-empty {
+    grid-column: 1 / -1;
+    color: var(--text-faint);
+    font-size: 13px;
+}
+
+/* The files as tiles, each with a picture */
+.pg-asset-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+    padding: 0 14px 12px;
+}
+
+.pg-asset {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-small);
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     background-color: var(--code-bg);
 }
 
-.pg-asset-thumb img {
-    max-width: 100%;
-    max-height: 100%;
+/* Fonts are long thin strips, so they get a whole row */
+.pg-asset-wide {
+    grid-column: 1 / -1;
+}
+
+.pg-asset-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 104px;
+    margin-bottom: 4px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-radius: var(--radius-small);
+    background-color: #15161a;
+    cursor: copy;
+}
+
+.pg-asset-preview:hover {
+    border-color: var(--accent);
+}
+
+.pg-asset-wide .pg-asset-preview {
+    height: auto;
+    min-height: 40px;
+    padding: 12px;
+}
+
+.pg-asset-preview canvas {
     image-rendering: pixelated;
 }
 
-.pg-asset-text {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 0;
+.pg-asset-wide .pg-asset-preview canvas {
+    width: 100%;
+}
+
+.pg-asset-file {
+    color: var(--text-faint);
+    font-family: var(--font-mono) !important;
+    font-size: 14px;
+    font-weight: bold;
 }
 
 .pg-asset-name {
-    padding: 0;
-    border: none;
-    background: none;
+    overflow: hidden;
     color: var(--text);
     font-family: var(--font-mono) !important;
-    font-size: 13px;
-    text-align: left;
-    overflow: hidden;
+    font-size: 12px;
     text-overflow: ellipsis;
     white-space: nowrap;
-    cursor: pointer;
 }
 
-.pg-asset-name:hover {
-    color: var(--accent);
-}
-
-.pg-asset-size {
+.pg-asset-info {
+    min-height: 1.4em;
     color: var(--text-faint);
     font-size: 12px;
 }
 
 .pg-asset-buttons {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
 }
 
 .pg-asset-buttons button, .pg-asset-buttons a {
-    padding: 2px 8px;
+    padding: 2px 7px;
     font-size: 12px;
 }
 
@@ -535,14 +602,9 @@ html {
         gap: 6px;
     }
 
-    .pg-button, .pg-template, .pg-views button {
+    .pg-button, .pg-views button {
         padding: 5px 9px;
         font-size: 13px;
-    }
-
-    .pg-template {
-        flex: 1 1 120px;
-        min-width: 0;
     }
 
     .pg-spacer {
@@ -556,6 +618,121 @@ html {
     .pg-asset-buttons a {
         display: none;
     }
+}
+
+/* ===== The template picker ===== */
+
+.pg-dialog {
+    width: min(860px, calc(100vw - 32px));
+    max-height: calc(100dvh - 64px);
+    padding: 0;
+    overflow-y: auto;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background-color: var(--surface);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    color: var(--text);
+}
+
+.pg-dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.pg-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 0;
+}
+
+.pg-dialog-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.pg-dialog-close {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: var(--radius-small);
+    background: none;
+    color: var(--text-muted);
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.pg-dialog-close:hover {
+    background-color: var(--hover-bg);
+    color: var(--text);
+}
+
+.pg-dialog-note {
+    margin: 6px 20px 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.pg-template-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 14px;
+    padding: 0 20px 20px;
+}
+
+.pg-template-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 0 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--surface-raised);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+}
+
+.pg-template-card:hover, .pg-template-card:focus-visible {
+    border-color: var(--accent);
+    outline: none;
+}
+
+.pg-template-picture {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 4 / 3;
+    margin-bottom: 6px;
+    background-color: #000;
+}
+
+.pg-template-picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.pg-template-blank {
+    color: var(--text-faint);
+    font-family: var(--font-mono) !important;
+    font-size: 36px;
+}
+
+.pg-template-name {
+    padding: 0 12px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.pg-template-description {
+    padding: 0 12px;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1.45;
 }
 
 /* A message at the bottom of the screen, like "Link copied" */
@@ -573,5 +750,15 @@ html {
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
     color: var(--text);
     font-size: 14px;
-    pointer-events: none;
+}
+
+.pg-notice button {
+    margin-left: 12px;
+    padding: 2px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-small);
+    background-color: var(--accent-strong);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
 }

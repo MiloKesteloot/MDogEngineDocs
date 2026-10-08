@@ -38,12 +38,37 @@
 
 .searchbar-container {
     position: relative;
+    display: flex;
+    gap: 6px;
     padding: 10px;
     border-bottom: 1px solid var(--border);
 }
 
+/* The button that collapses the sidebar */
+.sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: none;
+    color: var(--text-faint);
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.sidebar-toggle:hover {
+    background-color: var(--hover-bg);
+    color: var(--text);
+}
+
 .searchbar-container > .searchbar {
     display: flex;
+    flex: 1;
+    min-width: 0;
     align-items: center;
     height: 34px;
     border-radius: 6px;
@@ -191,7 +216,10 @@
 .navbar-button .navbar-title {
     display: flex;
     align-items: center;
+    width: 100%;
     height: var(--nav-item-height);
+    border: none;
+    background: none;
     border-radius: 6px;
     color: var(--text-muted);
     font-size: 15px;
@@ -266,6 +294,63 @@
     width: 2px;
     border-radius: 2px;
     background-color: var(--border-strong);
+}
+
+/* ===== Collapsed: just the icons (see setUpCollapsing in sidebar.js) ===== */
+
+/* Search is an icon in the list while collapsed, since the search bar doesn't fit */
+.navbar-search-button {
+    display: none !important;
+}
+
+body.sidebar-animate .sidebar-container, body.sidebar-animate .sidebar-container .sidebar-fixed {
+    transition: width 0.15s, min-width 0.15s;
+}
+
+@media (min-width: 801px) {
+    body.sidebar-collapsed {
+        --sidebar-width: 55px;
+    }
+
+    body.sidebar-collapsed .sidebar-fixed {
+        overflow: hidden;
+    }
+
+    body.sidebar-collapsed .searchbar,
+    body.sidebar-collapsed .search-results,
+    body.sidebar-collapsed .navbar-container > .header-text,
+    body.sidebar-collapsed .navbar-title-text,
+    body.sidebar-collapsed .dropdown-indicator,
+    body.sidebar-collapsed .navbar-children {
+        display: none !important;
+    }
+
+    body.sidebar-collapsed .navbar-search-button {
+        display: flex !important;
+    }
+
+    body.sidebar-collapsed .navbar-container .navbar-padding {
+        padding-top: 8px;
+        overflow-x: hidden;
+    }
+
+    body.sidebar-collapsed .navbar-button .navbar-title {
+        justify-content: center;
+    }
+
+    body.sidebar-collapsed .navbar-button .navbar-title .navbar-icon {
+        margin-left: 0;
+    }
+
+    body.sidebar-collapsed .spacer {
+        display: none;
+    }
+
+    /* On a page inside Code or Examples, that icon is lit up */
+    body.sidebar-collapsed .navbar-dropdown:has(a.active) > .navbar-title {
+        background-color: var(--accent-bg);
+        color: var(--accent);
+    }
 }
 
 /* ===== Phones: a top bar with a menu button, and the sidebar slides in ===== */
@@ -345,7 +430,7 @@
         background-color: rgba(0, 0, 0, 0.5);
     }
 
-    .searchbar > .search-shortcut {
+    .searchbar > .search-shortcut, .sidebar-toggle {
         display: none;
     }
 

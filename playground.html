@@ -21,9 +21,7 @@
             <div class="pg-toolbar">
                 <h1 class="pg-title">Playground</h1>
 
-                <select class="pg-template" aria-label="Start from a template">
-                    <option value="">Start from...</option>
-                </select>
+                <button class="pg-button pg-templates" aria-haspopup="dialog">Templates</button>
 
                 <button class="pg-button pg-run" title="Run (Ctrl+Enter)">▶ Run</button>
 
@@ -44,6 +42,16 @@
 
                 <span class="pg-saved" aria-live="polite"></span>
             </div>
+
+            <!-- The template picker, opened by the Templates button (see openTemplates in playground.js) -->
+            <dialog class="pg-dialog pg-template-dialog" aria-labelledby="pg-template-title">
+                <div class="pg-dialog-header">
+                    <h2 id="pg-template-title">Start from a template</h2>
+                    <button class="pg-dialog-close" aria-label="Close">×</button>
+                </div>
+                <p class="pg-dialog-note">This replaces the code in the editor. If you change your mind, press Undo (or Ctrl+Z) to get your code back. Files you've added in the Assets tab stay either way.</p>
+                <div class="pg-template-list"></div>
+            </dialog>
 
             <div class="pg-banner" hidden>
                 <span>You're looking at a shared project. Your own project is still saved.</span>
@@ -83,8 +91,10 @@
                                 <input type="file" multiple hidden>
                                 <span>Drop images or files here, or click to add them</span>
                             </label>
+                            <div class="pg-asset-heading">Your files</div>
                             <div class="pg-asset-list"></div>
-                            <p class="pg-builtin">These are also built in, so they can be used without adding them: <code>warrior/Idle/Warrior_Idle_?.png</code> (6 frames), <code>warrior/Run/Warrior_Run_?.png</code> (8), <code>warrior/Attack/Warrior_Attack_?.png</code> (12), <code>warrior/warrior-run-sheet.png</code>, <code>tiles.png</code>, <code>fonts/marsfont.png</code>, and <code>fonts/determinationfont.png</code>.</p>
+                            <div class="pg-asset-heading">Built in <span>These come with the docs, so they can be used without adding them.</span></div>
+                            <div class="pg-asset-list pg-builtin-list"></div>
                         </div>
                     </div>
                 </div>

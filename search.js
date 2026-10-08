@@ -36,10 +36,15 @@ document.addEventListener("keydown", e => {
     if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) {
         return;
     }
-    const typing = document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName);
+    // Typing in a box shouldn't jump to search. The Playground's code editor is a contenteditable, not a textarea.
+    const active = document.activeElement;
+    const typing = active && (["INPUT", "TEXTAREA", "SELECT"].includes(active.tagName) || active.isContentEditable);
     if (!typing) {
         e.preventDefault();
         document.body.classList.add("sidebar-open");
+        if (typeof setSidebarCollapsed === "function") {
+            setSidebarCollapsed(false);
+        }
         searchInput.focus();
     }
 });

@@ -6,7 +6,8 @@
 
 // The icons are inline SVGs so they show up right away, instead of waiting on an icon font to load.
 // Icons from Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com - License: CC BY 4.0 (https://fontawesome.com/license/free)
-// Each icon is [viewBox width, path], and every icon is 512 tall.
+// Each icon is [viewBox width, path], and every icon is 512 tall. The "sidebar" icon isn't from Font Awesome: it's a box
+// with its left side filled in, drawn with a hole cut out of it (evenodd).
 const icons = {
     "magnifying-glass": [512, "M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"],
     "mug-hot": [512, "M88 0C74.7 0 64 10.7 64 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C120.5 112.3 128 119.9 128 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C119.5 47.7 112 40.1 112 24c0-13.3-10.7-24-24-24zM32 192c-17.7 0-32 14.3-32 32L0 416c0 53 43 96 96 96l192 0c53 0 96-43 96-96l16 0c61.9 0 112-50.1 112-112s-50.1-112-112-112l-48 0L32 192zm352 64l16 0c26.5 0 48 21.5 48 48s-21.5 48-48 48l-16 0 0-96zM224 24c0-13.3-10.7-24-24-24s-24 10.7-24 24c0 38.9 23.4 59.4 39.1 73.1l1.1 1C232.5 112.3 240 119.9 240 136c0 13.3 10.7 24 24 24s24-10.7 24-24c0-38.9-23.4-59.4-39.1-73.1l-1.1-1C231.5 47.7 224 40.1 224 24z"],
@@ -18,13 +19,14 @@ const icons = {
     "bars": [448, "M0 96C0 78.3 14.3 64 32 64l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 128C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 288c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32L32 448c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0c17.7 0 32 14.3 32 32z"],
     "github": [496, "M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"],
     "graduation-cap": [640, "M320 32c-8.1 0-16.1 1.4-23.7 4.1L15.8 137.4C6.3 140.9 0 149.9 0 160s6.3 19.1 15.8 22.6l57.9 20.9C57.3 229.3 48 259.8 48 291.9l0 28.1c0 28.4-10.8 57.7-22.3 80.8c-6.5 13-13.9 25.8-22.5 37.6C0 442.7-.9 448.3 .9 453.4s6 8.9 11.2 10.2l64 16c4.2 1.1 8.7 .3 12.4-2s6.3-6.1 7.1-10.4c8.6-42.8 4.3-81.2-2.1-108.7C90.3 344.3 86 329.8 80 316.5l0-24.6c0-30.2 10.2-58.7 27.9-81.5c12.9-15.5 29.6-28 49.2-35.7l157-61.7c8.2-3.2 17.5 .8 20.7 9s-.8 17.5-9 20.7l-157 61.7c-12.4 4.9-23.3 12.4-32.2 21.6l159.6 57.6c7.6 2.7 15.6 4.1 23.7 4.1s16.1-1.4 23.7-4.1L624.2 182.6c9.5-3.4 15.8-12.5 15.8-22.6s-6.3-19.1-15.8-22.6L343.7 36.1C336.1 33.4 328.1 32 320 32zM128 408c0 35.3 86 72 192 72s192-36.7 192-72L496.7 262.6 354.5 314c-11.1 4-22.8 6-34.5 6s-23.5-2-34.5-6L143.3 262.6 128 408z"],
+    "sidebar": [512, "M96 64h320a64 64 0 0 1 64 64v256a64 64 0 0 1-64 64H96a64 64 0 0 1-64-64V128a64 64 0 0 1 64-64zM208 112v288h208a16 16 0 0 0 16-16V128a16 16 0 0 0-16-16z", "evenodd"],
     "flask": [448, "M288 0L160 0 128 0C110.3 0 96 14.3 96 32s14.3 32 32 32l0 132.8c0 11.8-3.3 23.5-9.5 33.5L10.3 406.2C3.6 417.2 0 429.7 0 442.6C0 480.9 31.1 512 69.4 512l309.2 0c38.3 0 69.4-31.1 69.4-69.4c0-12.8-3.6-25.4-10.3-36.4L329.5 230.4c-6.2-10.1-9.5-21.7-9.5-33.5L320 64c17.7 0 32-14.3 32-32s-14.3-32-32-32L288 0zM192 196.8L192 64l64 0 0 132.8c0 23.7 6.6 46.9 19 67.1L309.5 320l-171 0L173 263.9c12.4-20.2 19-43.4 19-67.1z"],
 };
 
 // Makes the SVG for an icon. It's 1em tall, the same size the icon font was.
 function icon(name, classes) {
-    const [width, path] = icons[name];
-    return `<svg class="icon ${classes}" viewBox="0 0 ${width} 512" style="width: ${width / 512}em"><path d="${path}"/></svg>`;
+    const [width, path, fillRule = "nonzero"] = icons[name];
+    return `<svg class="icon ${classes}" viewBox="0 0 ${width} 512" style="width: ${width / 512}em"><path fill-rule="${fillRule}" d="${path}"/></svg>`;
 }
 
 // Makes a sidebar link to a page
@@ -49,6 +51,7 @@ const sidebarHTML = `
     <div class="sidebar-fixed">
 
         <div class="searchbar-container">
+            <button class="sidebar-toggle" aria-label="Collapse the sidebar" title="Collapse the sidebar">${icon("sidebar", "")}</button>
             <div class="searchbar">
                 ${icon("magnifying-glass", "")}
                 <input type="text" placeholder="Search..." aria-label="Search the docs" autocomplete="off" spellcheck="false">
@@ -61,6 +64,13 @@ const sidebarHTML = `
             <div class="header-text">Docs</div>
 
             <div class="navbar-padding">
+
+                <div class="navbar-button navbar-search-button">
+                    <button class="navbar-title">
+                        ${icon("magnifying-glass", "navbar-title-icon navbar-icon")}
+                        <span class="navbar-title-text">Search</span>
+                    </button>
+                </div>
 
                 <div class="navbar-button">
                     <a class="navbar-title" data-page="index.html" href="${docsPageHref("index.html")}">
@@ -157,6 +167,7 @@ const sidebar = document.querySelector(".sidebar-container");
 restoreOpenDropdowns(sidebar);
 highlightCurrentPage(sidebar);
 setUpMobileMenu();
+setUpCollapsing(sidebar);
 
 // Every page load makes a new sidebar, so which dropdowns are open is saved for this tab and put back on the next page.
 // Dropdowns are saved by their title, like "Code".
@@ -218,4 +229,61 @@ function setUpMobileMenu() {
             document.body.classList.remove("sidebar-open");
         }
     });
+}
+
+// On bigger screens, the button left of the search bar shrinks the sidebar down to just its icons, to give the page
+// more room. It stays that way on every page until it's pressed again.
+function setUpCollapsing(sidebar) {
+    const toggle = sidebar.querySelector(".sidebar-toggle");
+    let collapsed = false;
+    try {
+        collapsed = localStorage.getItem("sidebar-collapsed") === "true";
+    } catch (e) {}
+    setSidebarCollapsed(collapsed, false);
+
+    // Only animated after the page is drawn, so a collapsed sidebar doesn't visibly shrink on every page load
+    requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add("sidebar-animate")));
+
+    toggle.addEventListener("click", () => setSidebarCollapsed(!document.body.classList.contains("sidebar-collapsed")));
+
+    // While collapsed, the icons open the sidebar back up: Search goes to the search bar, and Code and Examples open
+    // their list of pages
+    sidebar.querySelector(".navbar-search-button button").addEventListener("click", () => {
+        setSidebarCollapsed(false);
+        sidebar.querySelector(".searchbar input").focus();
+    });
+    for (const label of sidebar.querySelectorAll(".navbar-dropdown > .navbar-title")) {
+        label.addEventListener("click", e => {
+            if (document.body.classList.contains("sidebar-collapsed")) {
+                e.preventDefault();
+                setSidebarCollapsed(false);
+                const checkbox = label.querySelector("input[type=checkbox]");
+                checkbox.checked = true;
+                checkbox.dispatchEvent(new Event("change"));
+            }
+        });
+    }
+}
+
+function setSidebarCollapsed(collapsed, save = true) {
+    document.body.classList.toggle("sidebar-collapsed", collapsed);
+    const toggle = document.querySelector(".sidebar-toggle");
+    const label = collapsed ? "Expand the sidebar" : "Collapse the sidebar";
+    toggle.setAttribute("aria-label", label);
+    toggle.title = label;
+
+    // The names are hidden while collapsed, so they show when the mouse is over an icon instead
+    for (const title of document.querySelectorAll(".navbar-padding > .navbar-button > .navbar-title, .navbar-footer .navbar-title")) {
+        if (collapsed) {
+            title.title = title.querySelector(".navbar-title-text").textContent;
+        } else {
+            title.removeAttribute("title");
+        }
+    }
+
+    if (save) {
+        try {
+            localStorage.setItem("sidebar-collapsed", collapsed);
+        } catch (e) {}
+    }
 }
