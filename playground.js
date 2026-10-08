@@ -1532,36 +1532,33 @@ function renderProjects() {
         const isOpen = project === currentProject && !viewingShared;
         const card = document.createElement("div");
         card.className = "pg-project-card" + (isOpen ? " open" : "");
+        // The picture and the name both open the project. The name is its own button, so Rename can swap it for a text box.
         card.innerHTML = `
-            <button class="pg-project-open" title="Open ${docsEscape(project.name)}">
+            <button class="pg-project-open pg-project-picture" title="Open ${docsEscape(project.name)}" tabindex="-1">
                 <span class="pg-template-picture">${project.thumbnail
                     ? `<img src="${project.thumbnail}" alt="">`
                     : `<span class="pg-template-blank">{ }</span>`}</span>
-                <span class="pg-template-name">${docsEscape(project.name)}</span>
-                <span class="pg-template-description">${isOpen ? "Open now · " : ""}Edited ${timeAgo(project.updated)}</span>
             </button>
+            <span class="pg-project-info">
+                <button class="pg-project-open pg-project-name" title="Open ${docsEscape(project.name)}">${docsEscape(project.name)}</button>
+                <span class="pg-project-edited">${isOpen ? "Open now · " : ""}Edited ${timeAgo(project.updated)}</span>
+            </span>
             <span class="pg-project-buttons">
                 <button data-action="rename">Rename</button>
                 <button data-action="duplicate">Duplicate</button>
                 <button data-action="delete">Delete</button>
             </span>`;
-        card.querySelector(".pg-project-open").addEventListener("click", async () => {
-            projectDialog.close();
-            if (!isOpen) {
-                leaveShared();
-                await openProject(project);
-                run();
-            }
-        });
-        card.querySelector('[data-action="rename"]').addEventListener("click", () => {
-            const name = prompt("New name for " + project.name, project.name);
-            if (name && name.trim()) {
-                project.name = name.trim();
-                saveProjectList();
-                showProjectName();
-                renderProjects();
-            }
-        });
+        for (const button of card.querySelectorAll(".pg-project-open")) {
+            button.addEventListener("click", async () => {
+                projectDialog.close();
+                if (!isOpen) {
+                    leaveShared();
+                    await openProject(project);
+                    run();
+                }
+            });
+        }
+        card.querySelector('[data-action="rename"]').addEventListener("click", () => renameInPlace(card, project));
         card.querySelector('[data-action="duplicate"]').addEventListener("click", async () => {
             const copy = {id: newProjectId(), name: freeName(project.name + " copy"), updated: Date.now(), thumbnail: project.thumbnail};
             try {
@@ -1595,6 +1592,46 @@ function renderProjects() {
         });
         list.appendChild(card);
     }
+}
+
+// Turns a project's name on its card into a text box. Enter or clicking away saves it, and Escape puts it back.
+function renameInPlace(card, project) {
+    const nameButton = card.querySelector(".pg-project-name");
+    const input = document.createElement("input");
+    input.className = "pg-project-name-input";
+    input.value = project.name;
+    input.setAttribute("aria-label", "Project name");
+    input.maxLength = 80;
+    nameButton.replaceWith(input);
+    input.focus();
+    input.select();
+
+    let done = false;
+    const finish = save => {
+        if (done) {
+            return;
+        }
+        done = true;
+        const name = input.value.trim();
+        if (save && name && name !== project.name) {
+            project.name = name;
+            saveProjectList();
+            showProjectName();
+        }
+        renderProjects();
+    };
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            finish(true);
+        } else if (e.key === "Escape") {
+            // Only stops renaming. Without this, Escape would close the whole list too.
+            e.preventDefault();
+            e.stopPropagation();
+            finish(false);
+        }
+    });
+    input.addEventListener("blur", () => finish(true));
 }
 
 function setUpProjects() {

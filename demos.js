@@ -494,11 +494,14 @@ ${previewStart}<script type="module">
                     mdog.Draw._postOutUpdate();
                 };
                 try {
-                    // Keep stepping until every image the demo asked for has loaded, then take one more step so they're drawn
+                    // Keep stepping until every image and file the demo asked for has loaded, then take one more step so
+                    // they're drawn. Files, like a level loaded with the Asset Manager, can ask for more images once they're in.
                     for (let i = 0; i < 60; i++) {
+                        // Whether the files were in before this step, so the step had a chance to use them
+                        const filesLoaded = mdog.AssetManager.doneLoading();
                         tick();
                         const images = [...mdog.Draw.imageCache.values()].filter(image => image instanceof iframe.contentWindow.HTMLImageElement);
-                        if (images.every(image => image.complete)) {
+                        if (filesLoaded && images.every(image => image.complete)) {
                             break;
                         }
                         await new Promise(r => setTimeout(r, 50));

@@ -15,6 +15,7 @@ addCrossLinks();
 decorateCodeBlocks();
 setUpSourceViews();
 setUpMethodLinks();
+setUpRowClicks();
 openTargetFromURL();
 window.addEventListener("hashchange", openTargetFromURL);
 
@@ -48,7 +49,7 @@ function cleanPageLinks() {
     }
 }
 
-// The pages in the sidebar, in order, each with its name and the dropdown it's in (like "Code")
+// The pages in the sidebar, in order, each with its name and the dropdown it's in (like "Engine")
 function getSidebarPages() {
     const links = document.querySelectorAll(".sidebar-container a.navbar-title[data-page]");
     return [...links].map(link => {
@@ -61,7 +62,7 @@ function getSidebarPages() {
     });
 }
 
-// Fills in the line above the title with where the page is, like "Docs › Code › Draw"
+// Fills in the line above the title with where the page is, like "Docs › Engine › Draw"
 function addBreadcrumbs() {
     const breadcrumbs = document.querySelector(".page .breadcrums");
     if (!breadcrumbs) {
@@ -161,6 +162,26 @@ function setUpMethodLinks() {
             history.replaceState(null, "", hash);
             copyText(window.location.href);
             showToast(link, "Link copied");
+        });
+    }
+}
+
+// Clicking anywhere in a method's row opens it, not just on its name. Only the name and arrow close it again, so
+// clicking around in the row doesn't close it by accident. The cursor only changes over the name, like before.
+function setUpRowClicks() {
+    for (const row of document.querySelectorAll("tr.has-dropdown")) {
+        row.addEventListener("click", e => {
+            const checkbox = row.querySelector("input[type=checkbox]");
+            // The name and arrow already open and close it, and the link icon copies a link
+            if (checkbox.checked || e.target.closest("label, a")) {
+                return;
+            }
+            // Selecting some text to copy it shouldn't open the row
+            if (!window.getSelection().isCollapsed) {
+                return;
+            }
+            checkbox.checked = true;
+            checkbox.dispatchEvent(new Event("change", {bubbles: true}));
         });
     }
 }

@@ -1184,6 +1184,13 @@ tr.has-dropdown:has(input:checked) + tr {
     margin-left: auto;
 }
 
+.page .demo-bar .demo-open svg.icon {
+    height: 0.9em;
+    margin-right: 7px;
+    fill: currentColor;
+    vertical-align: -1px;
+}
+
 /* Under a demo with no code box, it's the only button, so it stays under the game */
 .page .demo-bar .demo-open:only-child {
     margin-left: 0;

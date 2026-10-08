@@ -105,7 +105,7 @@ const sidebarHTML = `
                     <label class="navbar-title">
                         <input type="checkbox">
                         ${icon("code", "navbar-title-icon navbar-icon")}
-                        <span class="navbar-title-text">Code</span>
+                        <span class="navbar-title-text">Engine</span>
                         <span class="spacer"></span>
                         ${icon("caret-right", "closed-i dropdown-indicator")}
                         ${icon("caret-down", "open-i dropdown-indicator")}
@@ -193,7 +193,7 @@ setUpMobileMenu();
 setUpCollapsing(sidebar);
 
 // Every page load makes a new sidebar, so which dropdowns are open is saved for this tab and put back on the next page.
-// Dropdowns are saved by their title, like "Code".
+// Dropdowns are saved by their title, like "Engine".
 function restoreOpenDropdowns(sidebar) {
     let open = [];
     try {

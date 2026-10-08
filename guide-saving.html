@@ -33,47 +33,27 @@
 
 <p>Browsers have a place to save small bits of text for a website, called <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"><code>localStorage</code></a>. Anything saved there is still there after the page is closed, so it's good for high scores, unlocked levels, and settings.</p>
 
-                <p>Press space to start, then press it as many times as you can in five seconds. Your best score is saved, so it's still there if you refresh the page.</p>
+                <p>Click the game to add a coin. Then refresh the page: the coins are still there, because they're saved.</p>
 
                 <script>
                     demo({
                         width: 256,
                         height: 160,
-                        keys: [" "],
                         code: `
-                            const saveName = "space-masher-best";
-                            let best = Number(localStorage.getItem(saveName) ?? 0);
-                            let score = 0;
-                            let ticksLeft = 0;
+                            // Load the saved coins. The first time, nothing is saved yet, so start at 0.
+                            let coins = Number(localStorage.getItem("coin-demo") ?? 0);
 
                             function main() {
-                                const Keyboard = MDog.Input.Keyboard;
-
-                                if (ticksLeft > 0) {
-                                    // Playing: count the presses until time runs out
-                                    ticksLeft--;
-                                    if (Keyboard.isClicked(" ")) {
-                                        score++;
-                                    }
-                                    // Save a new best score when the time runs out
-                                    if (ticksLeft === 0 && score > best) {
-                                        best = score;
-                                        localStorage.setItem(saveName, best);
-                                    }
-                                } else if (Keyboard.isClicked(" ")) {
-                                    // Five seconds, at 160 ticks per second
-                                    score = 0;
-                                    ticksLeft = 5 * 160;
+                                // Every click adds a coin, and saves the new total
+                                if (MDog.Input.Mouse.getClick()) {
+                                    coins++;
+                                    localStorage.setItem("coin-demo", coins);
                                 }
 
                                 MDog.Draw.clear({color: "#1a1030"});
-                                MDog.Draw.textImage(String(score), 128, 50, "#ffcc33", "fonts/marsfont.png", {alignX: "center", size: 6});
-                                MDog.Draw.textImage("Best: " + best, 128, 100, "#ffffff", "fonts/marsfont.png", {alignX: "center", size: 2});
-                                if (ticksLeft > 0) {
-                                    MDog.Draw.rectangleFill(0, 154, Math.ceil(256 * ticksLeft / 800), 6, "#88ccff");
-                                } else {
-                                    MDog.Draw.textImage("Press space to start", 128, 130, "#88ccff", "fonts/marsfont.png", {alignX: "center"});
-                                }
+                                MDog.Draw.circle(128, 60, 18, "#ffcc33");
+                                MDog.Draw.textImage("Coins: " + coins, 128, 100, "#ffffff", "fonts/marsfont.png", {alignX: "center", size: 2});
+                                MDog.Draw.textImage("Click to add a coin", 128, 130, "#88ccff", "fonts/marsfont.png", {alignX: "center"});
                             }
 
                             MDog.setActiveFunction(main);
@@ -83,9 +63,9 @@
 
                 <h2>How it Works</h2>
 
-                <p><code>localStorage.setItem(name, value)</code> saves a value under a name, and <code>localStorage.getItem(name)</code> gets it back. If nothing has been saved yet, <code>getItem()</code> gives back <code>null</code>, so <code>?? 0</code> starts the best score at <code>0</code>.</p>
+                <p><code>localStorage.setItem(name, value)</code> saves a value under a name, here <code>"coin-demo"</code>. <code>localStorage.getItem(name)</code> gets it back, even after the page has been closed.</p>
 
-                <p>Everything is saved as text, so <code>Number()</code> turns the best score back into a number when it's loaded.</p>
+                <p>If nothing has been saved yet, <code>getItem()</code> gives back <code>null</code>, so <code>?? 0</code> starts the coins at <code>0</code>. Everything is saved as text, so <code>Number()</code> turns it back into a number.</p>
 
                 <h2>Saving More Than One Thing</h2>
 

@@ -334,6 +334,12 @@ class Setting {
 // width, height (optional): The screen size in art pixels. Default: 160 by 120.
 // source (optional): Instead of code, a CSS selector for a <pre> with a whole game in it, import line and all.
 //                    That's run as it is, without an editor, so the code shown and the code running are the same.
+// The Playground's flask icon from the sidebar (see icon() in sidebar.js). build-index.js runs this file without the
+// sidebar, so there it's left out.
+function docsPlaygroundIcon() {
+    return typeof icon === "function" ? icon("flask", "") : "";
+}
+
 function docsDemoHTML(options) {
     const width = options.width ?? 160;
     const height = options.height ?? 120;
@@ -349,7 +355,7 @@ function docsDemoHTML(options) {
 
     if (options.source) {
         html += `<div class="demo-bar">` +
-            `<button class="demo-open" title="Open this code in the Playground in a new tab">Open in Playground</button>` +
+            `<button class="demo-open" title="Open this code in the Playground in a new tab">${docsPlaygroundIcon()}Open in Playground</button>` +
             `</div>`;
     }
 
@@ -359,7 +365,7 @@ function docsDemoHTML(options) {
             `<div class="demo-bar">` +
             `<button class="demo-run">Run</button>` +
             `<button class="demo-reset">Reset code</button>` +
-            `<button class="demo-open" title="Open this code in the Playground in a new tab">Open in Playground</button>` +
+            `<button class="demo-open" title="Open this code in the Playground in a new tab">${docsPlaygroundIcon()}Open in Playground</button>` +
             `<span class="demo-hint">Edit the code, then press Run or Ctrl+Enter</span>` +
             `</div>` +
             `<div class="demo-error"></div>` +

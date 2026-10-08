@@ -759,26 +759,58 @@ html {
     border-color: var(--accent);
 }
 
-.pg-project-open {
+.pg-project-picture {
+    display: block;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.pg-project-info {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 0 0 8px;
+    gap: 2px;
+    padding: 10px 12px 10px;
+}
+
+.pg-project-name, .pg-project-name-input {
+    height: 26px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.pg-project-name {
+    padding: 0;
+    overflow: hidden;
     border: none;
     background: none;
     color: var(--text);
     text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     cursor: pointer;
 }
 
-.pg-project-open:hover .pg-template-name {
+.pg-project-card:has(.pg-project-open:hover) .pg-project-name {
     color: var(--accent);
 }
 
-.pg-project-open .pg-template-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+/* The name while it's being renamed. It's moved out a little so its text lines up with the name it replaces. */
+.pg-project-name-input {
+    width: calc(100% + 14px);
+    margin: 0 -7px;
+    padding: 0 6px;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-small);
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+}
+
+.pg-project-edited {
+    color: var(--text-muted);
+    font-size: 13px;
 }
 
 .pg-project-buttons {
