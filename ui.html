@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The MDog Engine UI Module: pages, tilemaps, and grids.">
     <title>UI Module - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -130,10 +131,10 @@
                 <p>The tilemap is a string of comma separated tile numbers, with one row per line. Tile <code>0</code> is the top left of the sprite sheet, and the numbers go left to right, then top to bottom. <code>-1</code> is an empty tile. Tilemaps can be loaded from a <code>.csv</code> file with the <a href="asset-manager.html">Asset Manager</a>.</p>
 
                 <pre><code>const tilemap = new MDog.UI.TilemapInteractable(0, 0,
-    "0, 1, 1, 2\n" +
-    "3, 4, 4, 5\n" +
-    "-1, -1, 6, 6",
-    16, "tiles.png", 8, {scale: 2});
+    "0, 0, 0, 0\n" +
+    "1, 1, 1, 1\n" +
+    "2, 2, 2, 2",
+    16, "tiles.png", 4, {scale: 2});
 
 MDog.Draw.interactable(tilemap);</code></pre>
 

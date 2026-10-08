@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The MDog Engine FX Module: particles for sparks, dust, and explosions.">
     <title>FX Module - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -93,7 +94,7 @@ function main() {
                     const PARTICLE_VELOCITY = ["vx, vy", "The starting speed of the particle."];
                     const PARTICLE_GX = ["gx", "How much the horizontal speed changes every tick.", "0"];
                     const PARTICLE_GY = ["gy", "How much the vertical speed changes every tick. Positive numbers pull the particle down.", "0"];
-                    const PARTICLE_LAYER = ["layer", "An integer defining the canvas to draw to.", "0"];
+                    const PARTICLE_LAYER = ["layer", "Which layer to draw the particle on, as a whole number.", "0"];
                     const PARTICLE_TAGS = ["tags", "An array of strings to label the particle with. See <code>hasTag()</code>.", "[]"];
 
                     methodsTable([

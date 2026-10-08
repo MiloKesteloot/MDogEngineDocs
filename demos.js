@@ -202,6 +202,7 @@ function setUpDemo(element) {
     const d = {element, iframe: null, codeOffset: 0, startTime: 0, stop, showError};
 
     startButton.addEventListener("click", run);
+    element.querySelector(".demo-open")?.addEventListener("click", openInPlayground);
 
     let highlight = null;
     if (textArea) {
@@ -212,7 +213,6 @@ function setUpDemo(element) {
             codeChanged();
             run();
         });
-        element.querySelector(".demo-open").addEventListener("click", openInPlayground);
         textArea.addEventListener("input", codeChanged);
         textArea.addEventListener("scroll", () => {
             highlight.scrollLeft = textArea.scrollLeft;

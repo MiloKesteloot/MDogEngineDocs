@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The MDog Engine Draw Module: shapes, images, pixel font text, animations, and layers.">
     <title>Draw Module - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -31,7 +32,7 @@
                 <p>The Draw Module can be accessed with <code>MDog.Draw.method()</code>.</p>
 
                 <script>
-                    const LAYER = ["layer", "An integer defining the canvas to draw to. If the layer has never been drawn to, a new canvas will be created. Defaults to the active layer (see <code>setActiveLayer()</code>)."];
+                    const LAYER = ["layer", "Which layer to draw on, as a whole number. A layer is made the first time it's drawn on. Defaults to the active layer (see <code>setActiveLayer()</code>)."];
                 </script>
 
                 <h2>Drawing Methods</h2>
@@ -114,11 +115,11 @@
                         },
                         {
                             name: "clear",
-                            description: "Clears the screen/layer to a color.",
+                            description: "Clears the screen or a layer to a color.",
                             details: "Clears the screen (or specific layer) to a color (black by default). If no layer is given, every layer is wiped and the screen is filled with the color. The color can be <code>\"transparent\"</code> to see the web page behind the game. If a layer is given, only that layer is filled with the color, which covers up the layers below it. Use <code>\"transparent\"</code> to clear just that layer back to empty.",
                             settings: [
-                                ["color", "Hex code for background clear.", "\"#000000\""],
-                                ["layer", "An integer defining the canvas to clear. If no layer is given, all layers will be cleared.", "null"],
+                                ["color", "Hex code to fill the screen with.", "\"#000000\""],
+                                ["layer", "Which layer to clear. If no layer is given, every layer is cleared.", "null"],
                             ],
                         },
                         {
@@ -134,10 +135,10 @@
                                 ["scale", "How many pixels each image pixel maps to.", "1"],
                                 ["scaleX", "How horizontally stretched the image should be.", "scale"],
                                 ["scaleY", "How vertically stretched the image should be.", "scale"],
-                                ["offsetX", "A horizontal offset into the image of where to crop.", "0"],
-                                ["offsetY", "A vertical offset into the image of where to crop.", "0"],
-                                ["width", "The width of the image relative to <code>offsetX</code>.", "image.width"],
-                                ["height", "The height of the image relative to <code>offsetY</code>.", "image.height"],
+                                ["offsetX", "Where to start drawing from in the image, from its left edge. Use this with <code>width</code> to draw part of an image.", "0"],
+                                ["offsetY", "Where to start drawing from in the image, from its top edge. Use this with <code>height</code> to draw part of an image.", "0"],
+                                ["width", "How much of the image to draw across, starting at <code>offsetX</code>.", "image.width"],
+                                ["height", "How much of the image to draw down, starting at <code>offsetY</code>.", "image.height"],
                                 ["flipX", "Flip the image horizontally.", "false"],
                                 ["flipY", "Flip the image vertically.", "false"],
                                 ["tint", "Hex code to recolor every non-transparent pixel of the image with. If no tint is given, the image keeps its own colors."],
@@ -319,7 +320,7 @@
                         },
                         {
                             name: "threeDeeScene",
-                            description: "Draws a threeDeeScene.",
+                            description: "Draws a ThreeDee scene.",
                             details: "Draws every object in a ThreeDee scene. See the <a href=\"threedee.html\">ThreeDee Module</a>.",
                             parameters: [
                                 ["threeDeeScene", "The scene to be drawn."],
@@ -404,12 +405,12 @@
                             description: "Sets the default draw layer.",
                             details: "Sets which layer is drawn to when a method isn't given a <code>layer</code> setting. The active layer starts as <code>0</code>.",
                             parameters: [
-                                ["layer", "An integer defining the canvas to draw to."],
+                                ["layer", "Which layer to draw on, as a whole number."],
                             ],
                         },
                         {
                             name: "setBackgroundColor",
-                            description: "Sets the color of the dom body.",
+                            description: "Sets the page's background color.",
                             details: "Sets the color of the web page around the game. This starts as black.",
                             parameters: [
                                 ["color", "Hex code for the page background."],
@@ -450,15 +451,15 @@
                         },
                         {
                             name: "getHalfScreenHeightInArtPixels",
-                            description: "Gets the int height of half of the screen.",
+                            description: "Gets half the screen's height, rounded down.",
                         },
                         {
                             name: "getHalfScreenWidthInArtPixels",
-                            description: "Gets the int width of half of the screen.",
+                            description: "Gets half the screen's width, rounded down.",
                         },
                         {
                             name: "measureText",
-                            description: "Gets the length of theoretical text.",
+                            description: "Measures text in a browser font.",
                             details: "Measures how wide the first line of some text would be in a regular browser font. This doesn't measure pixel font text from <code>textImage()</code>.",
                             parameters: [
                                 ["text", "The text to measure."],
@@ -478,7 +479,7 @@
 
                 <p>The <code>animationSpeed</code> is roughly how many frames are shown per second.</p>
 
-                <pre><code>const run = new MDog.Draw.SpriteSheetAnimation("player/run.png", 6, 10, 16);
+                <pre><code>const run = new MDog.Draw.SpriteSheetAnimation("warrior/warrior-run-sheet.png", 8, 12, 64);
 
 function main() {
     MDog.Draw.clear();

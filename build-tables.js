@@ -353,6 +353,12 @@ function docsDemoHTML(options) {
         `</div>` +
         `<div class="demo-touch-keys"></div>`;
 
+    if (options.source) {
+        html += `<div class="demo-bar">` +
+            `<button class="demo-open" title="Open this code in the Playground in a new tab">Open in Playground</button>` +
+            `</div>`;
+    }
+
     if (code !== null) {
         html += `<div class="demo-editor">` +
             `<textarea class="demo-code" spellcheck="false" autocapitalize="off" autocomplete="off" rows="${code.split("\n").length}">${docsEscape(code)}</textarea>` +

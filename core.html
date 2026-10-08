@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The MDog object, the game loop, and how ticks work in MDog Engine.">
     <title>Core - MDog Engine Docs</title>
     <link rel="icon" href="favicon.svg">
     <link rel="stylesheet" type="text/css" href="screen.css">
@@ -26,7 +27,7 @@
 
                 <h2>The Game Loop</h2>
 
-                <p>A game's main code goes in one function, called the "active function." MDog Engine runs the active function 160 times per second, and each run is a "tick." Ticks happen at the same speed no matter how fast the player's screen refreshes, so a game can move things by a set amount every tick instead of using <code>deltaTime()</code>.</p>
+                <p>A game's main code goes in one function, called the "active function." MDog Engine runs the active function 160 times per second, and each run is a "tick." Ticks happen at the same speed no matter how fast the player's screen refreshes, so a game can move things by a set amount every tick, instead of working out how much time has passed.</p>
 
                 <p>After the ticks for a frame are done, every layer is drawn to the screen.</p>
 
@@ -70,7 +71,7 @@
                     </tr>
                     <tr class="no-dropdown">
                         <td><a href="draw.html"><code>MDog.Draw</code></a></td>
-                        <td>Shapes, images, text, animations, and layers.</td>
+                        <td>Shapes, images, pixel font text, animations, and layers.</td>
                     </tr>
                     <tr class="dropdown-tr"></tr>
                     <tr class="no-dropdown">
@@ -80,7 +81,7 @@
                     <tr class="dropdown-tr"></tr>
                     <tr class="no-dropdown">
                         <td><a href="math.html"><code>MDog.Math</code></a></td>
-                        <td>Math helpers, <code>Vector</code>, and <code>Vector3</code>.</td>
+                        <td>Math helpers, and 2D and 3D vectors (<code>Vector</code> and <code>Vector3</code>).</td>
                     </tr>
                     <tr class="dropdown-tr"></tr>
                     <tr class="no-dropdown">
@@ -95,7 +96,7 @@
                     <tr class="dropdown-tr"></tr>
                     <tr class="no-dropdown">
                         <td><a href="threedee.html"><code>MDog.ThreeDee</code></a></td>
-                        <td>Simple pseudo-3D scenes.</td>
+                        <td>Retro pseudo-3D scenes.</td>
                     </tr>
                     <tr class="dropdown-tr"></tr>
                     <tr class="no-dropdown">
