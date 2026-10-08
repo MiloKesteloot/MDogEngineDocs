@@ -212,13 +212,7 @@ class Method {
 
         let s = `
                     <tr class="has-dropdown" id="${this.getId()}">
-                        <td>
-                            <label>
-                            <input type="checkbox">
-                            ${this.generateSignature()}
-                            </label>
-                            ${this.generateLink()}
-                        </td>
+                        <td><label><input type="checkbox">${this.generateSignature()}</label>${this.generateLink()}</td>
                         <td>${this.description}</td>
                     </tr>`;
 

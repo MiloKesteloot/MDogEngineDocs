@@ -853,7 +853,6 @@ ${frameHelpers(assetURLs, images)}
     codeOffset = before.split("\n").length - 1 + 1 + (addImport ? 1 : 0);
 
     gameFrame?.remove();
-    root.querySelector(".pg-coords")?.remove();
     gameFrame = document.createElement("iframe");
     gameFrame.className = "pg-frame";
     gameFrame.title = "Your game";
@@ -862,7 +861,6 @@ ${frameHelpers(assetURLs, images)}
     gameFrame.addEventListener("load", () => {
         frame.focus();
         frame.contentWindow.focus();
-        showCoordinates(frame);
         // A picture of the game for the project list, once it's had a moment to draw something
         setTimeout(() => saveThumbnail(frame), 2500);
     });
@@ -973,27 +971,6 @@ window.playgroundPreload = mdog => Promise.race([
     }))),
     new Promise(resolve => setTimeout(resolve, 5000)),
 ]);`;
-}
-
-// Which art pixel the mouse is on, in the corner of the game
-function showCoordinates(frame) {
-    const label = document.createElement("div");
-    label.className = "pg-coords";
-    label.hidden = true;
-    gameBox.appendChild(label);
-    const gameWindow = frame.contentWindow;
-    gameWindow.addEventListener("mousemove", e => {
-        const canvas = gameWindow.document.querySelector("canvas");
-        if (!canvas) {
-            return;
-        }
-        const rect = canvas.getBoundingClientRect();
-        const x = Math.floor((e.clientX - rect.left) / rect.width * canvas.width);
-        const y = Math.floor((e.clientY - rect.top) / rect.height * canvas.height);
-        label.hidden = !(x >= 0 && y >= 0 && x < canvas.width && y < canvas.height);
-        label.textContent = `x ${x}, y ${y}`;
-    });
-    gameWindow.document.addEventListener("mouseleave", () => label.hidden = true);
 }
 
 // ===== The console =====

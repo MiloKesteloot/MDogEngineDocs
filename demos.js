@@ -378,7 +378,6 @@ function setUpDemo(element) {
             // Focus the game so the keyboard works right away
             iframe.focus();
             iframe.contentWindow.focus();
-            showCoordinates(iframe);
         });
         screen.appendChild(iframe);
         d.startTime = performance.now();
@@ -387,35 +386,7 @@ function setUpDemo(element) {
         d.iframe = iframe;
     }
 
-    // While the mouse is over the game, shows which art pixel it's on in the corner, so it's easy to work out where
-    // to draw things. It's worked out the same way MDog.Input.Mouse does it.
-    function showCoordinates(iframe) {
-        screen.querySelector(".demo-coords")?.remove();
-        const label = document.createElement("div");
-        label.className = "demo-coords";
-        label.hidden = true;
-        screen.appendChild(label);
-
-        const gameWindow = iframe.contentWindow;
-        gameWindow.addEventListener("mousemove", e => {
-            const canvas = gameWindow.document.querySelector("canvas");
-            if (!canvas) {
-                return;
-            }
-            const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / rect.width * canvas.width);
-            const y = Math.floor((e.clientY - rect.top) / rect.height * canvas.height);
-            const onScreen = x >= 0 && y >= 0 && x < canvas.width && y < canvas.height;
-            label.hidden = !onScreen;
-            label.textContent = `x ${x}, y ${y}`;
-        });
-        gameWindow.document.addEventListener("mouseleave", () => {
-            label.hidden = true;
-        });
-    }
-
     function stop() {
-        screen.querySelector(".demo-coords")?.remove();
         if (d.iframe) {
             d.iframe.remove();
             d.iframe = null;

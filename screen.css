@@ -383,10 +383,20 @@ body {
     text-transform: uppercase;
 }
 
+/* Both columns start at the top, so a long signature doesn't push its description down into the middle */
 .methods-grid td {
     padding: 11px 16px;
     border-top: 1px solid var(--border);
-    vertical-align: middle;
+    vertical-align: top;
+}
+
+/* A signature too long for one line wraps between its parameters, and the lines after the first are indented a
+   little, so it's easy to see they're one signature */
+.methods-grid tr.has-dropdown td:first-child, .methods-grid tr.no-dropdown td:first-child {
+    position: relative;
+    padding-left: calc(31px + 2ch);
+    padding-right: 30px;
+    text-indent: -2ch;
 }
 
 .methods-grid td:first-child {
@@ -413,15 +423,15 @@ tr.has-dropdown input[type=checkbox] {
 }
 
 tr.has-dropdown label {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 9px;
     cursor: pointer;
 }
 
+/* The arrow sits to the left of the first line */
 tr.has-dropdown label::before {
     content: "";
-    flex-shrink: 0;
+    position: absolute;
+    top: 20px;
+    left: 16px;
     width: 0;
     height: 0;
     border-top: 4px solid transparent;
@@ -451,11 +461,6 @@ tr.has-dropdown:has(input:checked) {
 /* Rows without a dropdown get an empty row after them, which is never shown */
 tr.no-dropdown + tr {
     display: none;
-}
-
-/* Rows without a dropdown are indented the same as rows with an arrow, so the method names line up */
-tr.no-dropdown td:first-child {
-    padding-left: 31px;
 }
 
 /* The details under an open row */
@@ -575,9 +580,14 @@ tr.has-dropdown:has(input:checked) + tr {
     overflow-x: auto;
 }
 
-/* The link icon next to each method */
+/* The link icon next to each method. It takes up no room on the line, so it can't wrap onto a line by itself, and
+   the cell has room on the right for it to stick out into. */
 .methods-grid .method-link {
-    margin-left: 8px;
+    display: inline-block;
+    width: 0;
+    overflow: visible;
+    text-indent: 0;
+    white-space: nowrap;
     color: var(--text-faint);
     opacity: 0;
     vertical-align: middle;
@@ -593,6 +603,7 @@ tr.has-dropdown:has(input:checked) + tr {
 }
 
 .methods-grid .method-link svg.icon {
+    margin-left: 8px;
     height: 0.8em;
     fill: currentColor;
 }
@@ -897,25 +908,6 @@ tr.has-dropdown:has(input:checked) + tr {
     box-shadow: 0 0 0 1px var(--border);
     border-radius: var(--radius);
     overflow: hidden;
-}
-
-/* Which art pixel the mouse is on, in the corner of a running demo (see showCoordinates in demos.js) */
-.page .demo-coords {
-    position: absolute;
-    top: 6px;
-    left: 6px;
-    z-index: 2;
-    padding: 1px 7px;
-    border-radius: 4px;
-    background-color: rgba(10, 12, 16, 0.75);
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    pointer-events: none;
-}
-
-.page .demo-coords[hidden] {
-    display: none;
 }
 
 .page .demo-iframe {
@@ -1252,8 +1244,14 @@ tr.has-dropdown:has(input:checked) + tr {
         width: auto;
     }
 
-    tr.no-dropdown td:first-child {
-        padding-left: 25px;
+    .methods-grid tr.has-dropdown td:first-child, .methods-grid tr.no-dropdown td:first-child {
+        padding-left: calc(25px + 2ch);
+        padding-right: 26px;
+    }
+
+    tr.has-dropdown label::before {
+        top: 18px;
+        left: 10px;
     }
 
     .methods-grid .method-info {

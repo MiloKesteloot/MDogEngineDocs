@@ -257,19 +257,6 @@ html {
     display: none;
 }
 
-.pg-coords {
-    position: absolute;
-    right: 8px;
-    bottom: 8px;
-    padding: 2px 8px;
-    border-radius: var(--radius-small);
-    background-color: rgba(0, 0, 0, 0.7);
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    pointer-events: none;
-}
-
 /* ===== Console and assets ===== */
 
 .pg-panels {
