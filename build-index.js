@@ -36,7 +36,7 @@ async function main() {
 
         // Run the page's inline scripts to get its method tables
         const context = {
-            document: {currentScript: {insertAdjacentHTML() {}}},
+            document: {currentScript: {insertAdjacentHTML() {}}, querySelectorAll: () => []},
             window: {location: {hostname: "localhost", pathname: "/" + page, search: "", hash: ""}},
         };
         vm.createContext(context);

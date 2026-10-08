@@ -22,6 +22,10 @@
             <div class="pg-toolbar">
                 <h1 class="pg-title">Playground</h1>
 
+                <button class="pg-button pg-project" aria-haspopup="dialog" title="Your projects">
+                    <span class="pg-project-name">My project</span> <span aria-hidden="true">▾</span>
+                </button>
+
                 <button class="pg-button pg-templates" aria-haspopup="dialog">Templates</button>
 
                 <button class="pg-button pg-run" title="Run (Ctrl+Enter)">▶ Run</button>
@@ -54,10 +58,23 @@
                 <div class="pg-template-list"></div>
             </dialog>
 
+            <!-- The list of the person's projects, opened by the project button (see setUpProjects in playground.js) -->
+            <dialog class="pg-dialog pg-project-dialog" aria-labelledby="pg-project-title" tabindex="-1">
+                <div class="pg-dialog-header">
+                    <h2 id="pg-project-title">Your projects</h2>
+                    <button class="pg-dialog-close" aria-label="Close">×</button>
+                </div>
+                <p class="pg-dialog-note">Projects are saved in this browser. To move one to another computer, use Export and then Import.</p>
+                <div class="pg-project-actions">
+                    <button class="pg-button pg-run pg-new-project">+ New project</button>
+                </div>
+                <div class="pg-project-list"></div>
+            </dialog>
+
             <div class="pg-banner" hidden>
-                <span>You're looking at a shared project. Your own project is still saved.</span>
-                <button class="pg-button pg-keep-shared">Keep this one</button>
-                <button class="pg-button pg-back-to-mine">Go back to mine</button>
+                <span>You're looking at a shared project. Changes to it aren't saved until you save it as one of your projects.</span>
+                <button class="pg-button pg-keep-shared">Save as a new project</button>
+                <button class="pg-button pg-back-to-mine">Back to my project</button>
             </div>
 
             <div class="pg-main" data-view="split">

@@ -22,7 +22,11 @@ import {search} from "https://esm.sh/@codemirror/search@^6.0.0";
 
 const engineURL = docsEngineBaseURL + "MDogModules/MDogMain.js";
 const engineImport = `import MDog from "${engineURL}";`;
-const codeKey = "mdog-playground-code";
+// Before there were projects, the code was saved under this key. It's moved into the first project.
+const oldCodeKey = "mdog-playground-code";
+const projectsKey = "mdog-playground-projects";
+const currentProjectKey = "mdog-playground-current";
+const codeKeyFor = id => "mdog-playground-code:" + id;
 const viewKey = "mdog-playground-view";
 const autorunKey = "mdog-playground-autorun";
 const sizesKey = "mdog-playground-sizes";
@@ -111,51 +115,75 @@ const callHint = root.querySelector(".pg-call-hint");
 const savedLabel = root.querySelector(".pg-saved");
 const banner = root.querySelector(".pg-banner");
 
-// True while looking at a shared link. Nothing is saved then, so the person's own project isn't overwritten.
+// True while looking at a shared link. Nothing is saved then, so the person's own projects aren't overwritten.
 let viewingShared = false;
 
 // ===== Files people add (assets) =====
-// Each is {name, type, blob, url}. They're saved in IndexedDB, which can hold files, unlike localStorage.
+// Each is {name, type, blob, url}. They're saved in IndexedDB, which can hold files, unlike localStorage. Each file is
+// saved under its project's id and its name. The "assets" store is from before there were projects, and is only read
+// to move those files into the first project.
 
 let assets = [];
 
-const database = new Promise(resolve => {
+// If IndexedDB doesn't answer within a few seconds, the playground carries on without saving files, instead of
+// waiting forever
+const database = Promise.race([new Promise(resolve => setTimeout(() => resolve(null), 3000)), new Promise(resolve => {
     try {
-        const request = indexedDB.open("mdog-playground", 1);
-        request.onupgradeneeded = () => request.result.createObjectStore("assets", {keyPath: "name"});
+        const request = indexedDB.open("mdog-playground", 2);
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains("assets")) {
+                db.createObjectStore("assets", {keyPath: "name"});
+            }
+            if (!db.objectStoreNames.contains("files")) {
+                db.createObjectStore("files", {keyPath: ["project", "name"]});
+            }
+        };
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => resolve(null);
     } catch (error) {
         // Some private windows don't allow IndexedDB, so files just aren't saved there
         resolve(null);
     }
-});
+})]);
 
-async function loadSavedAssets() {
+// Every key from [id, ""] to [id, "\uffff"] is one project's files
+const projectFiles = id => IDBKeyRange.bound([id, ""], [id, "\uffff"]);
+
+async function loadSavedAssets(projectId) {
     const db = await database;
     if (!db) {
         return [];
     }
     return new Promise(resolve => {
-        const request = db.transaction("assets").objectStore("assets").getAll();
-        request.onsuccess = () => resolve(request.result.map(a => ({...a, url: URL.createObjectURL(a.blob)})));
+        const request = db.transaction("files").objectStore("files").getAll(projectFiles(projectId));
+        request.onsuccess = () => resolve(request.result.map(a => ({name: a.name, type: a.type, blob: a.blob, url: URL.createObjectURL(a.blob)})));
         request.onerror = () => resolve([]);
     });
 }
 
-async function saveAssets() {
-    if (viewingShared) {
-        return;
-    }
+async function saveProjectFiles(projectId, list) {
     const db = await database;
     if (!db) {
         return;
     }
-    const store = db.transaction("assets", "readwrite").objectStore("assets");
-    store.clear();
-    for (const asset of assets) {
-        store.put({name: asset.name, type: asset.type, blob: asset.blob});
+    await new Promise(resolve => {
+        const transaction = db.transaction("files", "readwrite");
+        const store = transaction.objectStore("files");
+        store.delete(projectFiles(projectId));
+        for (const asset of list) {
+            store.put({project: projectId, name: asset.name, type: asset.type, blob: asset.blob});
+        }
+        transaction.oncomplete = resolve;
+        transaction.onerror = resolve;
+    });
+}
+
+async function saveAssets() {
+    if (viewingShared || !currentProject) {
+        return;
     }
+    await saveProjectFiles(currentProject.id, assets);
 }
 
 function setAssets(newAssets) {
@@ -769,8 +797,13 @@ function saveCode(showIt) {
         }
         return;
     }
+    if (!currentProject) {
+        return;
+    }
     try {
-        localStorage.setItem(codeKey, getCode());
+        localStorage.setItem(codeKeyFor(currentProject.id), getCode());
+        currentProject.updated = Date.now();
+        saveProjectList();
         savedLabel.textContent = "Saved";
     } catch (error) {
         savedLabel.textContent = "Couldn't save";
@@ -825,10 +858,13 @@ ${frameHelpers(assetURLs, images)}
     gameFrame.className = "pg-frame";
     gameFrame.title = "Your game";
     gameFrame.srcdoc = before + script + "\n<\/script>\n</body>\n</html>";
+    const frame = gameFrame;
     gameFrame.addEventListener("load", () => {
-        gameFrame.focus();
-        gameFrame.contentWindow.focus();
-        showCoordinates(gameFrame);
+        frame.focus();
+        frame.contentWindow.focus();
+        showCoordinates(frame);
+        // A picture of the game for the project list, once it's had a moment to draw something
+        setTimeout(() => saveThumbnail(frame), 2500);
     });
     gameBox.appendChild(gameFrame);
     gameBox.classList.add("running");
@@ -1257,7 +1293,8 @@ async function exportProject() {
             builtIn.push({name, type: blob.type || "image/png", blob});
         }
     }
-    const project = {version: 1, assets: await assetsToSave([...assets, ...builtIn])};
+    const name = viewingShared ? "Shared project" : currentProject?.name ?? "My MDog Engine Game";
+    const project = {version: 1, name, assets: await assetsToSave([...assets, ...builtIn])};
     // Written so the file can't accidentally end its own script tags
     const projectJSON = JSON.stringify(project).replace(/</g, "\\u003c");
     const safeCode = gameCode.replace(/<\/script/gi, "<\\/script");
@@ -1267,7 +1304,7 @@ async function exportProject() {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>My MDog Engine Game</title>
+<title>${docsEscape(name)}</title>
 <style>html, body { margin: 0; height: 100%; background: #000; } body { display: flex; justify-content: center; align-items: center; }</style>
 <!-- Made in the MDog Engine Playground. To keep working on it, open this file with Import in the Playground. -->
 <script type="application/json" id="mdog-project">${projectJSON}<\/script>
@@ -1299,7 +1336,7 @@ ${safeCode}
 `;
     const link = document.createElement("a");
     link.href = URL.createObjectURL(new Blob([html], {type: "text/html"}));
-    link.download = "mdog-game.html";
+    link.download = (name.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").toLowerCase() || "mdog-game") + ".html";
     link.click();
     setTimeout(() => URL.revokeObjectURL(link.href), 10000);
 }
@@ -1312,20 +1349,17 @@ async function importFile(file) {
         alert("That file doesn't have any game code in it. Import opens files made with Export.");
         return;
     }
-    if (!confirm("Replace your code and files with the ones in " + file.name + "?")) {
-        return;
-    }
-    let saved = [];
+    let saved = {};
     try {
-        saved = JSON.parse(page.querySelector("script#mdog-project")?.textContent ?? "{}").assets ?? [];
+        saved = JSON.parse(page.querySelector("script#mdog-project")?.textContent ?? "{}");
     } catch (error) {}
 
+    // Imported files become a new project, so nothing is replaced
     leaveShared(false);
-    setCode(gameScript.textContent.replace(/<\\\/script/gi, "</script").trim() + "\n", true);
-    setAssets(assetsFromSaved(saved));
-    saveCode(false);
-    await saveAssets();
-    run();
+    const name = saved.name ?? file.name.replace(/\.html?$/i, "");
+    const code = gameScript.textContent.replace(/<\\\/script/gi, "</script").trim() + "\n";
+    await makeProject(name, code, assetsFromSaved(saved.assets ?? []));
+    notify(`Imported "${name}" as a new project.`);
 }
 
 // ===== Shared links =====
@@ -1339,6 +1373,7 @@ async function openSharedLink() {
         const project = await docsDecodeProject(match[1]);
         viewingShared = true;
         banner.hidden = false;
+        showProjectName();
         setCode(project.code ?? "");
         setAssets(assetsFromSaved(project.assets));
         return true;
@@ -1351,18 +1386,264 @@ async function openSharedLink() {
 function leaveShared(clearHash = true) {
     viewingShared = false;
     banner.hidden = true;
+    showProjectName();
     if (clearHash) {
         history.replaceState(null, "", window.location.pathname + window.location.search);
     }
 }
 
-async function loadOwnProject() {
+// ===== Projects =====
+// The list of projects is saved in localStorage as [{id, name, updated, thumbnail}]. Each project's code is saved
+// under its own key, and its files are saved in IndexedDB under its id.
+
+let projects = [];
+let currentProject = null;
+
+function saveProjectList() {
+    try {
+        localStorage.setItem(projectsKey, JSON.stringify(projects));
+        if (currentProject) {
+            localStorage.setItem(currentProjectKey, currentProject.id);
+        }
+    } catch (error) {}
+}
+
+function newProjectId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+// Loads the list of projects. The first time, whatever was saved before there were projects becomes "My project".
+async function loadProjects() {
+    try {
+        projects = JSON.parse(localStorage.getItem(projectsKey)) ?? [];
+    } catch (error) {
+        projects = [];
+    }
+    if (projects.length > 0) {
+        return;
+    }
+    const project = {id: newProjectId(), name: "My project", updated: Date.now()};
+    projects = [project];
+    let oldCode = null;
+    try {
+        oldCode = localStorage.getItem(oldCodeKey);
+        localStorage.setItem(codeKeyFor(project.id), oldCode ?? defaultCode);
+    } catch (error) {}
+
+    const db = await database;
+    if (db) {
+        const oldFiles = await new Promise(resolve => {
+            const request = db.transaction("assets").objectStore("assets").getAll();
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => resolve([]);
+        });
+        await saveProjectFiles(project.id, oldFiles);
+        db.transaction("assets", "readwrite").objectStore("assets").clear();
+    }
+    try {
+        localStorage.removeItem(oldCodeKey);
+    } catch (error) {}
+    currentProject = project;
+    saveProjectList();
+}
+
+async function openProject(project) {
+    currentProject = project;
+    saveProjectList();
     let code = null;
     try {
-        code = localStorage.getItem(codeKey);
+        code = localStorage.getItem(codeKeyFor(project.id));
     } catch (error) {}
     setCode(code ?? defaultCode);
-    setAssets(await loadSavedAssets());
+    setAssets(await loadSavedAssets(project.id));
+    showProjectName();
+    savedLabel.textContent = "";
+}
+
+async function loadOwnProject() {
+    let id = null;
+    try {
+        id = localStorage.getItem(currentProjectKey);
+    } catch (error) {}
+    await openProject(projects.find(p => p.id === id) ?? mostRecentProject());
+}
+
+function mostRecentProject() {
+    return [...projects].sort((a, b) => b.updated - a.updated)[0];
+}
+
+// Makes a new project with some code and files, and opens it
+async function makeProject(name, code, files = []) {
+    const project = {id: newProjectId(), name, updated: Date.now()};
+    projects.push(project);
+    try {
+        localStorage.setItem(codeKeyFor(project.id), code);
+    } catch (error) {}
+    await saveProjectFiles(project.id, files);
+    await openProject(project);
+    run();
+    return project;
+}
+
+// A name that isn't taken yet, like "Untitled 2"
+function freeName(base) {
+    const names = new Set(projects.map(p => p.name));
+    if (!names.has(base)) {
+        return base;
+    }
+    let n = 2;
+    while (names.has(base + " " + n)) {
+        n++;
+    }
+    return base + " " + n;
+}
+
+function showProjectName() {
+    const label = root.querySelector(".pg-project-name");
+    label.textContent = viewingShared ? "Shared project" : currentProject?.name ?? "My project";
+}
+
+// A small picture of the running game, saved with the project for the project list
+function saveThumbnail(frame) {
+    if (viewingShared || !currentProject || frame !== gameFrame) {
+        return;
+    }
+    try {
+        const canvases = [...frame.contentDocument.querySelectorAll("canvas")];
+        if (canvases.length === 0 || !canvases[0].width) {
+            return;
+        }
+        const scale = Math.min(1, 200 / canvases[0].width, 150 / canvases[0].height);
+        const picture = document.createElement("canvas");
+        picture.width = Math.max(1, Math.round(canvases[0].width * scale));
+        picture.height = Math.max(1, Math.round(canvases[0].height * scale));
+        const context = picture.getContext("2d");
+        context.imageSmoothingEnabled = scale < 1;
+        context.fillStyle = "#000";
+        context.fillRect(0, 0, picture.width, picture.height);
+        for (const canvas of canvases) {
+            context.drawImage(canvas, 0, 0, picture.width, picture.height);
+        }
+        currentProject.thumbnail = picture.toDataURL("image/png");
+        saveProjectList();
+    } catch (error) {}
+}
+
+// "5 minutes ago", "yesterday", and so on
+function timeAgo(time) {
+    const seconds = (Date.now() - time) / 1000;
+    if (seconds < 60) {
+        return "just now";
+    }
+    const units = [["minute", 60], ["hour", 3600], ["day", 86400], ["week", 604800], ["month", 2592000], ["year", 31536000]];
+    let [unit, size] = units[0];
+    for (const [name, length] of units) {
+        if (seconds >= length) {
+            [unit, size] = [name, length];
+        }
+    }
+    const count = Math.floor(seconds / size);
+    return count === 1 ? (unit === "day" ? "yesterday" : "1 " + unit + " ago") : count + " " + unit + "s ago";
+}
+
+const projectDialog = root.querySelector(".pg-project-dialog");
+
+function renderProjects() {
+    const list = projectDialog.querySelector(".pg-project-list");
+    list.innerHTML = "";
+    for (const project of [...projects].sort((a, b) => b.updated - a.updated)) {
+        const isOpen = project === currentProject && !viewingShared;
+        const card = document.createElement("div");
+        card.className = "pg-project-card" + (isOpen ? " open" : "");
+        card.innerHTML = `
+            <button class="pg-project-open" title="Open ${docsEscape(project.name)}">
+                <span class="pg-template-picture">${project.thumbnail
+                    ? `<img src="${project.thumbnail}" alt="">`
+                    : `<span class="pg-template-blank">{ }</span>`}</span>
+                <span class="pg-template-name">${docsEscape(project.name)}</span>
+                <span class="pg-template-description">${isOpen ? "Open now · " : ""}Edited ${timeAgo(project.updated)}</span>
+            </button>
+            <span class="pg-project-buttons">
+                <button data-action="rename">Rename</button>
+                <button data-action="duplicate">Duplicate</button>
+                <button data-action="delete">Delete</button>
+            </span>`;
+        card.querySelector(".pg-project-open").addEventListener("click", async () => {
+            projectDialog.close();
+            if (!isOpen) {
+                leaveShared();
+                await openProject(project);
+                run();
+            }
+        });
+        card.querySelector('[data-action="rename"]').addEventListener("click", () => {
+            const name = prompt("New name for " + project.name, project.name);
+            if (name && name.trim()) {
+                project.name = name.trim();
+                saveProjectList();
+                showProjectName();
+                renderProjects();
+            }
+        });
+        card.querySelector('[data-action="duplicate"]').addEventListener("click", async () => {
+            const copy = {id: newProjectId(), name: freeName(project.name + " copy"), updated: Date.now(), thumbnail: project.thumbnail};
+            try {
+                localStorage.setItem(codeKeyFor(copy.id), localStorage.getItem(codeKeyFor(project.id)) ?? defaultCode);
+            } catch (error) {}
+            await saveProjectFiles(copy.id, await loadSavedAssets(project.id));
+            projects.push(copy);
+            saveProjectList();
+            renderProjects();
+        });
+        card.querySelector('[data-action="delete"]').addEventListener("click", async () => {
+            if (!confirm(`Delete "${project.name}"? Its code and files will be gone for good.`)) {
+                return;
+            }
+            projects = projects.filter(p => p !== project);
+            try {
+                localStorage.removeItem(codeKeyFor(project.id));
+            } catch (error) {}
+            await saveProjectFiles(project.id, []);
+            if (project === currentProject) {
+                if (projects.length === 0) {
+                    currentProject = null;
+                    await makeProject("My project", defaultCode);
+                } else {
+                    await openProject(mostRecentProject());
+                    run();
+                }
+            }
+            saveProjectList();
+            renderProjects();
+        });
+        list.appendChild(card);
+    }
+}
+
+function setUpProjects() {
+    root.querySelector(".pg-project").addEventListener("click", () => {
+        renderProjects();
+        projectDialog.showModal();
+        projectDialog.focus();
+    });
+    projectDialog.querySelector(".pg-dialog-close").addEventListener("click", () => projectDialog.close());
+    projectDialog.addEventListener("click", e => {
+        if (e.target === projectDialog) {
+            projectDialog.close();
+        }
+    });
+    projectDialog.querySelector(".pg-new-project").addEventListener("click", async () => {
+        projectDialog.close();
+        leaveShared();
+        await makeProject(freeName("Untitled"), blankCode);
+        notify("Made a new project.", {
+            label: "Start from a template",
+            run: () => {
+                templateDialog.showModal();
+                templateDialog.focus();
+            },
+        });
+    });
 }
 
 // A message at the bottom of the screen for a few seconds. action is an optional button, like {label: "Undo", run}.
@@ -1446,6 +1727,7 @@ async function useTemplate(template) {
 
 function setUpControls() {
     setUpTemplates();
+    setUpProjects();
 
     root.querySelector(".pg-run").addEventListener("click", () => run(true));
 
@@ -1508,9 +1790,11 @@ function setUpControls() {
     });
 
     root.querySelector(".pg-keep-shared").addEventListener("click", async () => {
+        const code = getCode();
+        const files = assets;
         leaveShared();
-        saveCode(true);
-        await saveAssets();
+        const project = await makeProject(freeName("Shared project"), code, files);
+        notify(`Saved as "${project.name}". Rename it from the project button at the top.`);
     });
     root.querySelector(".pg-back-to-mine").addEventListener("click", async () => {
         leaveShared();
@@ -1535,6 +1819,7 @@ try {
 } catch (error) {}
 setView(startView);
 
+await loadProjects();
 if (!(await openSharedLink())) {
     await loadOwnProject();
 }

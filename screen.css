@@ -625,6 +625,63 @@ tr.has-dropdown:has(input:checked) + tr {
     pointer-events: none;
 }
 
+/* ===== Where to start, at the top of the home page ===== */
+
+.page .start-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 1.4rem;
+}
+
+.page .start-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 16px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s, transform 0.15s;
+}
+
+.page .start-card:hover {
+    border-color: rgba(140, 184, 255, 0.45);
+    transform: translateY(-2px);
+}
+
+.page .start-card-icon {
+    margin-bottom: 4px;
+    color: var(--accent);
+    font-size: 22px;
+    line-height: 1;
+}
+
+.page .start-card-icon svg {
+    height: 1em;
+    fill: currentColor;
+}
+
+.page .start-card-title {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.page .start-card-text {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+@media (max-width: 600px) {
+    .page .start-cards {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+
 /* ===== Playable games on the home page (see showcase.js) ===== */
 
 .page .showcase {

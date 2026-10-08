@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="How to pause an MDog Engine game, by splitting it into updating and drawing.">
+    <title>Pausing the Game - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Guides</div>
+
+                <h1>Pausing the Game</h1>
+
+<p>A pause button stops the game from moving, but keeps it on the screen. The easiest way is to split the game into two functions: one that moves everything, and one that draws everything. While the game is paused, only the drawing one runs.</p>
+
+                <p>Press Escape to pause and unpause.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 160,
+                        keys: ["Escape"],
+                        code: `
+                            const balls = [];
+                            for (let i = 0; i < 6; i++) {
+                                balls.push({x: 20 + i * 36, y: 30 + i * 15, vx: 0.6 + i * 0.1, vy: 0.5, color: ["#ff5566", "#ffcc33", "#66dd88", "#88ccff", "#cc88ff", "#ffffff"][i]});
+                            }
+                            let paused = false;
+
+                            function main() {
+                                if (MDog.Input.Keyboard.isClicked("Escape")) {
+                                    paused = !paused;
+                                }
+
+                                // Only move things while the game isn't paused, but always draw them
+                                if (!paused) {
+                                    update();
+                                }
+                                draw();
+                            }
+
+                            // Moves everything
+                            function update() {
+                                for (const ball of balls) {
+                                    ball.x += ball.vx;
+                                    ball.y += ball.vy;
+                                    if (ball.x < 6 || ball.x > 250) {
+                                        ball.vx = -ball.vx;
+                                    }
+                                    if (ball.y < 6 || ball.y > 154) {
+                                        ball.vy = -ball.vy;
+                                    }
+                                }
+                            }
+
+                            // Draws everything, plus the pause screen on top
+                            function draw() {
+                                MDog.Draw.clear({color: "#203040"});
+                                for (const ball of balls) {
+                                    MDog.Draw.circle(Math.round(ball.x), Math.round(ball.y), 6, ball.color);
+                                }
+
+                                if (paused) {
+                                    MDog.Draw.rectangleFill(0, 0, 256, 160, "#00000099");
+                                    MDog.Draw.textImage("Paused", 128, 64, "#ffffff", "fonts/marsfont.png", {alignX: "center", size: 4});
+                                    MDog.Draw.textImage("Press Escape to keep playing", 128, 96, "#88ccff", "fonts/marsfont.png", {alignX: "center"});
+                                }
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <h2>How it Works</h2>
+
+                <p>Every tick, <code>main()</code> checks for Escape with <code>isClicked()</code>, which is only true on the tick the key is pressed, so holding it down doesn't flip back and forth.</p>
+
+                <p>While <code>paused</code> is true, <code>update()</code> is skipped, so nothing moves. <code>draw()</code> still runs, so the game stays on the screen. The pause screen is a see-through black rectangle over everything. The last two digits of <code>"#00000099"</code> are how see-through it is, from <code>00</code> (invisible) to <code>ff</code> (solid).</p>
+
+                <h2>Pausing When the Player Leaves</h2>
+
+                <p>Games often pause themselves when the player switches to another tab. The browser says when that happens with a <code>visibilitychange</code> event:</p>
+
+                <pre><code>document.addEventListener("visibilitychange", () =&gt; {
+    if (document.hidden) {
+        paused = true;
+    }
+});</code></pre>
+
+                <h2>Timers Pause Too</h2>
+
+                <p>Anything counted in ticks, like a cooldown or a countdown, stops while the game is paused, as long as it's counted in <code>update()</code>. That's one reason to count ticks instead of using <code>setTimeout()</code>, which keeps going while the game is paused. See <a href="guide-timers.html">Timers and Cooldowns</a>.</p>
+
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

@@ -23,7 +23,7 @@
 
                 <p>The ThreeDee Module draws simple flat shapes with perspective, for retro pseudo-3D effects like roads and hallways.</p>
 
-                <p>Objects are added to a <code>ThreeDeeScene</code>, which has a <code>Camera</code>, and the scene is drawn with <code>MDog.Draw.threeDeeScene()</code>. Objects are drawn in the order they were added, so add the farthest objects first.</p>
+                <p>Objects are added to a <code>ThreeDeeScene</code>, which has a <code>Camera</code>, and the scene is drawn with <code>MDog.Draw.threeDeeScene()</code>. Objects are drawn in the order they were added, so add the farthest objects first. Objects can be taken back out with <code>removeObject()</code>.</p>
 
                 <p>The camera looks forward along z, so objects need a larger z than the camera to be seen. Like the rest of the screen, y goes down. The center of the view is in the middle of the screen horizontally, and a quarter of the way down vertically.</p>
 
@@ -55,6 +55,48 @@ function main() {
                             parameters: [
                                 ["object", "The ThreeDee object to add."],
                             ],
+                        },
+                        {
+                            name: "removeObject",
+                            description: "Removes an object from the scene.",
+                            details: "Takes an object out of the scene, so it isn't drawn anymore. The object can be added to a scene again later. Added in v1.4.0.",
+                            parameters: [
+                                ["object", "The ThreeDee object to remove."],
+                            ],
+                            returns: "<code>true</code> if the object was in the scene, or <code>false</code> if it wasn't.",
+                            demo: {
+                                code: `
+                                const camera = new MDog.ThreeDee.Camera(0, 0, 0, 40);
+                                const scene = new MDog.ThreeDee.ThreeDeeScene(camera);
+
+                                // The frames in the scene, from closest to farthest, and how far away each one is
+                                const frames = [];
+                                let nextZ = 4;
+
+                                function main() {
+                                    camera.position.z += 0.05;
+
+                                    // Add frames ahead of the camera
+                                    while (nextZ < camera.getZ() + 24) {
+                                        const color = nextZ % 8 === 0 ? "#ffcc33" : "#88ccff";
+                                        const frame = new MDog.ThreeDee.ThreeDeeRectangle(nextZ, -5, -5, 5, 5, "#00000000", {stroke: color});
+                                        scene.addObject(frame);
+                                        frames.push({frame, z: nextZ});
+                                        nextZ += 2;
+                                    }
+
+                                    // Remove the frames the camera has flown through
+                                    while (frames[0].z < camera.getZ() + 1) {
+                                        scene.removeObject(frames.shift().frame);
+                                    }
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.threeDeeScene(scene);
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                         },
                         {
                             name: "getCamera",

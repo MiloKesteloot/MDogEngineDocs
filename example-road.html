@@ -33,7 +33,7 @@
 
                 <p>Make a project like in <a href="getting-started.html">Getting Started</a>, and put this in <code>game.js</code>. It doesn't need any assets.</p>
 
-                <pre id="example-code"><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.3.0/MDogModules/MDogMain.js";
+                <pre id="example-code"><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.4.0/MDogModules/MDogMain.js";
 
 const ThreeDee = MDog.ThreeDee;
 const Vector3 = MDog.Math.Vector3;
@@ -55,7 +55,8 @@ function main() {
         camera.position.x += 0.1;
     }
 
-    // Scenes can't remove objects, so a new scene is made every tick with just the stripes in view
+    // A new scene every tick, with just the stripes in view. The closest stripe gets shorter as the camera
+    // drives over it, and the farthest ones have to be added first, so it's simplest to start over every tick.
     const scene = new ThreeDee.ThreeDeeScene(camera);
 
     // Stripes are added from farthest to closest, so the closer ones are drawn on top.
@@ -96,7 +97,7 @@ MDog.setActiveFunction(main);</code></pre>
 
                 <p>The ground is split into stripes that switch between two colors, which is what makes it look like it's moving. Each stripe is a <code>ThreeDeeFloor</code> for the grass and a <code>ThreeDeeShape</code> for the road.</p>
 
-                <p>Scenes don't have a way to remove objects, so a new scene is made every tick with only the stripes in front of the camera. Objects are drawn in the order they're added, so the stripes are added from farthest to closest.</p>
+                <p>A new scene is made every tick with only the stripes in front of the camera. Objects are drawn in the order they're added, so the stripes are added from farthest to closest. Since the closest stripe is cut shorter as the camera drives over it, starting over every tick is simpler than moving stripes around with <code>removeObject()</code>.</p>
 
                 <p>The middle of the road moves side to side with <code>Math.sin()</code>, which makes it curve.</p>
 

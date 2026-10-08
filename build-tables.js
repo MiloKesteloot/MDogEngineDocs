@@ -34,7 +34,7 @@
 
 // The MDog Engine version the docs are for. The demos run it, and "View engine code" shows its code.
 // When a new version is tagged, change it here and in the import lines in the pages, then run "node build-index.js".
-const docsEngineVersion = "v1.3.0";
+const docsEngineVersion = "v1.4.0";
 const docsEngineBaseURL = "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@" + docsEngineVersion + "/";
 
 // Every method table on this page adds its methods here, for search and cross-links

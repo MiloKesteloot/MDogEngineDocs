@@ -739,6 +739,82 @@ html {
     line-height: 1.45;
 }
 
+/* ===== The project button and list ===== */
+
+.pg-project {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pg-project-actions {
+    padding: 0 20px 14px;
+}
+
+.pg-project-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    padding: 0 20px 20px;
+}
+
+.pg-project-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--surface-raised);
+}
+
+.pg-project-card.open {
+    border-color: var(--accent);
+}
+
+.pg-project-open {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 0 8px;
+    border: none;
+    background: none;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+}
+
+.pg-project-open:hover .pg-template-name {
+    color: var(--accent);
+}
+
+.pg-project-open .pg-template-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pg-project-buttons {
+    display: flex;
+    gap: 4px;
+    padding: 0 12px 12px;
+}
+
+.pg-project-buttons button {
+    padding: 2px 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-small);
+    background-color: var(--surface);
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.pg-project-buttons button:hover {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
 /* A message at the bottom of the screen, like "Link copied" */
 .pg-notice {
     position: fixed;

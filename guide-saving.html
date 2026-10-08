@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="How to save a high score or a player's progress in an MDog Engine game, with localStorage.">
+    <title>Saving Progress - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Guides</div>
+
+                <h1>Saving Progress</h1>
+
+<p>Browsers have a place to save small bits of text for a website, called <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"><code>localStorage</code></a>. Anything saved there is still there after the page is closed, so it's good for high scores, unlocked levels, and settings.</p>
+
+                <p>Press space to start, then press it as many times as you can in five seconds. Your best score is saved, so it's still there if you refresh the page.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 160,
+                        keys: [" "],
+                        code: `
+                            const saveName = "space-masher-best";
+                            let best = Number(localStorage.getItem(saveName) ?? 0);
+                            let score = 0;
+                            let ticksLeft = 0;
+
+                            function main() {
+                                const Keyboard = MDog.Input.Keyboard;
+
+                                if (ticksLeft > 0) {
+                                    // Playing: count the presses until time runs out
+                                    ticksLeft--;
+                                    if (Keyboard.isClicked(" ")) {
+                                        score++;
+                                    }
+                                    // Save a new best score when the time runs out
+                                    if (ticksLeft === 0 && score > best) {
+                                        best = score;
+                                        localStorage.setItem(saveName, best);
+                                    }
+                                } else if (Keyboard.isClicked(" ")) {
+                                    // Five seconds, at 160 ticks per second
+                                    score = 0;
+                                    ticksLeft = 5 * 160;
+                                }
+
+                                MDog.Draw.clear({color: "#1a1030"});
+                                MDog.Draw.textImage(String(score), 128, 50, "#ffcc33", "fonts/marsfont.png", {alignX: "center", size: 6});
+                                MDog.Draw.textImage("Best: " + best, 128, 100, "#ffffff", "fonts/marsfont.png", {alignX: "center", size: 2});
+                                if (ticksLeft > 0) {
+                                    MDog.Draw.rectangleFill(0, 154, Math.ceil(256 * ticksLeft / 800), 6, "#88ccff");
+                                } else {
+                                    MDog.Draw.textImage("Press space to start", 128, 130, "#88ccff", "fonts/marsfont.png", {alignX: "center"});
+                                }
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <h2>How it Works</h2>
+
+                <p><code>localStorage.setItem(name, value)</code> saves a value under a name, and <code>localStorage.getItem(name)</code> gets it back. If nothing has been saved yet, <code>getItem()</code> gives back <code>null</code>, so <code>?? 0</code> starts the best score at <code>0</code>.</p>
+
+                <p>Everything is saved as text, so <code>Number()</code> turns the best score back into a number when it's loaded.</p>
+
+                <h2>Saving More Than One Thing</h2>
+
+                <p>To save a lot of things at once, put them in an object, and turn it into text with <code>JSON.stringify()</code>. <code>JSON.parse()</code> turns it back:</p>
+
+                <pre><code>const saveName = "my-game-save";
+
+// Load the save, or start fresh if there isn't one yet
+let save = JSON.parse(localStorage.getItem(saveName)) ?? {level: 1, coins: 0, music: true};
+
+function saveGame() {
+    localStorage.setItem(saveName, JSON.stringify(save));
+}
+
+// Later, like when a level is beaten:
+save.level++;
+saveGame();</code></pre>
+
+                <p>To erase the save, like for a "New Game" button, use <code>localStorage.removeItem(saveName)</code>.</p>
+
+                <h2>Things to Know</h2>
+
+                <ul>
+                    <li><b>Give your save a name only your game uses.</b> Every page on the same website shares one <code>localStorage</code>. On GitHub Pages, that's every project on your account, so a name like <code>"score"</code> could clash with another game. A name like <code>"my-game-best"</code> won't.</li>
+                    <li><b>Saves stay on one browser.</b> They don't move to other computers, and private windows forget them when they're closed.</li>
+                    <li><b>Players can change them.</b> Anyone can edit <code>localStorage</code> from the browser's developer tools, so don't trust it for anything that matters, like an online leaderboard.</li>
+                </ul>
+
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="How to wait, repeat things, and add cooldowns in an MDog Engine game, by counting ticks.">
+    <title>Timers and Cooldowns - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Guides</div>
+
+                <h1>Timers and Cooldowns</h1>
+
+<p>Lots of things in games happen after a while: an enemy that spawns every few seconds, a power-up that runs out, or a gun that can only shoot so fast. In MDog Engine, the simplest way to time things is to count ticks. The active function runs 160 times per second, so 160 ticks is one second.</p>
+
+                <p>Hold space to shoot. The cannon can only shoot once every quarter of a second, and the light in the corner blinks once a second.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 160,
+                        keys: [" "],
+                        code: `
+                            const bullets = [];
+                            let cooldown = 0;
+                            let ticks = 0;
+
+                            function main() {
+                                ticks++;
+
+                                // The cooldown counts down every tick, and the cannon can only shoot once it's back to 0
+                                if (cooldown > 0) {
+                                    cooldown--;
+                                }
+                                if (MDog.Input.Keyboard.isDown(" ") && cooldown === 0) {
+                                    bullets.push({x: 34, y: 78});
+                                    cooldown = 40; // A quarter of a second
+                                }
+
+                                for (const bullet of bullets) {
+                                    bullet.x += 2;
+                                }
+                                // Forget bullets once they're off the screen
+                                while (bullets.length > 0 && bullets[0].x > 260) {
+                                    bullets.shift();
+                                }
+
+                                MDog.Draw.clear({color: "#101828"});
+
+                                // The cannon, and the bullets
+                                MDog.Draw.rectangleFill(8, 70, 26, 18, "#5a6070");
+                                MDog.Draw.rectangleFill(30, 76, 10, 6, "#8a90a0");
+                                for (const bullet of bullets) {
+                                    MDog.Draw.rectangleFill(bullet.x, bullet.y, 6, 2, "#ffcc33");
+                                }
+
+                                // How much cooldown is left
+                                MDog.Draw.rectangle(8, 96, 42, 6, "#5a6070");
+                                MDog.Draw.rectangleFill(9, 97, Math.round(40 * (1 - cooldown / 40)), 4, cooldown === 0 ? "#66dd88" : "#ff5566");
+
+                                // On for half of every second, and off for the other half
+                                if (ticks % 160 < 80) {
+                                    MDog.Draw.circle(240, 16, 6, "#ffcc33");
+                                }
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <h2>Cooldowns</h2>
+
+                <p>A cooldown is a number of ticks to wait. When the cannon shoots, <code>cooldown</code> is set to <code>40</code>, and it goes down by one every tick. The cannon can only shoot again once it's back to <code>0</code>.</p>
+
+                <h2>Every So Often</h2>
+
+                <p><code>ticks</code> goes up by one every tick. <code>ticks % 160</code> counts from <code>0</code> to <code>159</code> over and over, so something can happen once a second:</p>
+
+                <pre><code>if (ticks % 160 === 0) {
+    spawnEnemy();
+}</code></pre>
+
+                <p>The blinking light uses the same trick. <code>ticks % 160 &lt; 80</code> is true for the first half of every second.</p>
+
+                <h2>Waiting, Then Doing Something</h2>
+
+                <p>To wait before something happens, count down to it, like a power-up that lasts five seconds:</p>
+
+                <pre><code>let powerUpTicks = 0;
+
+function collectPowerUp() {
+    powerUpTicks = 5 * 160; // Five seconds
+}
+
+function main() {
+    if (powerUpTicks &gt; 0) {
+        powerUpTicks--;
+        if (powerUpTicks === 0) {
+            // The power-up just ran out
+        }
+    }
+}</code></pre>
+
+                <h2>Why Not setTimeout()?</h2>
+
+                <p>JavaScript's <code>setTimeout()</code> waits a number of milliseconds, but it doesn't know about the game. It keeps counting while the game is <a href="guide-pausing.html">paused</a>, and when the browser tab is hidden. Counting ticks keeps timers in step with everything else in the game.</p>
+
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

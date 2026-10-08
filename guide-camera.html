@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="How to make a level bigger than the screen in MDog Engine, with a camera that follows the player.">
+    <title>A Camera That Follows the Player - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Guides</div>
+
+                <h1>A Camera That Follows the Player</h1>
+
+<p>When a level is bigger than the screen, the camera has to follow the player around. MDog Engine doesn't have a camera object. Instead, <code>MDog.Draw.translate()</code> shifts everything that's drawn after it, so the world moves instead of the camera.</p>
+
+                <p>Run right with the arrow keys. The camera eases along behind the player, and stops at the ends of the level.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 160,
+                        keys: ["ArrowLeft","ArrowRight"],
+                        code: `
+                            const Keyboard = MDog.Input.Keyboard;
+                            const levelWidth = 800;
+                            const player = new MDog.Math.Vector(40, 120);
+                            let cameraX = 0;
+
+                            function main() {
+                                // Move with the arrow keys, without leaving the level
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    player.x -= 1;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    player.x += 1;
+                                }
+                                player.x = Math.max(0, Math.min(player.x, levelWidth - 12));
+
+                                // The camera eases toward the player, so the player ends up in the middle of the screen...
+                                const target = player.x + 6 - MDog.Draw.getHalfScreenWidthInArtPixels();
+                                cameraX = MDog.Math.lerp(cameraX, target, 0.08);
+                                // ...but it never shows past the ends of the level
+                                cameraX = Math.max(0, Math.min(cameraX, levelWidth - MDog.Draw.getScreenWidthInArtPixels()));
+
+                                MDog.Draw.clear({color: "#87b8e8"});
+
+                                // The world, shifted by the camera. Rounded, so the pixels don't wobble.
+                                MDog.Draw.translate(-Math.round(cameraX), 0);
+                                MDog.Draw.rectangleFill(0, 132, levelWidth, 28, "#4a8f42");
+                                for (let x = 20; x < levelWidth - 40; x += 70) {
+                                    MDog.Draw.rectangleFill(x + 6, 112, 4, 20, "#7a5230");
+                                    MDog.Draw.circle(x + 8, 106, 10, "#2f7a3a");
+                                }
+                                MDog.Draw.rectangleFill(levelWidth - 10, 92, 3, 40, "#ffffff");
+                                MDog.Draw.rectangleFill(levelWidth - 26, 92, 16, 10, "#ff5566");
+                                MDog.Draw.rectangleFill(Math.floor(player.x), 120, 12, 12, "#ffcc33");
+
+                                // Things that stay in one place on the screen are drawn after going back to normal
+                                MDog.Draw.translate(0, 0);
+                                MDog.Draw.textImage("X " + Math.floor(player.x), 4, 4, "#ffffff", "fonts/marsfont.png");
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <h2>How it Works</h2>
+
+                <p>Positions in the game are "world" positions, so the player's <code>x</code> goes all the way from <code>0</code> to the end of the level. <code>cameraX</code> is the world position of the left edge of the screen.</p>
+
+                <p>To keep the player in the middle, the camera's left edge goes half a screen to the left of the player. The camera is kept between <code>0</code> and the level's width minus the screen's width, so it never shows anything past the ends of the level.</p>
+
+                <p><code>translate(-cameraX, 0)</code> shifts everything drawn after it to the left by <code>cameraX</code>, which makes the world scroll. Then <code>translate(0, 0)</code> puts things back to normal, for anything that should stay put, like the score.</p>
+
+                <h2>Smooth or Locked</h2>
+
+                <p><code>lerp()</code> moves the camera part of the way to where it wants to be every tick, so it catches up smoothly. For a camera that's locked to the player instead, skip the <code>lerp()</code>:</p>
+
+                <pre><code>cameraX = player.x + 6 - MDog.Draw.getHalfScreenWidthInArtPixels();</code></pre>
+
+                <p>The camera can end up between two pixels, so it's rounded with <code>Math.round()</code> before it's used. Without that, things can wobble by a pixel as the camera moves.</p>
+
+                <h2>Up and Down Too</h2>
+
+                <p>For a level that's tall as well as wide, do the same thing with a <code>cameraY</code>, and shift both ways at once:</p>
+
+                <pre><code>MDog.Draw.translate(-Math.round(cameraX), -Math.round(cameraY));</code></pre>
+
+                <p>Mouse positions from <code>MDog.Input.Mouse</code> are screen positions, so add <code>cameraX</code> and <code>cameraY</code> to them to find where the mouse is in the world.</p>
+
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>
