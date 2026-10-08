@@ -1405,7 +1405,11 @@ function setUpTemplates() {
         card.addEventListener("click", () => useTemplate(template));
         list.appendChild(card);
     }
-    root.querySelector(".pg-templates").addEventListener("click", () => templateDialog.showModal());
+    root.querySelector(".pg-templates").addEventListener("click", () => {
+        templateDialog.showModal();
+        // Focus the box itself, instead of its first button
+        templateDialog.focus();
+    });
     templateDialog.querySelector(".pg-dialog-close").addEventListener("click", () => templateDialog.close());
     // Clicking outside the box closes it
     templateDialog.addEventListener("click", e => {

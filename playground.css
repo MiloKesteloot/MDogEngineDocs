@@ -623,7 +623,7 @@ html {
 /* ===== The template picker ===== */
 
 .pg-dialog {
-    width: min(860px, calc(100vw - 32px));
+    width: min(980px, calc(100vw - 32px));
     max-height: calc(100dvh - 64px);
     padding: 0;
     overflow-y: auto;
@@ -632,6 +632,10 @@ html {
     background-color: var(--surface);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
     color: var(--text);
+}
+
+.pg-dialog:focus {
+    outline: none;
 }
 
 .pg-dialog::backdrop {
@@ -676,7 +680,7 @@ html {
 
 .pg-template-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 14px;
     padding: 0 20px 20px;
 }
