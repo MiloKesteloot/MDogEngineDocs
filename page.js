@@ -13,6 +13,7 @@ const fullIndex = makeFullIndex();
 
 addCrossLinks();
 decorateCodeBlocks();
+setUpSourceViews();
 setUpMethodLinks();
 openTargetFromURL();
 window.addEventListener("hashchange", openTargetFromURL);
@@ -165,6 +166,61 @@ function setUpMethodLinks() {
 }
 
 // Adds a copy button to every code block
+// "View engine code" in a method's dropdown shows the engine's own code for it. The code is loaded from jsDelivr the first
+// time it's opened, at the engine version the docs are for, so it always matches what the docs describe.
+const sourceFiles = new Map();
+
+function setUpSourceViews() {
+    for (const details of document.querySelectorAll(".method-source")) {
+        details.addEventListener("toggle", () => {
+            if (details.open && !details.dataset.loaded) {
+                details.dataset.loaded = "true";
+                showSource(details);
+            }
+        });
+    }
+}
+
+async function showSource(details) {
+    const file = details.dataset.file;
+    const start = Number(details.dataset.start);
+    const end = Number(details.dataset.end);
+    const body = details.querySelector(".method-source-body");
+    const githubURL = `https://github.com/MiloKesteloot/MDogEngine/blob/${docsEngineVersion}/${file}#L${start}-L${end}`;
+
+    body.innerHTML = `<div class="method-source-header">
+            <span>${docsEscape(file)}, lines ${start} to ${end}</span>
+            <a href="${githubURL}" target="_blank" rel="noopener">View on GitHub ↗</a>
+        </div>
+        <div class="method-source-loading">Loading...</div>`;
+
+    try {
+        if (!sourceFiles.has(file)) {
+            sourceFiles.set(file, fetch(docsEngineBaseURL + file).then(response => {
+                if (!response.ok) {
+                    throw new Error(response.status);
+                }
+                return response.text();
+            }));
+        }
+        const lines = (await sourceFiles.get(file)).replace(/\r\n/g, "\n").split("\n").slice(start - 1, end);
+
+        // Take off the class's indent, so the method starts at the left edge
+        const indent = Math.min(...lines.filter(line => line.trim() !== "").map(line => line.match(/^ */)[0].length));
+        const code = lines.map(line => line.slice(indent)).join("\n");
+        const lineNumbers = lines.map((_, i) => start + i).join("\n");
+
+        body.querySelector(".method-source-loading").outerHTML = `<div class="method-source-code">
+                <pre class="method-source-lines" aria-hidden="true">${lineNumbers}</pre>
+                <pre class="method-source-text"><code>${docsHighlight(code, "js")}</code></pre>
+            </div>`;
+    } catch (error) {
+        body.querySelector(".method-source-loading").textContent = "The code couldn't be loaded. It can still be seen on GitHub.";
+        sourceFiles.delete(file);
+        delete details.dataset.loaded;
+    }
+}
+
 // Colors every code block, labels its language, and adds a copy button.
 // The language is guessed, or can be set with data-lang="js", "html", or "text" on the <pre>.
 // data-label changes what the label says, like data-label="Files" for a list of files.

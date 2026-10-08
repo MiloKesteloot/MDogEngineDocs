@@ -32,6 +32,11 @@
 //
 // After changing any methods or headings, run "node build-index.js" so search and cross-links know about them.
 
+// The MDog Engine version the docs are for. The demos run it, and "View engine code" shows its code.
+// When a new version is tagged, change it here and in the import lines in the pages, then run "node build-index.js".
+const docsEngineVersion = "v1.3.0";
+const docsEngineBaseURL = "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@" + docsEngineVersion + "/";
+
 // Every method table on this page adds its methods here, for search and cross-links
 const docsPageEntries = [];
 
@@ -159,7 +164,18 @@ class Method {
             this.parameters.length > 0 ||
             this.settings.length > 0 ||
             this.returns !== undefined ||
-            this.demo !== undefined;
+            this.demo !== undefined ||
+            this.getSource() !== null;
+    }
+
+    // Where this method's code is in the engine, from docs-index.js (made by build-index.js), or null
+    getSource() {
+        if (typeof docsIndex === "undefined") {
+            return null;
+        }
+        const page = docsCurrentPage();
+        const id = this.getId();
+        return docsIndex.find(entry => entry.page === page && entry.id === id)?.source ?? null;
     }
 
     generateSignature() {
@@ -228,6 +244,13 @@ class Method {
 
         if (this.demo !== undefined) {
             sections.push(`<b>Try it:</b>` + docsDemoHTML(this.demo));
+        }
+
+        // The engine's own code for this method. It's loaded when it's opened (see page.js).
+        const source = this.getSource();
+        if (source !== null) {
+            sections.push(`<details class="method-source" data-file="${source.file}" data-start="${source.start}" data-end="${source.end}">` +
+                `<summary>View engine code</summary><div class="method-source-body"></div></details>`);
         }
 
         s += `

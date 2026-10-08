@@ -31,7 +31,7 @@
     game.js
     assets/</code></pre>
 
-                <p>The <code>assets</code> folder is where your images and other files go. Whenever MDog Engine asks for a file name, it looks inside this folder.</p>
+                <p>The <code>assets</code> folder is where your images and other files go. Whenever MDog Engine asks for a file name, it looks inside this folder. There's more about this in <a href="#files">Where Do My Files Go?</a></p>
 
                 <h2>2. Make the Web Page</h2>
 
@@ -124,6 +124,29 @@ MDog.setActiveFunction(main);</code></pre>
                 <p>The game is a regular web page, so it can be put online anywhere that hosts web pages, like <a href="https://pages.github.com/">GitHub Pages</a>.</p>
 
                 <p>Once this is working, the <a href="example-platformer.html">Examples</a> have some bigger games to look through.</p>
+
+                <h2 id="files">Where Do My Files Go?</h2>
+
+                <p>Every file MDog Engine loads, like images, fonts, and level files, goes in the <code>assets</code> folder next to <code>index.html</code>. Folders inside <code>assets</code> are fine. In your code, leave off the <code>assets/</code> part, since the engine adds it for you.</p>
+
+                <pre data-lang="text" data-label="Files"><code>my-game/
+    index.html
+    game.js
+    assets/
+        player.png        MDog.Draw.image("player.png", ...)
+        fonts/
+            marsfont.png  MDog.Draw.textImage(..., "fonts/marsfont.png")
+        levels/
+            level1.csv    MDog.AssetManager.loadFile("levels/level1.csv", ...)</code></pre>
+
+                <p>If an image doesn't show up:</p>
+
+                <ul>
+                    <li><b>Check the spelling and capital letters.</b> Windows doesn't care if a file is named <code>Player.png</code> or <code>player.png</code>, but GitHub Pages does, so a game can work on your computer and break once it's online.</li>
+                    <li><b>Don't add <code>assets/</code> yourself.</b> <code>MDog.Draw.image("assets/player.png", ...)</code> looks for <code>assets/assets/player.png</code>.</li>
+                    <li><b>Run the game from a local web server</b> (see <a href="#4-run-the-game">Run the Game</a>), not by opening <code>index.html</code> straight from your computer.</li>
+                    <li><b>Look in the browser's console</b> (press F12). A missing file shows up there as a 404 error, along with the exact path the engine looked for.</li>
+                </ul>
 
                 <h2>Tips</h2>
 

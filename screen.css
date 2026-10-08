@@ -254,6 +254,15 @@ body {
     font-size: 0.88em;
 }
 
+/* Code inside a code block is just text, not a little box like code in a sentence */
+.page pre code, .page .method-info pre code {
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: none;
+    font-size: inherit;
+}
+
 /* Code that links to a method or class */
 .page a.cross-link {
     color: inherit;
@@ -468,6 +477,102 @@ tr.has-dropdown:has(input:checked) + tr {
 
 .methods-grid .method-info b {
     color: var(--text);
+}
+
+/* "View engine code": the engine's own code for a method (see page.js) */
+.page .method-source {
+    margin-top: 2px;
+}
+
+.page .method-source summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.page .method-source summary::-webkit-details-marker {
+    display: none;
+}
+
+.page .method-source summary::before {
+    content: "";
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid currentColor;
+    transition: transform 0.15s;
+}
+
+.page .method-source[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.page .method-source summary:hover {
+    color: var(--text);
+}
+
+.page .method-source-body {
+    margin-top: 8px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background-color: var(--code-bg);
+    overflow: hidden;
+}
+
+.page .method-source-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 16px;
+    padding: 7px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-faint);
+    font-size: 13px;
+}
+
+.page .method-source-header span {
+    font-family: var(--font-mono);
+}
+
+.page .method-source-loading {
+    padding: 10px 14px;
+    color: var(--text-faint);
+    font-size: 14px;
+}
+
+.page .method-source-code {
+    display: flex;
+}
+
+/* The line numbers and the code are two blocks side by side, with the same text layout so the lines match up */
+.page .method-source-code pre {
+    margin: 0;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 0;
+    background: none;
+    line-height: 1.45;
+}
+
+.page .method-source-lines {
+    flex-shrink: 0;
+    padding-right: 10px !important;
+    border-right: 1px solid var(--border) !important;
+    color: var(--text-faint);
+    text-align: right;
+    user-select: none;
+}
+
+.page .method-source-text {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
 }
 
 /* The link icon next to each method */
@@ -733,6 +838,25 @@ tr.has-dropdown:has(input:checked) + tr {
     box-shadow: 0 0 0 1px var(--border);
     border-radius: var(--radius);
     overflow: hidden;
+}
+
+/* Which art pixel the mouse is on, in the corner of a running demo (see showCoordinates in demos.js) */
+.page .demo-coords {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 2;
+    padding: 1px 7px;
+    border-radius: 4px;
+    background-color: rgba(10, 12, 16, 0.75);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.page .demo-coords[hidden] {
+    display: none;
 }
 
 .page .demo-iframe {
