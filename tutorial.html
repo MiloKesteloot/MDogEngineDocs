@@ -93,11 +93,11 @@
                                 // Jump, but only from the ground
                                 const onGround = player.y + 30 >= groundY;
                                 if (onGround && Keyboard.isClicked("ArrowUp")) {
-                                    velocity.y = -1.9;
+                                    velocity.y = -2.7;
                                 }
 
                                 // Gravity pulls the player down a little more every tick
-                                velocity.y += 0.025;
+                                velocity.y += 0.06;
                                 player.add(velocity);
 
                                 // Stop at the ground
@@ -116,7 +116,7 @@
                     });
                 </script>
 
-                <p>Try changing the gravity (<code>0.025</code>) or the jump speed (<code>-1.9</code>) to make the jump floatier or snappier.</p>
+                <p>Try changing the gravity (<code>0.06</code>) or the jump speed (<code>-2.7</code>) to make the jump floatier or snappier.</p>
 
                 <h2>3. Platforms</h2>
 
@@ -163,9 +163,9 @@
                                     velocity.x = 0.6;
                                 }
                                 if (onGround && Keyboard.isClicked("ArrowUp")) {
-                                    velocity.y = -1.9;
+                                    velocity.y = -2.7;
                                 }
-                                velocity.y = Math.min(velocity.y + 0.025, 3);
+                                velocity.y = Math.min(velocity.y + 0.06, 3);
 
                                 moveX(velocity.x);
                                 moveY(velocity.y);
@@ -265,9 +265,9 @@
                                     facingLeft = false;
                                 }
                                 if (onGround && Keyboard.isClicked("ArrowUp")) {
-                                    velocity.y = -1.9;
+                                    velocity.y = -2.7;
                                 }
-                                velocity.y = Math.min(velocity.y + 0.025, 3);
+                                velocity.y = Math.min(velocity.y + 0.06, 3);
 
                                 moveX(velocity.x);
                                 moveY(velocity.y);
@@ -349,9 +349,9 @@
                                 makePlatform(196, 70, 50, 8),
                             ];
 
-                            // Each coin is a 7 by 7 kickbox around its middle
+                            // Each coin is an 11 by 11 kickbox around its middle
                             const coins = [[85, 118], [155, 88], [221, 58], [230, 165]].map(
-                                ([x, y]) => new SquareKickbox(new Vector(x, y), -3, -3, 4, 4));
+                                ([x, y]) => new SquareKickbox(new Vector(x, y), -5, -5, 6, 6));
                             const particles = new MDog.FX.ParticleSystem();
                             let score = 0;
 
@@ -376,9 +376,9 @@
                                     facingLeft = false;
                                 }
                                 if (onGround && Keyboard.isClicked("ArrowUp")) {
-                                    velocity.y = -1.9;
+                                    velocity.y = -2.7;
                                 }
-                                velocity.y = Math.min(velocity.y + 0.025, 3);
+                                velocity.y = Math.min(velocity.y + 0.06, 3);
 
                                 moveX(velocity.x);
                                 moveY(velocity.y);
@@ -398,7 +398,7 @@
                                     MDog.Draw.rectangleFill(platform.getLeftX(), platform.getTopY(), platform.getWidth(), platform.getHeight(), "#5e8c4a");
                                 }
                                 for (const coin of coins) {
-                                    MDog.Draw.circle(coin.getMiddleX(), coin.getMiddleY(), 3, "#ffcc33");
+                                    MDog.Draw.circle(coin.getMiddleX(), coin.getMiddleY(), 5, "#ffcc33");
                                 }
 
                                 const animation = velocity.x !== 0 ? run : idle;
@@ -507,7 +507,7 @@
                                 player.set(20, 146);
                                 velocity.set(0, 0);
                                 coins = [[85, 118], [155, 88], [221, 58], [230, 165]].map(
-                                    ([x, y]) => new SquareKickbox(new Vector(x, y), -3, -3, 4, 4));
+                                    ([x, y]) => new SquareKickbox(new Vector(x, y), -5, -5, 6, 6));
                                 score = 0;
                                 particles.clear();
                                 MDog.setActiveFunction(game);
@@ -530,9 +530,9 @@
                                     facingLeft = false;
                                 }
                                 if (onGround && Keyboard.isClicked("ArrowUp")) {
-                                    velocity.y = -1.9;
+                                    velocity.y = -2.7;
                                 }
-                                velocity.y = Math.min(velocity.y + 0.025, 3);
+                                velocity.y = Math.min(velocity.y + 0.06, 3);
 
                                 moveX(velocity.x);
                                 moveY(velocity.y);
@@ -551,7 +551,7 @@
                                     MDog.Draw.rectangleFill(platform.getLeftX(), platform.getTopY(), platform.getWidth(), platform.getHeight(), "#5e8c4a");
                                 }
                                 for (const coin of coins) {
-                                    MDog.Draw.circle(coin.getMiddleX(), coin.getMiddleY(), 3, "#ffcc33");
+                                    MDog.Draw.circle(coin.getMiddleX(), coin.getMiddleY(), 5, "#ffcc33");
                                 }
 
                                 const animation = velocity.x !== 0 ? run : idle;
