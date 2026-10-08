@@ -148,6 +148,11 @@ class Method {
     }
 
     getEntry() {
+        // Parameter names for the playground's autofill, like ["x", "y", "radius", "color", "settings?"]
+        const params = this.parameters.flatMap(p => p.names.map(n => n.optional ? n.name + "?" : n.name));
+        if (this.settings.length > 0) {
+            params.push("settings?");
+        }
         return {
             kind: "method",
             id: this.getId(),
@@ -156,6 +161,7 @@ class Method {
             owner: this.owner ?? null,
             constructs: this.constructs(),
             description: docsStripTags(this.description),
+            params: params,
         };
     }
 
@@ -353,6 +359,7 @@ function docsDemoHTML(options) {
             `<div class="demo-bar">` +
             `<button class="demo-run">Run</button>` +
             `<button class="demo-reset">Reset code</button>` +
+            `<button class="demo-open" title="Open this code in the Playground in a new tab">Open in Playground</button>` +
             `<span class="demo-hint">Edit the code, then press Run or Ctrl+Enter</span>` +
             `</div>` +
             `<div class="demo-error"></div>` +
@@ -382,6 +389,33 @@ function docsDedent(text) {
 
 function docsEscape(text) {
     return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+// ===== Playground links =====
+// A playground project ({code, assets}) is squeezed into the part of a link after the #, like playground.html#p=...
+// It's compressed with the browser's built-in compression, then written as letters and numbers that are safe in a link.
+// The part after # is never sent to a server, so this works on any plain website.
+
+async function docsEncodeProject(project) {
+    const bytes = new TextEncoder().encode(JSON.stringify(project));
+    const compressed = await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer();
+    let binary = "";
+    for (const byte of new Uint8Array(compressed)) {
+        binary += String.fromCharCode(byte);
+    }
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+async function docsDecodeProject(text) {
+    const binary = atob(text.replace(/-/g, "+").replace(/_/g, "/"));
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    const json = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text();
+    return JSON.parse(json);
+}
+
+// The link that opens a project in the playground
+async function docsPlaygroundLink(project) {
+    return docsPageHref("playground.html") + "#p=" + await docsEncodeProject(project);
 }
 
 // Inserts a methods table right where the calling script tag is

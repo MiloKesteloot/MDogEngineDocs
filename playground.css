@@ -1,0 +1,507 @@
+/* Styles for the playground (see playground.html and playground.js). The colors come from screen.css. */
+
+/* The playground fills the window and never scrolls, so it doesn't need the space other pages keep for a scrollbar */
+html {
+    scrollbar-gutter: auto;
+    overflow: hidden;
+}
+
+.playground {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box; /* So the room for the phone top bar is inside the height */
+    height: 100vh;
+    height: 100dvh;
+    font-family: var(--font-sans);
+    color: var(--text);
+}
+
+.playground * {
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.playground.dragging::after {
+    content: "Drop files to add them";
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px dashed var(--accent);
+    background-color: rgba(27, 28, 31, 0.85);
+    color: var(--accent);
+    font-size: 22px;
+    pointer-events: none;
+}
+
+.playground code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+}
+
+.pg-spacer {
+    flex: 1;
+}
+
+/* ===== Toolbar ===== */
+
+.pg-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--surface);
+}
+
+.pg-title {
+    margin: 0 8px 0 0;
+    font-size: 18px;
+}
+
+.pg-button, .pg-template, .pg-views button, .pg-panel-tabs button, .pg-asset-buttons button, .pg-asset-buttons a {
+    padding: 5px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-small);
+    background-color: var(--surface-raised);
+    color: var(--text);
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.pg-button:hover, .pg-template:hover, .pg-views button:hover, .pg-asset-buttons button:hover, .pg-asset-buttons a:hover {
+    border-color: var(--accent);
+}
+
+.pg-run {
+    border-color: var(--accent-strong);
+    background-color: var(--accent-strong);
+    color: #fff;
+    font-weight: bold;
+}
+
+.pg-autorun {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.pg-views {
+    display: flex;
+}
+
+.pg-views button {
+    border-radius: 0;
+    color: var(--text-muted);
+}
+
+.pg-views button + button {
+    border-left: none;
+}
+
+.pg-views button:first-child {
+    border-radius: var(--radius-small) 0 0 var(--radius-small);
+}
+
+.pg-views button:last-child {
+    border-radius: 0 var(--radius-small) var(--radius-small) 0;
+}
+
+.pg-views button.selected {
+    background-color: var(--accent-bg);
+    color: var(--accent);
+}
+
+.pg-saved {
+    min-width: 50px;
+    color: var(--text-faint);
+    font-size: 13px;
+}
+
+.pg-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--accent-bg);
+    font-size: 14px;
+}
+
+.pg-banner[hidden] {
+    display: none;
+}
+
+.pg-banner span {
+    flex: 1;
+}
+
+/* ===== Code and game ===== */
+
+.pg-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    flex: 1;
+    min-height: 0;
+}
+
+.pg-main[data-view="split"] {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.pg-main[data-view="code"] .pg-game-column, .pg-main[data-view="game"] .pg-code-column {
+    display: none;
+}
+
+.pg-code-column, .pg-game-column {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+}
+
+.pg-code-column {
+    border-right: 1px solid var(--border);
+}
+
+.pg-editor {
+    flex: 1;
+    min-height: 0;
+}
+
+.pg-editor .cm-editor {
+    height: 100%;
+}
+
+.pg-editor .cm-editor.cm-focused {
+    outline: none;
+}
+
+/* The method the cursor is in, like "circle(x, y, radius, color, settings?)" */
+.pg-call-hint {
+    min-height: 34px;
+    padding: 7px 16px;
+    border-top: 1px solid var(--border);
+    background-color: var(--surface);
+    color: var(--text-muted);
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pg-call-hint code {
+    margin-right: 8px;
+    color: #dcdcaa;
+}
+
+.pg-call-hint b {
+    color: var(--accent);
+}
+
+.pg-game {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    background-color: #000;
+}
+
+.pg-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.pg-game-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-faint);
+}
+
+.pg-game.running .pg-game-empty {
+    display: none;
+}
+
+.pg-coords {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    padding: 2px 8px;
+    border-radius: var(--radius-small);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    pointer-events: none;
+}
+
+/* ===== Console and assets ===== */
+
+.pg-panels {
+    display: flex;
+    flex-direction: column;
+    height: 38%;
+    min-height: 120px;
+    border-top: 1px solid var(--border);
+    background-color: var(--surface);
+}
+
+.pg-main[data-view="game"] .pg-panels {
+    height: 28%;
+}
+
+.pg-panel-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.pg-panel-tabs button {
+    padding: 3px 10px;
+    border-color: transparent;
+    background: none;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.pg-panel-tabs button:hover {
+    color: var(--text);
+}
+
+.pg-panel-tabs button.selected {
+    background-color: var(--accent-bg);
+    color: var(--accent);
+}
+
+.pg-console, .pg-assets {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.pg-console[hidden], .pg-assets[hidden] {
+    display: none;
+}
+
+.pg-console {
+    font-family: var(--font-mono);
+    font-size: 13px;
+}
+
+.pg-console-empty, .pg-builtin {
+    padding: 10px 14px;
+    color: var(--text-faint);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.pg-log {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 3px 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.pg-log-text {
+    flex: 1;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: var(--font-mono);
+}
+
+.pg-log-warn {
+    background-color: rgba(255, 200, 80, 0.07);
+    color: #ffd27f;
+}
+
+.pg-log-error {
+    background-color: rgba(255, 100, 100, 0.08);
+    color: var(--error);
+}
+
+.pg-log-line {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--accent);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.pg-log-line:hover {
+    text-decoration: underline;
+}
+
+.pg-log-count {
+    padding: 0 6px;
+    border-radius: 10px;
+    background-color: var(--surface-raised);
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.pg-drop {
+    display: block;
+    margin: 10px 14px;
+    padding: 14px;
+    border: 2px dashed var(--border-strong);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.pg-drop:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.pg-asset {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.pg-asset-thumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-small);
+    background-color: var(--code-bg);
+}
+
+.pg-asset-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    image-rendering: pixelated;
+}
+
+.pg-asset-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.pg-asset-name {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--text);
+    font-family: var(--font-mono) !important;
+    font-size: 13px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.pg-asset-name:hover {
+    color: var(--accent);
+}
+
+.pg-asset-size {
+    color: var(--text-faint);
+    font-size: 12px;
+}
+
+.pg-asset-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.pg-asset-buttons button, .pg-asset-buttons a {
+    padding: 2px 8px;
+    font-size: 12px;
+}
+
+/* ===== Full screen ===== */
+
+.pg-game:fullscreen {
+    width: 100vw;
+    height: 100vh;
+}
+
+/* ===== Phones ===== */
+
+@media (max-width: 800px) {
+    .playground {
+        padding-top: 48px; /* Room for the top bar */
+    }
+
+    .pg-title, .pg-split-button, .pg-autorun, .pg-saved {
+        display: none;
+    }
+
+    .pg-toolbar {
+        padding: 8px 12px;
+        gap: 6px;
+    }
+
+    .pg-button, .pg-template, .pg-views button {
+        padding: 5px 9px;
+        font-size: 13px;
+    }
+
+    .pg-template {
+        flex: 1 1 120px;
+        min-width: 0;
+    }
+
+    .pg-spacer {
+        display: none;
+    }
+
+    .pg-code-column {
+        border-right: none;
+    }
+
+    .pg-asset-buttons a {
+        display: none;
+    }
+}
+
+/* A message at the bottom of the screen, like "Link copied" */
+.pg-notice {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 60;
+    max-width: min(520px, calc(100vw - 32px));
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background-color: var(--surface-raised);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+    color: var(--text);
+    font-size: 14px;
+    pointer-events: none;
+}

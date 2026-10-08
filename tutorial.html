@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tutorial: Make Your First Platformer - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Tutorial</div>
+
+                <h1>Make Your First Platformer</h1>
+
+                <p>In this tutorial you'll make a small platformer, one step at a time: a warrior who runs and jumps between platforms, collects coins, and has a title screen.</p>
+
+                <p>Every step has a game you can play, and its code is right under it. Change the code and press Run to see what happens, then press Reset code to put it back. Each step builds on the last one, so the code grows as you go.</p>
+
+                <p>In these boxes, MDog Engine is already imported and the screen is set to 256 by 192. In your own game, start with the import line from <a href="getting-started.html">Getting Started</a>. Any step can also be opened in the <a href="playground.html">Playground</a> to keep working on it.</p>
+
+                <h2>1. Move a Square</h2>
+
+                <p>Every game starts with something to control. Here the player is a 14 by 30 box, and its position is a <code>Vector</code>, which holds an <code>x</code> and a <code>y</code>.</p>
+
+                <p>MDog Engine runs <code>main()</code> 160 times per second. Each time, it checks the arrow keys with <code>isDown()</code>, moves the player a little, then clears the screen and draws everything again.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight"],
+                        code: `
+                            // The player's top left corner
+                            const player = new MDog.Math.Vector(40, 146);
+
+                            function main() {
+                                // Move with the arrow keys
+                                if (MDog.Input.Keyboard.isDown("ArrowLeft")) {
+                                    player.x -= 0.6;
+                                }
+                                if (MDog.Input.Keyboard.isDown("ArrowRight")) {
+                                    player.x += 0.6;
+                                }
+
+                                MDog.Draw.clear({color: "#1d2b3a"});
+                                MDog.Draw.rectangleFill(0, 176, 256, 16, "#5e8c4a");
+                                MDog.Draw.rectangleFill(Math.floor(player.x), Math.floor(player.y), 14, 30, "#ffcc33");
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try changing <code>0.6</code> to make the player faster or slower.</p>
+
+                <h2>2. Gravity and Jumping</h2>
+
+                <p>To jump, the player needs a speed, called its velocity. Every tick, gravity adds a little to the downward speed, and the velocity is added to the position. Jumping sets the speed to point up, and gravity slowly turns it around.</p>
+
+                <p>The player can only jump while standing on the ground, so <code>isClicked()</code> is used for the up arrow. It's only true on the tick the key is pressed, so holding it down doesn't keep jumping.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp"],
+                        code: `
+                            const player = new MDog.Math.Vector(40, 146);
+                            const velocity = new MDog.Math.Vector(0, 0);
+                            const groundY = 176;
+
+                            function main() {
+                                const Keyboard = MDog.Input.Keyboard;
+
+                                // Walk
+                                velocity.x = 0;
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    velocity.x = -0.6;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    velocity.x = 0.6;
+                                }
+
+                                // Jump, but only from the ground
+                                const onGround = player.y + 30 >= groundY;
+                                if (onGround && Keyboard.isClicked("ArrowUp")) {
+                                    velocity.y = -1.9;
+                                }
+
+                                // Gravity pulls the player down a little more every tick
+                                velocity.y += 0.025;
+                                player.add(velocity);
+
+                                // Stop at the ground
+                                if (player.y + 30 > groundY) {
+                                    player.y = groundY - 30;
+                                    velocity.y = 0;
+                                }
+
+                                MDog.Draw.clear({color: "#1d2b3a"});
+                                MDog.Draw.rectangleFill(0, groundY, 256, 16, "#5e8c4a");
+                                MDog.Draw.rectangleFill(Math.floor(player.x), Math.floor(player.y), 14, 30, "#ffcc33");
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try changing the gravity (<code>0.025</code>) or the jump speed (<code>-1.9</code>) to make the jump floatier or snappier.</p>
+
+                <h2>3. Platforms</h2>
+
+                <p>Checking for the ground by hand works for one floor, but not for lots of platforms. A <code>SquareKickbox</code> is a hitbox that can tell if it's touching another one. The player's kickbox is attached to its position, so it moves along with the player.</p>
+
+                <p>The player moves sideways and up or down separately. After each move, if the player's kickbox is touching a platform, the player is pushed back to the platform's edge. Moving one direction at a time makes it easy to tell if the player hit a wall, a floor, or a ceiling.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp"],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+
+                            const player = new Vector(20, 146);
+                            const velocity = new Vector(0, 0);
+                            const playerBox = new SquareKickbox(player, 0, 0, 14, 30);
+
+                            const platforms = [
+                                makePlatform(0, 176, 256, 16),
+                                makePlatform(60, 130, 50, 8),
+                                makePlatform(130, 100, 50, 8),
+                                makePlatform(196, 70, 50, 8),
+                            ];
+
+                            function makePlatform(x, y, width, height) {
+                                return new SquareKickbox(new Vector(x, y), 0, 0, width, height);
+                            }
+
+                            function main() {
+                                const Keyboard = MDog.Input.Keyboard;
+                                const onGround = isOnGround();
+                                if (onGround && velocity.y > 0) {
+                                    velocity.y = 0;
+                                }
+
+                                velocity.x = 0;
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    velocity.x = -0.6;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    velocity.x = 0.6;
+                                }
+                                if (onGround && Keyboard.isClicked("ArrowUp")) {
+                                    velocity.y = -1.9;
+                                }
+                                velocity.y = Math.min(velocity.y + 0.025, 3);
+
+                                moveX(velocity.x);
+                                moveY(velocity.y);
+
+                                MDog.Draw.clear({color: "#1d2b3a"});
+                                for (const platform of platforms) {
+                                    MDog.Draw.rectangleFill(platform.getLeftX(), platform.getTopY(), platform.getWidth(), platform.getHeight(), "#5e8c4a");
+                                }
+                                MDog.Draw.rectangleFill(playerBox.getLeftX(), playerBox.getTopY(), 14, 30, "#ffcc33");
+                            }
+
+                            // Move sideways, and stop at walls
+                            function moveX(amount) {
+                                player.x += amount;
+                                for (const platform of platforms) {
+                                    if (playerBox.colliding(platform)) {
+                                        player.x = amount > 0 ? platform.getLeftX() - 14 : platform.getRightX() + 1;
+                                    }
+                                }
+                                player.x = Math.max(0, Math.min(player.x, 256 - 14));
+                            }
+
+                            // Move up or down, and stop at floors and ceilings
+                            function moveY(amount) {
+                                player.y += amount;
+                                for (const platform of platforms) {
+                                    if (playerBox.colliding(platform)) {
+                                        player.y = amount > 0 ? platform.getTopY() - 30 : platform.getBottomY() + 1;
+                                        velocity.y = 0;
+                                    }
+                                }
+                            }
+
+                            // Check one pixel below the player for a platform
+                            function isOnGround() {
+                                player.y += 1;
+                                const touching = platforms.some(platform => playerBox.colliding(platform));
+                                player.y -= 1;
+                                return touching;
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try adding another platform to the list, like <code>makePlatform(10, 90, 30, 8)</code>.</p>
+
+                <h2>4. The Warrior</h2>
+
+                <p>Now the box can become a character. <code>MultipleFileAnimation</code> plays a set of images in order, so the warrior has one animation for standing still and one for running. The animation changes with how the player is moving, and the picture is flipped with <code>flipX</code> when running left.</p>
+
+                <p>The warrior's picture is bigger than her hitbox, since it has empty space around her and a sword. So the picture is drawn a little up and to the left of the hitbox, to line her feet up with the bottom of it. The game still uses the simple box for collisions, which is how most platformers work.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp"],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+
+                            const player = new Vector(20, 146);
+                            const velocity = new Vector(0, 0);
+                            const playerBox = new SquareKickbox(player, 0, 0, 14, 30);
+                            let facingLeft = false;
+
+                            const idle = new MDog.Draw.MultipleFileAnimation("warrior/Idle/Warrior_Idle_?.png", 6, 8);
+                            const run = new MDog.Draw.MultipleFileAnimation("warrior/Run/Warrior_Run_?.png", 8, 12);
+
+                            const platforms = [
+                                makePlatform(0, 176, 256, 16),
+                                makePlatform(60, 130, 50, 8),
+                                makePlatform(130, 100, 50, 8),
+                                makePlatform(196, 70, 50, 8),
+                            ];
+
+                            function makePlatform(x, y, width, height) {
+                                return new SquareKickbox(new Vector(x, y), 0, 0, width, height);
+                            }
+
+                            function main() {
+                                const Keyboard = MDog.Input.Keyboard;
+                                const onGround = isOnGround();
+                                if (onGround && velocity.y > 0) {
+                                    velocity.y = 0;
+                                }
+
+                                velocity.x = 0;
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    velocity.x = -0.6;
+                                    facingLeft = true;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    velocity.x = 0.6;
+                                    facingLeft = false;
+                                }
+                                if (onGround && Keyboard.isClicked("ArrowUp")) {
+                                    velocity.y = -1.9;
+                                }
+                                velocity.y = Math.min(velocity.y + 0.025, 3);
+
+                                moveX(velocity.x);
+                                moveY(velocity.y);
+
+                                MDog.Draw.clear({color: "#1d2b3a"});
+                                for (const platform of platforms) {
+                                    MDog.Draw.rectangleFill(platform.getLeftX(), platform.getTopY(), platform.getWidth(), platform.getHeight(), "#5e8c4a");
+                                }
+
+                                // Run when moving, and stand still when not
+                                const animation = velocity.x !== 0 ? run : idle;
+                                // Line the warrior's feet up with the bottom of her hitbox
+                                const spriteX = playerBox.getLeftX() - (facingLeft ? 30 : 19);
+                                const spriteY = playerBox.getTopY() - 13;
+                                MDog.Draw.animation(animation, spriteX, spriteY, {flipX: facingLeft});
+                            }
+
+                            function moveX(amount) {
+                                player.x += amount;
+                                for (const platform of platforms) {
+                                    if (playerBox.colliding(platform)) {
+                                        player.x = amount > 0 ? platform.getLeftX() - 14 : platform.getRightX() + 1;
+                                    }
+                                }
+                                player.x = Math.max(0, Math.min(player.x, 256 - 14));
+                            }
+
+                            function moveY(amount) {
+                                player.y += amount;
+                                for (const platform of platforms) {
+                                    if (playerBox.colliding(platform)) {
+                                        player.y = amount > 0 ? platform.getTopY() - 30 : platform.getBottomY() + 1;
+                                        velocity.y = 0;
+                                    }
+                                }
+                            }
+
+                            function isOnGround() {
+                                player.y += 1;
+                                const touching = platforms.some(platform => playerBox.colliding(platform));
+                                player.y -= 1;
+                                return touching;
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>To see the hitbox, try adding <code>MDog.Draw.rectangle(playerBox.getLeftX(), playerBox.getTopY(), 14, 30, "#ff0000");</code> after the warrior is drawn.</p>
+
+                <h2>5. Coins</h2>
+
+                <p>Coins give the player something to do. Each coin is a small kickbox, and when the player touches one, it's taken out of the list and the score goes up.</p>
+
+                <p>To make collecting a coin feel good, it bursts into sparkles. These are particles from the <a href="fx.html">FX Module</a>. Each one gets a random direction by turning a <code>Vector</code> a random amount with <code>rotate()</code>, and gravity pulls them down.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp"],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+
+                            const player = new Vector(20, 146);
+                            const velocity = new Vector(0, 0);
+                            const playerBox = new SquareKickbox(player, 0, 0, 14, 30);
+                            let facingLeft = false;
+
+                            const idle = new MDog.Draw.MultipleFileAnimation("warrior/Idle/Warrior_Idle_?.png", 6, 8);
+                            const run = new MDog.Draw.MultipleFileAnimation("warrior/Run/Warrior_Run_?.png", 8, 12);
+
+                            const platforms = [
+                                makePlatform(0, 176, 256, 16),
+                                makePlatform(60, 130, 50, 8),
+                                makePlatform(130, 100, 50, 8),
+                                makePlatform(196, 70, 50, 8),
+                            ];
+
+                            // Each coin is a 7 by 7 kickbox around its middle
+                            const coins = [[85, 118], [155, 88], [221, 58], [230, 165]].map(
+                                ([x, y]) => new SquareKickbox(new Vector(x, y), -3, -3, 4, 4));
+                            const particles = new MDog.FX.ParticleSystem();
+                            let score = 0;
+
+                            function makePlatform(x, y, width, height) {
+                                return new SquareKickbox(new Vector(x, y), 0, 0, width, height);
+                            }
+
+                            function main() {
+                                const Keyboard = MDog.Input.Keyboard;
+                                const onGround = isOnGround();
+                                if (onGround && velocity.y > 0) {
+                                    velocity.y = 0;
+                                }
+
+                                velocity.x = 0;
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    velocity.x = -0.6;
+                                    facingLeft = true;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    velocity.x = 0.6;
+                                    facingLeft = false;
+                                }
+                                if (onGround && Keyboard.isClicked("ArrowUp")) {
+                                    velocity.y = -1.9;
+                                }
+                                velocity.y = Math.min(velocity.y + 0.025, 3);
+
+                                moveX(velocity.x);
+                                moveY(velocity.y);
+
+                                // Collect any coin the player is touching
+                                for (let i = coins.length - 1; i >= 0; i--) {
+                                    if (playerBox.colliding(coins[i])) {
+                                        burst(coins[i].getMiddleX(), coins[i].getMiddleY());
+                                        coins.splice(i, 1);
+                                        score++;
+                                    }
+                                }
+                                particles.update();
+
+                                MDog.Draw.clear({color: "#1d2b3a"});
+                                for (const platform of platforms) {
+                                    MDog.Draw.rectangleFill(platform.getLeftX(), platform.getTopY(), platform.getWidth(), platform.getHeight(), "#5e8c4a");
+                                }
+                                for (const coin of coins) {
+                                    MDog.Draw.circle(coin.getMiddleX(), coin.getMiddleY(), 3, "#ffcc33");
+                                }
+
+                                const animation = velocity.x !== 0 ? run : idle;
+                                const spriteX = playerBox.getLeftX() - (facingLeft ? 30 : 19);
+                                MDog.Draw.animation(animation, spriteX, playerBox.getTopY() - 13, {flipX: facingLeft});
+                                MDog.Draw.particleSystem(particles);
+                            }
+
+                            // Sparkles that fly out from where a coin was
+                            function burst(x, y) {
+                                for (let i = 0; i < 14; i++) {
+                                    const direction = new Vector(0.4 + Math.random() * 0.6, 0).rotate(Math.random() * 360);
+                                    particles.addParticle(new MDog.FX.ChunkParticle(x, y, 50, "#ffe680", direction.x, direction.y, {gy: 0.015}));
+                                }
+                            }
+
+                            function moveX(amount) {
+                                player.x += amount;
+                                for (const platform of platforms) {
+                                    if (playerBox.colliding(platform)) {
+                                        player.x = amount > 0 ? platform.getLeftX() - 14 : platform.getRightX() + 1;
+                                    }
+                                }
+                                player.x = Math.max(0, Math.min(player.x, 256 - 14));
+                            }
+
+                            function moveY(amount) {
+                                player.y += amount;
+                                for (const platform of platforms) {
+                                    if (playerBox.colliding(platform)) {
+                                        player.y = amount > 0 ? platform.getTopY() - 30 : platform.getBottomY() + 1;
+                                        velocity.y = 0;
+                                    }
+                                }
+                            }
+
+                            function isOnGround() {
+                                player.y += 1;
+                                const touching = platforms.some(platform => playerBox.colliding(platform));
+                                player.y -= 1;
+                                return touching;
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try adding more coins to the list, or making the sparkles a different color.</p>
+
+                <h2>6. A Title Screen and Score</h2>
+
+                <p>Last, the game gets a title screen, a score in the corner, and a way to play again. Each screen is its own function, and <code>setActiveFunction()</code> switches which one runs. <code>startGame()</code> puts everything back where it started, so the game can be played as many times as you like.</p>
+
+                <p>Text is drawn with <code>textImage()</code> and the <code>marsfont.png</code> pixel font. In your own game, the font image goes in your assets folder (see <a href="getting-started.html#fonts">Add Text</a>).</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp", " "],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+                            const font = "fonts/marsfont.png";
+
+                            const player = new Vector(0, 0);
+                            const velocity = new Vector(0, 0);
+                            const playerBox = new SquareKickbox(player, 0, 0, 14, 30);
+                            let facingLeft = false;
+
+                            const idle = new MDog.Draw.MultipleFileAnimation("warrior/Idle/Warrior_Idle_?.png", 6, 8);
+                            const run = new MDog.Draw.MultipleFileAnimation("warrior/Run/Warrior_Run_?.png", 8, 12);
+
+                            const platforms = [
+                                makePlatform(0, 176, 256, 16),
+                                makePlatform(60, 130, 50, 8),
+                                makePlatform(130, 100, 50, 8),
+                                makePlatform(196, 70, 50, 8),
+                            ];
+
+                            const particles = new MDog.FX.ParticleSystem();
+                            let coins = [];
+                            let score = 0;
+                            let ticks = 0;
+
+                            function makePlatform(x, y, width, height) {
+                                return new SquareKickbox(new Vector(x, y), 0, 0, width, height);
+                            }
+
+                            function titleScreen() {
+                                ticks++;
+                                MDog.Draw.clear({color: "#1a1030"});
+                                MDog.Draw.textImage("Warrior Run", 128, 60, "#ffcc33", font, {alignX: "center", size: 3});
+                                // Blink about twice a second
+                                if (Math.floor(ticks / 40) % 2 === 0) {
+                                    MDog.Draw.textImage("Press space to start", 128, 120, "#ffffff", font, {alignX: "center"});
+                                }
+                                if (MDog.Input.Keyboard.isClicked(" ")) {
+                                    startGame();
+                                }
+                            }
+
+                            // Put everything back where it started, then switch to the game
+                            function startGame() {
+                                player.set(20, 146);
+                                velocity.set(0, 0);
+                                coins = [[85, 118], [155, 88], [221, 58], [230, 165]].map(
+                                    ([x, y]) => new SquareKickbox(new Vector(x, y), -3, -3, 4, 4));
+                                score = 0;
+                                particles.clear();
+                                MDog.setActiveFunction(game);
+                            }
+
+                            function game() {
+                                const Keyboard = MDog.Input.Keyboard;
+                                const onGround = isOnGround();
+                                if (onGround && velocity.y > 0) {
+                                    velocity.y = 0;
+                                }
+
+                                velocity.x = 0;
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    velocity.x = -0.6;
+                                    facingLeft = true;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    velocity.x = 0.6;
+                                    facingLeft = false;
+                                }
+                                if (onGround && Keyboard.isClicked("ArrowUp")) {
+                                    velocity.y = -1.9;
+                                }
+                                velocity.y = Math.min(velocity.y + 0.025, 3);
+
+                                moveX(velocity.x);
+                                moveY(velocity.y);
+
+                                for (let i = coins.length - 1; i >= 0; i--) {
+                                    if (playerBox.colliding(coins[i])) {
+                                        burst(coins[i].getMiddleX(), coins[i].getMiddleY());
+                                        coins.splice(i, 1);
+                                        score++;
+                                    }
+                                }
+                                particles.update();
+
+                                MDog.Draw.clear({color: "#1d2b3a"});
+                                for (const platform of platforms) {
+                                    MDog.Draw.rectangleFill(platform.getLeftX(), platform.getTopY(), platform.getWidth(), platform.getHeight(), "#5e8c4a");
+                                }
+                                for (const coin of coins) {
+                                    MDog.Draw.circle(coin.getMiddleX(), coin.getMiddleY(), 3, "#ffcc33");
+                                }
+
+                                const animation = velocity.x !== 0 ? run : idle;
+                                const spriteX = playerBox.getLeftX() - (facingLeft ? 30 : 19);
+                                MDog.Draw.animation(animation, spriteX, playerBox.getTopY() - 13, {flipX: facingLeft});
+                                MDog.Draw.particleSystem(particles);
+
+                                MDog.Draw.textImage("Score: " + score, 6, 6, "#ffffff", font);
+
+                                // Every coin collected
+                                if (coins.length === 0) {
+                                    MDog.Draw.textImage("You got them all!", 128, 40, "#ffcc33", font, {alignX: "center", size: 2});
+                                    MDog.Draw.textImage("Press space to play again", 128, 60, "#ffffff", font, {alignX: "center"});
+                                    if (Keyboard.isClicked(" ")) {
+                                        startGame();
+                                    }
+                                }
+                            }
+
+                            function burst(x, y) {
+                                for (let i = 0; i < 14; i++) {
+                                    const direction = new Vector(0.4 + Math.random() * 0.6, 0).rotate(Math.random() * 360);
+                                    particles.addParticle(new MDog.FX.ChunkParticle(x, y, 50, "#ffe680", direction.x, direction.y, {gy: 0.015}));
+                                }
+                            }
+
+                            function moveX(amount) {
+                                player.x += amount;
+                                for (const platform of platforms) {
+                                    if (playerBox.colliding(platform)) {
+                                        player.x = amount > 0 ? platform.getLeftX() - 14 : platform.getRightX() + 1;
+                                    }
+                                }
+                                player.x = Math.max(0, Math.min(player.x, 256 - 14));
+                            }
+
+                            function moveY(amount) {
+                                player.y += amount;
+                                for (const platform of platforms) {
+                                    if (playerBox.colliding(platform)) {
+                                        player.y = amount > 0 ? platform.getTopY() - 30 : platform.getBottomY() + 1;
+                                        velocity.y = 0;
+                                    }
+                                }
+                            }
+
+                            function isOnGround() {
+                                player.y += 1;
+                                const touching = platforms.some(platform => playerBox.colliding(platform));
+                                player.y -= 1;
+                                return touching;
+                            }
+
+                            MDog.setActiveFunction(titleScreen);
+                        `,
+                    });
+                </script>
+
+                <h2>What's Next</h2>
+
+                <p>That's a whole game! Here are some ideas to try next:</p>
+
+                <ul>
+                    <li>Add enemies that walk back and forth on the platforms, and send the player back to the start if they touch one.</li>
+                    <li>Make a bigger level with <code>translate()</code>, so the screen follows the player.</li>
+                    <li>Add a timer, and try to collect every coin as fast as you can.</li>
+                </ul>
+
+                <p>The <a href="playground.html">Playground</a> is a good place to keep building, and the <a href="example-platformer.html">Examples</a> and the docs under Code in the sidebar have everything else MDog Engine can do.</p>
+
+                <div class="copyright">Copyright © 2024-2026. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

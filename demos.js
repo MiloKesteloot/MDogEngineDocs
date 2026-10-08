@@ -65,6 +65,9 @@ function queueDemoPreview(d) {
     demoPreviewQueue = demoPreviewQueue.then(() => d.makePreview());
 }
 
+// The frame files found for each name (see findFrames). Made before the demos are set up, since setting one up can use it.
+const demoFrameSearches = new Map();
+
 const demos = [...document.querySelectorAll(".demo")].map(element => setUpDemo(element));
 
 // Stop a demo once it's scrolled all the way out of view
@@ -117,7 +120,6 @@ async function findDemoImages(code) {
 
 // Finds the frame files for a name like "warrior/Run/Warrior_Run_?.png" by loading frame 1, 2, 3... until one is missing.
 // Frame numbers start at 1, the same as MultipleFileAnimation.
-const demoFrameSearches = new Map();
 function findFrames(pattern) {
     if (!demoFrameSearches.has(pattern)) {
         demoFrameSearches.set(pattern, (async () => {
@@ -210,6 +212,7 @@ function setUpDemo(element) {
             codeChanged();
             run();
         });
+        element.querySelector(".demo-open").addEventListener("click", openInPlayground);
         textArea.addEventListener("input", codeChanged);
         textArea.addEventListener("scroll", () => {
             highlight.scrollLeft = textArea.scrollLeft;
@@ -291,6 +294,15 @@ function setUpDemo(element) {
 
     function fitTextArea() {
         textArea.rows = textArea.value.split("\n").length;
+    }
+
+    // Opens the code in the Playground. Code that doesn't import MDog Engine gets the lines the demo box adds for it.
+    async function openInPlayground() {
+        let code = getCode();
+        if (!/import\s+MDog\s+from/.test(code)) {
+            code = `import MDog from "${demoEngineURL}";\nMDog.Draw.setScreenSize(${width}, ${height});\n\n` + code;
+        }
+        window.open(await docsPlaygroundLink({code: code.trimEnd() + "\n", assets: []}), "_blank");
     }
 
     function getCode() {

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Playground - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <link rel="stylesheet" type="text/css" href="playground.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+
+        <!-- The playground (see playground.js) -->
+        <div class="playground">
+
+            <div class="pg-toolbar">
+                <h1 class="pg-title">Playground</h1>
+
+                <select class="pg-template" aria-label="Start from a template">
+                    <option value="">Start from...</option>
+                </select>
+
+                <button class="pg-button pg-run" title="Run (Ctrl+Enter)">▶ Run</button>
+
+                <label class="pg-autorun"><input type="checkbox"> Run as you type</label>
+
+                <span class="pg-spacer"></span>
+
+                <div class="pg-views" role="group" aria-label="View">
+                    <button data-view="code">Code</button>
+                    <button data-view="split" class="pg-split-button">Split</button>
+                    <button data-view="game">Game</button>
+                </div>
+
+                <button class="pg-button pg-share" title="Copy a link to this project">Share</button>
+                <button class="pg-button pg-export" title="Download as one HTML file">Export</button>
+                <button class="pg-button pg-import" title="Open an exported HTML file">Import</button>
+                <input class="pg-import-file" type="file" accept=".html,text/html" hidden>
+
+                <span class="pg-saved" aria-live="polite"></span>
+            </div>
+
+            <div class="pg-banner" hidden>
+                <span>You're looking at a shared project. Your own project is still saved.</span>
+                <button class="pg-button pg-keep-shared">Keep this one</button>
+                <button class="pg-button pg-back-to-mine">Go back to mine</button>
+            </div>
+
+            <div class="pg-main" data-view="split">
+
+                <div class="pg-code-column">
+                    <div class="pg-editor"></div>
+                    <div class="pg-call-hint" aria-live="polite"></div>
+                </div>
+
+                <div class="pg-game-column">
+                    <div class="pg-game">
+                        <div class="pg-game-empty">Press Run to start your game</div>
+                    </div>
+
+                    <div class="pg-panels">
+                        <div class="pg-panel-tabs" role="tablist">
+                            <button data-panel="console" class="selected">Console <span class="pg-console-count"></span></button>
+                            <button data-panel="assets">Assets <span class="pg-assets-count"></span></button>
+                            <span class="pg-spacer"></span>
+                            <button class="pg-clear-console">Clear</button>
+                            <button class="pg-fullscreen">Full screen</button>
+                        </div>
+
+                        <div class="pg-console" data-panel="console">
+                            <div class="pg-console-empty">Anything your game prints with <code>console.log()</code> shows up here, along with any errors.</div>
+                        </div>
+
+                        <div class="pg-assets" data-panel="assets" hidden>
+                            <label class="pg-drop">
+                                <input type="file" multiple hidden>
+                                <span>Drop images or files here, or click to add them</span>
+                            </label>
+                            <div class="pg-asset-list"></div>
+                            <p class="pg-builtin">These are also built in, so they can be used without adding them: <code>warrior/Idle/Warrior_Idle_?.png</code> (6 frames), <code>warrior/Run/Warrior_Run_?.png</code> (8), <code>warrior/Attack/Warrior_Attack_?.png</code> (12), <code>warrior/warrior-run-sheet.png</code>, <code>tiles.png</code>, <code>fonts/marsfont.png</code>, and <code>fonts/determinationfont.png</code>.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+    <script type="module" src="playground.js"></script>
+</body>
+</html>

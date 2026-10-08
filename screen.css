@@ -1127,6 +1127,12 @@ tr.has-dropdown:has(input:checked) + tr {
     background-color: #3d75c6;
 }
 
+/* On the right end of the bar, after the hint */
+.page .demo-bar .demo-open {
+    order: 1;
+    margin-left: auto;
+}
+
 .page .demo-hint {
     color: var(--text-faint);
     font-size: 13px;
