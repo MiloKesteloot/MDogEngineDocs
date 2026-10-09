@@ -37,6 +37,26 @@
 const docsEngineVersion = "v1.4.0";
 const docsEngineBaseURL = "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@" + docsEngineVersion + "/";
 
+// Light or dark, from the button at the bottom of the sidebar. It's put on the page here, in the <head>, so the page is
+// never drawn in the wrong colors first. The colors for each are in screen.css.
+function docsSetTheme(theme, save = true) {
+    document.documentElement.dataset.theme = theme;
+    if (save) {
+        try {
+            localStorage.setItem("docs-theme", theme);
+        } catch (error) {}
+    }
+}
+
+// build-index.js runs this file without a real page, so this only runs when there is one
+if (document.documentElement) {
+    let savedTheme = null;
+    try {
+        savedTheme = localStorage.getItem("docs-theme");
+    } catch (error) {}
+    docsSetTheme(savedTheme === "light" ? "light" : "dark", false);
+}
+
 // Every method table on this page adds its methods here, for search and cross-links
 const docsPageEntries = [];
 
@@ -66,6 +86,130 @@ if (docsCleanUrls && window.location.pathname.endsWith(".html")) {
     const path = window.location.pathname.replace(/(^|\/)index\.html$/, "$1").replace(/\.html$/, "");
     history.replaceState(null, "", path + window.location.search + window.location.hash);
 }
+
+// "See also" links for methods, by page and method id. Each one is a method id on the same page, like "isClicked" or
+// "Vector.subtract", a method on another page, like "input.html#Mouse.getDown", or a whole page, like "guide-camera.html".
+const docsSeeAlso = {
+    // Core
+    "core.html#setActiveFunction": ["example-title-screen.html", "guide-pausing.html"],
+
+    // Draw
+    "draw.html#animation": ["new-MultipleFileAnimation", "new-SpriteSheetAnimation", "preloadAnimation", "asset-packs.html"],
+    "draw.html#circle": ["rectangleFill", "polygonFill"],
+    "draw.html#clear": ["setActiveLayer", "setBackgroundColor"],
+    "draw.html#image": ["animation", "textImage", "asset-packs.html"],
+    "draw.html#interactable": ["ui.html"],
+    "draw.html#line": ["polygon", "point"],
+    "draw.html#particleSystem": ["fx.html#new-ParticleSystem", "fx.html#ParticleSystem.update"],
+    "draw.html#point": ["line", "rectangleFill"],
+    "draw.html#polygon": ["polygonFill", "line"],
+    "draw.html#polygonFill": ["polygon", "findIntersections"],
+    "draw.html#rectangle": ["rectangleFill", "polygon"],
+    "draw.html#rectangleFill": ["rectangle", "polygonFill"],
+    "draw.html#textImage": ["measureText", "ui.html#new-TextInteractable", "asset-packs.html"],
+    "draw.html#threeDeeScene": ["threedee.html#new-ThreeDeeScene"],
+    "draw.html#translate": ["translateX", "translateY", "guide-camera.html"],
+    "draw.html#translateX": ["translate", "translateY"],
+    "draw.html#translateY": ["translate", "translateX"],
+    "draw.html#preloadAnimation": ["animation"],
+    "draw.html#setActiveLayer": ["clear"],
+    "draw.html#setBackgroundColor": ["clear"],
+    "draw.html#setScreenSize": ["getScreenWidthInArtPixels", "getScreenHeightInArtPixels"],
+    "draw.html#findIntersections": ["polygonFill"],
+    "draw.html#getScreenWidthInArtPixels": ["getHalfScreenWidthInArtPixels", "setScreenSize"],
+    "draw.html#getScreenHeightInArtPixels": ["getHalfScreenHeightInArtPixels", "setScreenSize"],
+    "draw.html#getHalfScreenWidthInArtPixels": ["getScreenWidthInArtPixels"],
+    "draw.html#getHalfScreenHeightInArtPixels": ["getScreenHeightInArtPixels"],
+    "draw.html#measureText": ["textImage"],
+    "draw.html#new-MultipleFileAnimation": ["new-SpriteSheetAnimation", "animation", "asset-packs.html"],
+    "draw.html#new-SpriteSheetAnimation": ["new-MultipleFileAnimation", "animation"],
+    "draw.html#Animation.getFrame": ["Animation.getRawFrame", "Animation.reset"],
+    "draw.html#Animation.getRawFrame": ["Animation.getFrame", "Animation.reset"],
+    "draw.html#Animation.reset": ["Animation.getRawFrame"],
+    "draw.html#Animation.getImage": ["Animation.getFrame"],
+
+    // Input
+    "input.html#Keyboard.isDown": ["Keyboard.isClicked", "Mouse.getDown"],
+    "input.html#Keyboard.isClicked": ["Keyboard.isDown", "Mouse.getClick"],
+    "input.html#Mouse.getClick": ["Mouse.getDown", "Keyboard.isClicked"],
+    "input.html#Mouse.getDown": ["Mouse.getClick", "Keyboard.isDown"],
+    "input.html#Mouse.getOnScreen": ["Mouse.getX", "Mouse.getY"],
+    "input.html#Mouse.getX": ["Mouse.getY", "Mouse.getOnScreen"],
+    "input.html#Mouse.getY": ["Mouse.getX", "Mouse.getOnScreen"],
+    "input.html#Mouse.requestStyle": ["Mouse.style", "Mouse.getNewStyle", "Mouse.hide"],
+    "input.html#Mouse.getNewStyle": ["Mouse.requestStyle"],
+    "input.html#Mouse.style": ["Mouse.requestStyle"],
+    "input.html#Mouse.show": ["Mouse.hide"],
+    "input.html#Mouse.hide": ["Mouse.show", "Mouse.requestStyle"],
+
+    // Math
+    "math.html#deltaTime": ["core.html", "guide-timers.html"],
+    "math.html#lerp": ["guide-camera.html"],
+    "math.html#new-Vector": ["new-Vector3"],
+    "math.html#Vector.add": ["Vector.subtract", "Vector.multiply"],
+    "math.html#Vector.subtract": ["Vector.add", "Vector.distanceTo"],
+    "math.html#Vector.multiply": ["Vector.divide", "Vector.setLength"],
+    "math.html#Vector.divide": ["Vector.multiply"],
+    "math.html#Vector.clone": ["Vector.set"],
+    "math.html#Vector.constrain": ["Vector.setLength", "Vector.length"],
+    "math.html#Vector.distanceTo": ["Vector.length", "Vector.subtract"],
+    "math.html#Vector.equals": ["Vector.set"],
+    "math.html#Vector.getAngle": ["Vector.rotate"],
+    "math.html#Vector.rotate": ["Vector.getAngle"],
+    "math.html#Vector.length": ["Vector.setLength", "Vector.normalize", "Vector.distanceTo"],
+    "math.html#Vector.normalize": ["Vector.setLength", "Vector.length"],
+    "math.html#Vector.set": ["Vector.setX", "Vector.setY", "Vector.clone"],
+    "math.html#Vector.setLength": ["Vector.normalize", "Vector.constrain", "Vector.length"],
+    "math.html#Vector.getX": ["Vector.setX"],
+    "math.html#Vector.getY": ["Vector.setY"],
+    "math.html#Vector.setX": ["Vector.getX", "Vector.set"],
+    "math.html#Vector.setY": ["Vector.getY", "Vector.set"],
+    "math.html#new-Vector3": ["new-Vector", "threedee.html"],
+
+    // UI
+    "ui.html#new-TextInteractable": ["draw.html#textImage"],
+    "ui.html#new-TilemapInteractable": ["draw.html#interactable", "guide-levels.html", "asset-packs.html#tiles"],
+    "ui.html#TilemapInteractable.get": ["TilemapInteractable.set", "TilemapInteractable.getHoveredOverTile"],
+    "ui.html#TilemapInteractable.set": ["TilemapInteractable.get"],
+    "ui.html#TilemapInteractable.getHoveredOverTile": ["TilemapInteractable.getMouseOver", "TilemapInteractable.screenToTile"],
+    "ui.html#TilemapInteractable.getMouseOver": ["TilemapInteractable.getHoveredOverTile"],
+    "ui.html#TilemapInteractable.screenToTile": ["TilemapInteractable.tileToScreen"],
+    "ui.html#TilemapInteractable.tileToScreen": ["TilemapInteractable.screenToTile"],
+    "ui.html#RectangleGridInteractable.screenToTile": ["RectangleGridInteractable.tileToScreen"],
+    "ui.html#RectangleGridInteractable.tileToScreen": ["RectangleGridInteractable.screenToTile"],
+    "ui.html#VectorGridInteractable.screenToTile": ["VectorGridInteractable.tileToScreen"],
+    "ui.html#VectorGridInteractable.tileToScreen": ["VectorGridInteractable.screenToTile", "VectorGridInteractable.getPoint"],
+    "ui.html#VectorGridInteractable.getPoint": ["VectorGridInteractable.tileToScreen"],
+
+    // FX
+    "fx.html#new-ParticleSystem": ["draw.html#particleSystem", "ParticleSystem.addParticle"],
+    "fx.html#ParticleSystem.addParticle": ["new-ChunkParticle", "new-LineParticle", "new-AnimationParticle"],
+    "fx.html#ParticleSystem.update": ["draw.html#particleSystem"],
+    "fx.html#ParticleSystem.clear": ["ParticleSystem.count", "ParticleSystem.isEmpty"],
+    "fx.html#ParticleSystem.count": ["ParticleSystem.isEmpty"],
+    "fx.html#ParticleSystem.isEmpty": ["ParticleSystem.count"],
+    "fx.html#new-ChunkParticle": ["new-LineParticle", "new-AnimationParticle"],
+    "fx.html#new-LineParticle": ["new-ChunkParticle", "new-AnimationParticle"],
+    "fx.html#new-AnimationParticle": ["new-ChunkParticle", "draw.html#new-MultipleFileAnimation"],
+    "fx.html#Particle.hasTag": ["new-ChunkParticle"],
+
+    // ThreeDee
+    "threedee.html#ThreeDeeScene.addObject": ["ThreeDeeScene.removeObject"],
+    "threedee.html#ThreeDeeScene.removeObject": ["ThreeDeeScene.addObject"],
+    "threedee.html#ThreeDeeScene.threeDeeToTwoDee": ["ThreeDeeScene.threeDeeToTwoDeeVector3"],
+    "threedee.html#ThreeDeeScene.threeDeeToTwoDeeVector3": ["ThreeDeeScene.threeDeeToTwoDee"],
+    "threedee.html#new-ThreeDeeScene": ["draw.html#threeDeeScene", "new-Camera"],
+
+    // Asset Manager
+    "asset-manager.html#loadFile": ["doneLoading", "get", "guide-levels.html"],
+    "asset-manager.html#doneLoading": ["loadFile"],
+    "asset-manager.html#get": ["loadFile"],
+
+    // Basics
+    "basics.html#SquareKickbox.colliding": ["SquareKickbox.getX", "SquareKickbox.getY", "tutorial.html"],
+    "basics.html#SquareKickbox.getX": ["SquareKickbox.getY"],
+    "basics.html#SquareKickbox.getY": ["SquareKickbox.getX"],
+};
 
 // Turns heading text into an id, like "Mouse Info Methods" into "mouse-info-methods"
 function docsSlugify(text) {
@@ -166,12 +310,31 @@ class Method {
     }
 
     hasDropdown() {
-        return this.details !== undefined ||
+        return this.getSeeAlso().length > 0 ||
+            this.details !== undefined ||
             this.parameters.length > 0 ||
             this.settings.length > 0 ||
             this.returns !== undefined ||
             this.demo !== undefined ||
             this.getSource() !== null;
+    }
+
+    // Related methods and pages, from docsSeeAlso below
+    getSeeAlso() {
+        return docsSeeAlso[docsCurrentPage() + "#" + this.getId()] ?? [];
+    }
+
+    // The "See also" line, with a link to each one. Its name comes from docs-index.js when it's there.
+    generateSeeAlso() {
+        const links = this.getSeeAlso().map(target => {
+            const [page, id] = target.includes(".html") ? target.split("#") : [docsCurrentPage(), target];
+            const entry = typeof docsIndex === "undefined" ? null :
+                docsIndex.find(e => e.page === page && (id ? e.id === id : e.kind === "page"));
+            const text = entry ? entry.title : (id ?? page);
+            const href = (page === docsCurrentPage() ? "" : docsPageHref(page)) + (id ? "#" + id : "");
+            return entry?.kind === "method" ? `<a href="${href}"><code>${docsEscape(text)}</code></a>` : `<a href="${href}">${docsEscape(text)}</a>`;
+        });
+        return `<b>See also:</b> ${links.join(", ")}<br>`;
     }
 
     // Where this method's code is in the engine, from docs-index.js (made by build-index.js), or null
@@ -240,6 +403,10 @@ class Method {
 
         if (this.returns !== undefined) {
             sections.push(`<b>Returns:</b> ${this.returns}<br>`);
+        }
+
+        if (this.getSeeAlso().length > 0) {
+            sections.push(this.generateSeeAlso());
         }
 
         if (this.demo !== undefined) {

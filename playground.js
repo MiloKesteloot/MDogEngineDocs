@@ -306,101 +306,46 @@ function renameAssetInPlace(tile, asset) {
     input.addEventListener("blur", () => finish(true));
 }
 
-// The files in the docs' assets folder. Animations are shown playing, at the speed the docs use them at.
-const builtInAssets = [
-    {name: "warrior/Idle/Warrior_Idle_?.png", frames: 6, speed: 8, usage: `new MDog.Draw.MultipleFileAnimation("warrior/Idle/Warrior_Idle_?.png", 6, 8)`},
-    {name: "warrior/Run/Warrior_Run_?.png", frames: 8, speed: 12, usage: `new MDog.Draw.MultipleFileAnimation("warrior/Run/Warrior_Run_?.png", 8, 12)`},
-    {name: "warrior/Attack/Warrior_Attack_?.png", frames: 12, speed: 12, usage: `new MDog.Draw.MultipleFileAnimation("warrior/Attack/Warrior_Attack_?.png", 12, 12)`},
-    {name: "warrior/warrior-run-sheet.png", info: "Sprite sheet, 8 frames", frames: 8, speed: 12, frameWidth: 64, usage: `new MDog.Draw.SpriteSheetAnimation("warrior/warrior-run-sheet.png", 8, 12, 64)`},
-    {name: "tiles.png", info: "4 tiles, 16 by 16", usage: `MDog.Draw.image("tiles.png", 0, 0);`},
-    {name: "fonts/marsfont.png", info: "Font", wide: true, usage: `MDog.Draw.textImage("Hello", 0, 0, "#ffffff", "fonts/marsfont.png");`},
-    {name: "fonts/determinationfont.png", info: "Font", wide: true, usage: `MDog.Draw.textImage("Hello", 0, 0, "#ffffff", "fonts/determinationfont.png");`},
-];
-
+// The files in the docs' assets folder, from asset-packs.js. Animations are shown playing, at the speed they look right at.
 function renderBuiltInAssets() {
-    const list = root.querySelector(".pg-builtin-list");
-    for (const asset of builtInAssets) {
-        const frameFiles = asset.frames && !asset.frameWidth
-            ? Array.from({length: asset.frames}, (_, i) => "assets/" + asset.name.replace("?", i + 1))
-            : null;
-        const tile = makeAssetTile({
-            name: asset.name,
-            info: asset.info ?? asset.frames + " frames",
-            usage: asset.usage,
-            image: frameFiles ? frameFiles : "assets/" + asset.name,
-            frameWidth: asset.frameWidth,
-            speed: asset.speed,
-            wide: asset.wide,
-        });
-        const buttons = tile.querySelector(".pg-asset-buttons");
-        if (frameFiles) {
-            // A set of frames is many files, so they're downloaded together in a .zip
-            const button = document.createElement("button");
-            button.textContent = "Download .zip";
-            button.title = "Download all " + frameFiles.length + " frames";
-            button.addEventListener("click", () => downloadZip(frameFiles, asset.name.split("/").at(-1).replace(/_?\?\.png$/, "") + ".zip"));
-            buttons.appendChild(button);
-        } else {
-            buttons.innerHTML = `<a href="assets/${asset.name}" download>Download</a>`;
-        }
-        list.appendChild(tile);
-    }
-}
-
-// Downloads files together as one .zip. Zips can store files without compressing them, which is simple enough to do by
-// hand, and PNGs are already compressed anyway.
-async function downloadZip(urls, zipName) {
-    const files = await Promise.all(urls.map(async url => ({
-        name: url.split("/").at(-1),
-        data: new Uint8Array(await (await fetch(url)).arrayBuffer()),
-    })));
-    const parts = [];
-    const directory = [];
-    let offset = 0;
-    for (const file of files) {
-        const name = new TextEncoder().encode(file.name);
-        const crc = crc32(file.data);
-        const header = zipHeader(0x04034b50, [[20, 2], [0, 2], [0, 2], [0, 2], [0, 2], [crc, 4], [file.data.length, 4], [file.data.length, 4], [name.length, 2], [0, 2]]);
-        directory.push(zipHeader(0x02014b50, [[20, 2], [20, 2], [0, 2], [0, 2], [0, 2], [0, 2], [crc, 4], [file.data.length, 4], [file.data.length, 4], [name.length, 2], [0, 2], [0, 2], [0, 2], [0, 2], [0, 4], [offset, 4]]), name);
-        parts.push(header, name, file.data);
-        offset += header.length + name.length + file.data.length;
-    }
-    const directorySize = directory.reduce((total, part) => total + part.length, 0);
-    const end = zipHeader(0x06054b50, [[0, 2], [0, 2], [files.length, 2], [files.length, 2], [directorySize, 4], [offset, 4], [0, 2]]);
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(new Blob([...parts, ...directory, end], {type: "application/zip"}));
-    link.download = zipName;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(link.href), 10000);
-}
-
-// A zip record: a 4 byte signature, then each [value, number of bytes] written little-endian
-function zipHeader(signature, fields) {
-    const bytes = new Uint8Array(4 + fields.reduce((total, [, size]) => total + size, 0));
-    const view = new DataView(bytes.buffer);
-    view.setUint32(0, signature, true);
-    let position = 4;
-    for (const [value, size] of fields) {
-        if (size === 2) {
-            view.setUint16(position, value, true);
-        } else {
-            view.setUint32(position, value, true);
-        }
-        position += size;
-    }
-    return bytes;
-}
-
-// The checksum zips use to check each file
-function crc32(data) {
-    let crc = 0xffffffff;
-    for (const byte of data) {
-        crc ^= byte;
-        for (let bit = 0; bit < 8; bit++) {
-            crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+    const container = root.querySelector(".pg-builtin-list");
+    for (const pack of mdogAssetPacks) {
+        // Each pack opens and closes, so the warrior's many animations don't take over the tab
+        const group = document.createElement("details");
+        group.className = "pg-builtin-pack";
+        group.open = pack.items.length <= 4;
+        group.innerHTML = `<summary>${docsEscape(pack.name)} <span>${pack.items.length}</span></summary>` +
+            (pack.credit ? `<p class="pg-builtin-credit">Art by <a href="${pack.credit.url}" target="_blank" rel="noopener">${docsEscape(pack.credit.name)}</a></p>` : "") +
+            `<div class="pg-asset-list"></div>`;
+        container.appendChild(group);
+        const list = group.querySelector(".pg-asset-list");
+        for (const item of pack.items) {
+            const files = mdogAssetFiles(item);
+            const animated = item.frames && !item.frameWidth;
+            const tile = makeAssetTile({
+                name: item.path,
+                info: item.info ?? (item.frameWidth ? "Sprite sheet, " + item.frames + " frames" : item.frames ? item.frames + " frames" : pack.name),
+                usage: mdogAssetUsageLine(item),
+                image: animated ? files.map(file => "assets/" + file) : "assets/" + item.path,
+                frameWidth: item.frameWidth,
+                speed: item.speed,
+                wide: item.wide,
+            });
+            const buttons = tile.querySelector(".pg-asset-buttons");
+            if (animated) {
+                // A set of frames is many files, so they're downloaded together in a .zip
+                const button = document.createElement("button");
+                button.textContent = "Download .zip";
+                button.title = "Download all " + files.length + " frames";
+                const zipName = item.path.split("/").at(-1).replace(/_?\?\.png$/, "") + ".zip";
+                button.addEventListener("click", () => mdogDownloadZip(files.map(file => ({name: file.split("/").at(-1), url: "assets/" + file})), zipName));
+                buttons.appendChild(button);
+            } else {
+                buttons.innerHTML = `<a href="assets/${item.path}" download>Download</a>`;
+            }
+            list.appendChild(tile);
         }
     }
-    return (crc ^ 0xffffffff) >>> 0;
 }
 
 // A tile for one file. image is a URL, a list of frame URLs (an animation), or null for a file that isn't a picture.
@@ -680,25 +625,25 @@ function updateCallHint(state) {
 
 // The same colors as VS Code's dark theme, like the docs' code blocks
 const highlightStyle = HighlightStyle.define([
-    {tag: tags.keyword, color: "#569cd6"},
-    {tag: [tags.controlKeyword, tags.moduleKeyword], color: "#c586c0"},
-    {tag: [tags.string, tags.special(tags.string)], color: "#ce9178"},
-    {tag: tags.number, color: "#b5cea8"},
-    {tag: [tags.bool, tags.null, tags.self], color: "#569cd6"},
-    {tag: [tags.lineComment, tags.blockComment, tags.comment], color: "#6a9955"},
-    {tag: [tags.function(tags.variableName), tags.function(tags.propertyName)], color: "#dcdcaa"},
-    {tag: [tags.className, tags.typeName], color: "#4ec9b0"},
-    {tag: [tags.variableName, tags.propertyName, tags.definition(tags.variableName)], color: "#9cdcfe"},
+    {tag: tags.keyword, color: "var(--tok-keyword)"},
+    {tag: [tags.controlKeyword, tags.moduleKeyword], color: "var(--tok-control)"},
+    {tag: [tags.string, tags.special(tags.string)], color: "var(--tok-string)"},
+    {tag: tags.number, color: "var(--tok-number)"},
+    {tag: [tags.bool, tags.null, tags.self], color: "var(--tok-keyword)"},
+    {tag: [tags.lineComment, tags.blockComment, tags.comment], color: "var(--tok-comment)"},
+    {tag: [tags.function(tags.variableName), tags.function(tags.propertyName)], color: "var(--tok-function)"},
+    {tag: [tags.className, tags.typeName], color: "var(--tok-class)"},
+    {tag: [tags.variableName, tags.propertyName, tags.definition(tags.variableName)], color: "var(--tok-variable)"},
 ]);
 
 const editorTheme = EditorView.theme({
-    "&": {height: "100%", backgroundColor: "transparent", color: "#d4d4d4", fontSize: "14px"},
+    "&": {height: "100%", backgroundColor: "transparent", color: "var(--code-text)", fontSize: "14px"},
     ".cm-scroller": {fontFamily: "var(--font-mono)", lineHeight: "1.5"},
-    ".cm-content": {caretColor: "#e6e9ee"},
+    ".cm-content": {caretColor: "var(--text)"},
     ".cm-gutters": {backgroundColor: "transparent", color: "var(--text-faint)", border: "none"},
-    ".cm-activeLine": {backgroundColor: "rgba(255, 255, 255, 0.03)"},
+    ".cm-activeLine": {backgroundColor: "var(--hover-bg)"},
     ".cm-activeLineGutter": {backgroundColor: "transparent", color: "var(--text-muted)"},
-    "&.cm-focused .cm-cursor": {borderLeftColor: "#e6e9ee"},
+    "&.cm-focused .cm-cursor": {borderLeftColor: "var(--text)"},
     ".cm-selectionBackground, &.cm-focused .cm-selectionBackground, ::selection": {backgroundColor: "rgba(140, 184, 255, 0.25) !important"},
     ".cm-matchingBracket": {backgroundColor: "rgba(140, 184, 255, 0.2)", outline: "none"},
     ".cm-tooltip": {backgroundColor: "var(--surface-raised)", border: "1px solid var(--border-strong)", borderRadius: "6px"},
@@ -729,7 +674,7 @@ const editorTheme = EditorView.theme({
     ".cm-panel.cm-search [name=replaceAll]": {gridRow: "2", gridColumn: "6 / 8"},
     ".cm-panel.cm-search .cm-textfield": {
         width: "100%", padding: "0 9px", border: "1px solid var(--border-strong)", borderRadius: "var(--radius-small)",
-        backgroundColor: "rgba(255, 255, 255, 0.04)", color: "var(--text)", fontFamily: "var(--font-mono)", fontSize: "13px", outline: "none",
+        backgroundColor: "var(--input-bg)", color: "var(--text)", fontFamily: "var(--font-mono)", fontSize: "13px", outline: "none",
     },
     ".cm-panel.cm-search .cm-textfield:focus": {borderColor: "var(--accent)"},
     ".cm-panel.cm-search .cm-button": {
@@ -766,7 +711,7 @@ const editorTheme = EditorView.theme({
     // The box that shows a method's docs, or a variable's value, when the mouse is over it
     ".cm-tooltip.cm-tooltip-hover": {maxWidth: "420px"},
     ".pg-hover": {padding: "8px 11px", fontFamily: "var(--font-sans)", fontSize: "13px", lineHeight: "1.5"},
-    ".pg-hover code": {color: "#dcdcaa", fontFamily: "var(--font-mono)", fontSize: "13px"},
+    ".pg-hover code": {color: "var(--tok-function)", fontFamily: "var(--font-mono)", fontSize: "13px"},
     ".pg-hover-text": {marginTop: "3px", color: "var(--text-muted)"},
     ".pg-hover-value": {marginTop: "3px", color: "var(--text)", fontFamily: "var(--font-mono)", fontSize: "12px", wordBreak: "break-word"},
     ".pg-hover-links": {display: "flex", gap: "12px", marginTop: "6px"},

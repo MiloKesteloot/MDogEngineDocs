@@ -16,6 +16,7 @@ decorateCodeBlocks();
 setUpSourceViews();
 setUpMethodLinks();
 setUpRowClicks();
+addGlossaryLinks();
 openTargetFromURL();
 window.addEventListener("hashchange", openTargetFromURL);
 
@@ -116,9 +117,13 @@ function makeFullIndex() {
     const h1 = document.querySelector(".page h1");
     const pageTitle = h1 ? h1.textContent.trim() : currentPage;
 
-    const thisPage = [{page: currentPage, kind: "page", id: "", title: pageTitle}];
+    // The words under each heading come from docs-index.js, since the page's own text has extra things added to it by now
+    const indexed = typeof docsIndex === "undefined" ? [] : docsIndex.filter(entry => entry.page === currentPage);
+    const textFor = (kind, id) => indexed.find(entry => entry.kind === kind && entry.id === id)?.text;
+
+    const thisPage = [{page: currentPage, kind: "page", id: "", title: pageTitle, text: textFor("page", "")}];
     for (const heading of document.querySelectorAll(".page h2, .page h3")) {
-        thisPage.push({page: currentPage, kind: "heading", id: heading.id, title: heading.textContent.trim(), context: pageTitle});
+        thisPage.push({page: currentPage, kind: "heading", id: heading.id, title: heading.textContent.trim(), context: pageTitle, text: textFor("heading", heading.id)});
     }
     for (const entry of docsPageEntries) {
         thisPage.push({page: currentPage, ...entry, context: pageTitle});
@@ -183,6 +188,64 @@ function setUpRowClicks() {
             checkbox.checked = true;
             checkbox.dispatchEvent(new Event("change", {bubbles: true}));
         });
+    }
+}
+
+// Underlines the first use of each glossary word on the page, like "tick", with its meaning when the mouse is over it,
+// and a link to it on the Glossary page. The words and meanings come from glossary.html itself, so they're only written
+// down in one place. Words in code, links, headings, and demos are left alone.
+async function addGlossaryLinks() {
+    if (currentPage === "glossary.html" || !document.querySelector(".page")) {
+        return;
+    }
+    let html;
+    try {
+        html = await (await fetch("glossary.html")).text();
+    } catch (error) {
+        return;
+    }
+    const glossary = new DOMParser().parseFromString(html, "text/html");
+    const words = [];
+    for (const heading of glossary.querySelectorAll(".glossary h3[data-terms]")) {
+        const meaning = heading.nextElementSibling.textContent.replace(/\s+/g, " ").trim();
+        for (const term of heading.dataset.terms.split(",").map(t => t.trim())) {
+            words.push({term, id: docsSlugify(heading.textContent), meaning, entry: heading});
+        }
+    }
+    // Longer words first, so "particle system" is found before "particle"
+    words.sort((a, b) => b.term.length - a.term.length);
+
+    const used = new Set();
+    const skip = "a, code, pre, h1, h2, h3, .demo, .breadcrums, .page-nav, .copyright, .showcase, .start-cards, .pack-card";
+    for (const block of document.querySelectorAll(".page p, .page li, .page .method-info")) {
+        const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) {
+            if (!walker.currentNode.parentElement.closest(skip)) {
+                textNodes.push(walker.currentNode);
+            }
+        }
+        for (const node of textNodes) {
+            for (const word of words) {
+                if (used.has(word.entry)) {
+                    continue;
+                }
+                const match = new RegExp("\\b" + word.term.replace(/ /g, "\\s+") + "\\b", "i").exec(node.textContent);
+                if (!match) {
+                    continue;
+                }
+                used.add(word.entry);
+                const after = node.splitText(match.index);
+                after.splitText(match[0].length);
+                const link = document.createElement("a");
+                link.className = "glossary-link";
+                link.href = docsPageHref("glossary.html") + "#" + word.id;
+                link.title = word.meaning;
+                link.textContent = after.textContent;
+                after.replaceWith(link);
+                break;
+            }
+        }
     }
 }
 

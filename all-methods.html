@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Every MDog Engine method on one page, in alphabetical order.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MDog Engine Docs">
+    <meta property="og:title" content="All Methods - MDog Engine">
+    <meta property="og:description" content="Every MDog Engine method on one page, in alphabetical order. MDog Engine is made by Milo Kesteloot.">
+    <meta property="og:url" content="https://milokesteloot.github.io/MDogEngineDocs/all-methods">
+    <meta property="og:image" content="https://milokesteloot.github.io/MDogEngineDocs/assets/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="MDog Engine, a retro game engine for the web">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>All Methods - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">All Methods</div>
+
+                <h1>All Methods</h1>
+
+                <p>Every method in MDog Engine, in alphabetical order. Click one to see everything about it.</p>
+
+                <input class="method-index-filter" type="search" placeholder="Filter, like circle or Vector" aria-label="Filter the methods" autocomplete="off" spellcheck="false">
+
+                <div class="method-index"></div>
+
+                <script>
+                    // Made from docs-index.js, so it always has every method in the docs. build-index.js runs this page's
+                    // scripts without a real page, so it only runs when there is one.
+                    if (document.body) {
+                        const methods = docsIndex.filter(entry => entry.kind === "method");
+                        // Sorted by the method's own name, so "new Vector" is under V and "Vector.add" is under A
+                        const sortName = entry => entry.name.replace(/^new /, "").toLowerCase();
+                        methods.sort((a, b) => sortName(a).localeCompare(sortName(b)) || (a.owner ?? "").localeCompare(b.owner ?? ""));
+
+                        const container = document.querySelector(".method-index");
+                        let letter = null;
+                        let list = null;
+                        for (const entry of methods) {
+                            const first = sortName(entry)[0].toUpperCase();
+                            if (first !== letter) {
+                                letter = first;
+                                const group = document.createElement("div");
+                                group.className = "method-index-group";
+                                group.innerHTML = `<div class="method-index-letter">${letter}</div><div class="method-index-list"></div>`;
+                                container.appendChild(group);
+                                list = group.querySelector(".method-index-list");
+                            }
+                            // Where it's from, like "Draw" or "Vector"
+                            const from = entry.owner ?? entry.context.replace(/ Module$/, "");
+                            const name = entry.constructs ? "new " + entry.constructs : entry.name;
+                            const row = document.createElement("a");
+                            row.className = "method-index-row";
+                            row.href = docsPageHref(entry.page) + "#" + entry.id;
+                            row.dataset.search = (name + " " + from + " " + entry.description).toLowerCase();
+                            row.innerHTML = `
+                                <code class="method-index-name">${docsEscape(name)}(<span>${docsEscape((entry.params ?? []).join(", "))}</span>)</code>
+                                <span class="method-index-from">${docsEscape(from)}</span>
+                                <span class="method-index-description">${docsEscape(entry.description)}</span>`;
+                            list.appendChild(row);
+                        }
+
+                        // Filtering: every word typed has to be in the method's name, where it's from, or its description
+                        const filter = document.querySelector(".method-index-filter");
+                        filter.addEventListener("input", () => {
+                            const words = filter.value.toLowerCase().split(/\s+/).filter(Boolean);
+                            for (const group of container.querySelectorAll(".method-index-group")) {
+                                let shown = 0;
+                                for (const row of group.querySelectorAll(".method-index-row")) {
+                                    row.hidden = !words.every(word => row.dataset.search.includes(word));
+                                    shown += row.hidden ? 0 : 1;
+                                }
+                                group.hidden = shown === 0;
+                            }
+                        });
+                    }
+                </script>
+
+                <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

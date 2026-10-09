@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Free art for MDog Engine games: a warrior with 22 animations, tiles, and pixel fonts, with code to use each one.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MDog Engine Docs">
+    <meta property="og:title" content="Asset Packs - MDog Engine">
+    <meta property="og:description" content="Free art for MDog Engine games: a warrior with 22 animations, tiles, and pixel fonts, with code to use each one. MDog Engine is made by Milo Kesteloot.">
+    <meta property="og:url" content="https://milokesteloot.github.io/MDogEngineDocs/asset-packs">
+    <meta property="og:image" content="https://milokesteloot.github.io/MDogEngineDocs/assets/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="MDog Engine, a retro game engine for the web">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Asset Packs - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+    <script src="asset-packs.js"></script>
+    <script src="zip.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Asset Packs</div>
+
+                <h1>Asset Packs</h1>
+
+                <p>Art to use in your games. Everything here is already built into the <a href="playground.html">Playground</a> and the demos, so the code works there as is. For your own project, download the files and put them in your <code>assets</code> folder, keeping the same folders (see <a href="getting-started.html#files">Where Do My Files Go?</a>).</p>
+
+                <p>Each one comes with code to use it. Copy it, then change <code>x</code> and <code>y</code> to where it should be drawn.</p>
+
+                <h2 id="warrior">Warrior</h2>
+
+                <p>A warrior with a sword, with 22 animations for running, jumping, attacking, and more. The art is by Clembod, from the <a href="https://clembod.itch.io/warrior-free-animation-set">Warrior Free Animation Set</a> on itch.io.</p>
+
+                <div class="pack-download" data-pack="warrior"></div>
+
+                <p>Click an animation to see the code for it. Animations that play once, like Attack and Death, are shown on repeat here so they're easy to see. In a game, use <code>getRawFrame()</code> to tell when they're done (see <a href="draw.html#Animation.getRawFrame">Animation Methods</a>).</p>
+
+                <div class="pack-items" data-pack="warrior" data-layout="grid"></div>
+
+                <h3>Lining Her Up</h3>
+
+                <ul>
+                    <li><b>Her feet are always at y 42</b> in the picture, so draw her at <code>feetY - 42</code> to stand her on the ground.</li>
+                    <li><b>She's about 18 pixels wide</b>, starting about 18 pixels in from the left of each frame. A hitbox like <code>new MDog.Basics.SquareKickbox(position, 0, 0, 14, 30)</code>, with the picture drawn 19 pixels to the left of it, fits her well (the <a href="tutorial.html#4-the-warrior">Tutorial</a> does this).</li>
+                    <li><b>Some animations are 69 pixels wide</b> instead of 64 (Crouch, Dash, Dash Attack, Slide, Wall Slide, Edge Grab, Edge Idle, and Ladder Grab). The extra space is on the right, so she lines up with the others as is. When she's flipped with <code>flipX</code>, draw those 5 pixels further left.</li>
+                    <li><b>Some animations come in two versions</b>, with and without dust or effects, so the effects can be left off or made with <a href="fx.html">particles</a> instead.</li>
+                </ul>
+
+                <details class="pack-section">
+                    <summary>Try them together</summary>
+
+                <p>Here are a few of her animations in one game. Move with the arrow keys, jump with up, crouch with down, and attack with space.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 144,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "],
+                        code: `
+                            const Keyboard = MDog.Input.Keyboard;
+                            const Animation = MDog.Draw.MultipleFileAnimation;
+
+                            const idle = new Animation("warrior/Idle/Warrior_Idle_?.png", 6, 8);
+                            const run = new Animation("warrior/Run/Warrior_Run_?.png", 8, 12);
+                            const jump = new Animation("warrior/Jump/Warrior_Jump_?.png", 3, 10);
+                            const fall = new Animation("warrior/Fall/Warrior_Fall_?.png", 3, 10);
+                            const attack = new Animation("warrior/Attack/Warrior_Attack_?.png", 12, 16);
+                            const crouch = new Animation("warrior/Crouch/Warrior_Crouch_?.png", 5, 12);
+
+                            const groundY = 120;
+                            let x = 96;
+                            let y = groundY;
+                            let speedY = 0;
+                            let facingLeft = false;
+                            let attacking = false;
+
+                            function main() {
+                                const onGround = y >= groundY;
+
+                                // Space starts an attack, which plays all the way through before anything else
+                                if (Keyboard.isClicked(" ") && !attacking) {
+                                    attacking = true;
+                                    attack.reset();
+                                }
+
+                                // Crouching, moving, and jumping
+                                const crouching = Keyboard.isDown("ArrowDown") && onGround && !attacking;
+                                if (!crouching) {
+                                    crouch.reset();
+                                }
+                                let moving = false;
+                                if (!attacking && !crouching) {
+                                    if (Keyboard.isDown("ArrowLeft")) {
+                                        x -= 0.7;
+                                        facingLeft = true;
+                                        moving = true;
+                                    }
+                                    if (Keyboard.isDown("ArrowRight")) {
+                                        x += 0.7;
+                                        facingLeft = false;
+                                        moving = true;
+                                    }
+                                    if (Keyboard.isClicked("ArrowUp") && onGround) {
+                                        speedY = -2.4;
+                                    }
+                                }
+                                x = Math.max(-16, Math.min(x, 218));
+                                speedY += 0.06;
+                                y = Math.min(y + speedY, groundY);
+                                if (y === groundY) {
+                                    speedY = 0;
+                                }
+
+                                // Which animation to show
+                                let animation = idle;
+                                if (attacking) {
+                                    animation = attack;
+                                } else if (!onGround) {
+                                    animation = speedY < 0 ? jump : fall;
+                                } else if (crouching) {
+                                    animation = crouch;
+                                } else if (moving) {
+                                    animation = run;
+                                }
+
+                                MDog.Draw.clear({color: "#87b8e8"});
+                                MDog.Draw.rectangleFill(0, groundY, 256, 24, "#4a8f42");
+
+                                // Her feet are at y 42 in every frame. Crouch is 5 pixels wider than the others, on the
+                                // right, so it's moved over when she's flipped to face left.
+                                const left = Math.floor(x) - (facingLeft && animation === crouch ? 5 : 0);
+                                // Crouch holds on its last frame instead of looping
+                                const holding = animation === crouch && crouch.getRawFrame() >= 4;
+                                MDog.Draw.animation(animation, left, Math.floor(y) - 42, {flipX: facingLeft, update: !holding});
+
+                                if (attacking && attack.getRawFrame() >= 12) {
+                                    attacking = false;
+                                }
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+                </details>
+
+                <h2 id="tiles">Tiles</h2>
+
+                <p>Four 16 by 16 tiles in one row, for <a href="ui.html#tilemapinteractable">tilemaps</a>: grass is <code>0</code>, dirt is <code>1</code>, stone is <code>2</code>, and water is <code>3</code>. The <a href="guide-levels.html">Levels From a File</a> guide uses them.</p>
+
+                <div class="pack-items" data-pack="tiles"></div>
+
+                <h2 id="fonts">Fonts</h2>
+
+                <p>The two pixel fonts <a href="draw.html#textImage"><code>textImage()</code></a> can draw with. They have letters, numbers, and <code class="no-link">!~-.,?[]/:*'"&lt;&gt;_</code>. Any other character is left as a space.</p>
+
+                <div class="pack-items" data-pack="fonts"></div>
+
+                <script>
+                    // Fills in the packs from asset-packs.js. build-index.js runs this page's scripts without a real page,
+                    // so it only runs when there is one.
+                    if (document.body) {
+                        mdogRenderAssetPacks();
+                    }
+                </script>
+
+                <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

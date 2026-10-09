@@ -114,6 +114,29 @@ function main() {
                         },
                         {
                             name: "threeDeeToTwoDee",
+                            demo: {
+                                code: `
+                                const camera = new MDog.ThreeDee.Camera(0, 0, 0, 40);
+                                const scene = new MDog.ThreeDee.ThreeDeeScene(camera);
+                                scene.addObject(new MDog.ThreeDee.ThreeDeeFloor(5, 60, 1, "#3f7d3a"));
+                                let t = 0;
+
+                                function main() {
+                                    t += 0.01;
+
+                                    // A point going around in a circle on the floor, and where it is on the screen
+                                    const x = Math.cos(t) * 6;
+                                    const z = 12 + Math.sin(t) * 6;
+                                    const spot = scene.threeDeeToTwoDee(MDog.Draw, x, 5, z);
+
+                                    MDog.Draw.clear({color: "#87b8e8"});
+                                    MDog.Draw.threeDeeScene(scene);
+                                    MDog.Draw.circle(spot.x, spot.y, 3, "#ff5566");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Turns a 3D position into a screen position.",
                             details: "Finds where a 3D position would be drawn on the screen.",
                             parameters: [
@@ -143,6 +166,45 @@ function main() {
                     methodsTable([
                         {
                             name: "new Camera",
+                            demo: {
+                                keys: ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"],
+                                code: `
+                                const Keyboard = MDog.Input.Keyboard;
+                                const camera = new MDog.ThreeDee.Camera(0, 0, 0, 40);
+
+                                function main() {
+                                    // Left and right move sideways, and up and down move forward and back
+                                    if (Keyboard.isDown("ArrowLeft")) {
+                                        camera.position.x -= 0.1;
+                                    }
+                                    if (Keyboard.isDown("ArrowRight")) {
+                                        camera.position.x += 0.1;
+                                    }
+                                    if (Keyboard.isDown("ArrowUp")) {
+                                        camera.position.z += 0.1;
+                                    }
+                                    if (Keyboard.isDown("ArrowDown")) {
+                                        camera.position.z -= 0.1;
+                                    }
+
+                                    // Posts in rows, added farthest first so the near ones are drawn on top
+                                    const scene = new MDog.ThreeDee.ThreeDeeScene(camera);
+                                    scene.addObject(new MDog.ThreeDee.ThreeDeeFloor(5, 100, camera.getZ() + 0.5, "#3f7d3a"));
+                                    for (let z = 40; z >= 8; z -= 8) {
+                                        for (const x of [-8, 0, 8]) {
+                                            if (z > camera.getZ() + 1) {
+                                                scene.addObject(new MDog.ThreeDee.ThreeDeeRectangle(z, x - 1, -2, x + 1, 5, "#c8a060"));
+                                            }
+                                        }
+                                    }
+
+                                    MDog.Draw.clear({color: "#87b8e8"});
+                                    MDog.Draw.threeDeeScene(scene);
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Makes a new camera.",
                             parameters: [
                                 ["x, y, z", "The position of the camera."],
@@ -211,6 +273,27 @@ function main() {
                         },
                         {
                             name: "new ThreeDeeFloor",
+                            demo: {
+                                code: `
+                                const camera = new MDog.ThreeDee.Camera(0, 0, 0, 40);
+
+                                function main() {
+                                    camera.position.z += 0.08;
+
+                                    // Stripes of floor 5 below the camera, from far to near, in two colors
+                                    const scene = new MDog.ThreeDee.ThreeDeeScene(camera);
+                                    const near = camera.getZ() + 1;
+                                    for (let z = Math.floor(camera.getZ() / 2) * 2 + 40; z > near; z -= 2) {
+                                        scene.addObject(new MDog.ThreeDee.ThreeDeeFloor(5, z, Math.max(z - 2, near), z % 4 === 0 ? "#4a8f42" : "#3f7d3a"));
+                                    }
+
+                                    MDog.Draw.clear({color: "#87b8e8"});
+                                    MDog.Draw.threeDeeScene(scene);
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Makes a floor.",
                             details: "Makes a flat floor that goes across the whole width of the screen.",
                             parameters: [
@@ -223,6 +306,29 @@ function main() {
                         },
                         {
                             name: "new ThreeDeeShape",
+                            demo: {
+                                code: `
+                                const camera = new MDog.ThreeDee.Camera(0, 0, 0, 60);
+                                let angle = 0;
+
+                                function main() {
+                                    angle += 0.02;
+
+                                    // A square that spins around, 10 in front of the camera
+                                    const points = [];
+                                    for (const [x, y] of [[-3, -3], [3, -3], [3, 3], [-3, 3]]) {
+                                        points.push(new MDog.Math.Vector3(Math.cos(angle) * x, y + 5, 10 + Math.sin(angle) * x));
+                                    }
+                                    const scene = new MDog.ThreeDee.ThreeDeeScene(camera);
+                                    scene.addObject(new MDog.ThreeDee.ThreeDeeShape(points, "#3466b0", {stroke: "#88ccff"}));
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.threeDeeScene(scene);
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Makes a polygon.",
                             details: "Makes a filled-in polygon from 3D points.",
                             parameters: [

@@ -32,7 +32,7 @@ html {
     align-items: center;
     justify-content: center;
     border: 3px dashed var(--accent);
-    background-color: rgba(27, 28, 31, 0.85);
+    background-color: color-mix(in srgb, var(--bg) 85%, transparent);
     color: var(--accent);
     font-size: 22px;
     pointer-events: none;
@@ -222,7 +222,7 @@ html {
 
 .pg-call-hint code {
     margin-right: 8px;
-    color: #dcdcaa;
+    color: var(--tok-function);
 }
 
 .pg-call-hint b {
@@ -493,7 +493,7 @@ html {
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-small);
     outline: none;
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: var(--input-bg);
     color: var(--text);
     font-family: var(--font-mono) !important;
     font-size: 13px;
@@ -515,7 +515,7 @@ html {
 
 .pg-watch-name {
     flex-shrink: 0;
-    color: #9cdcfe;
+    color: var(--tok-variable);
 }
 
 .pg-watch-value {
@@ -587,8 +587,8 @@ html {
 }
 
 .pg-log-warn {
-    background-color: rgba(255, 200, 80, 0.07);
-    color: #ffd27f;
+    background-color: var(--warn-bg);
+    color: var(--warn-text);
 }
 
 .pg-log-error {
@@ -657,6 +657,43 @@ html {
     grid-column: 1 / -1;
     color: var(--text-faint);
     font-size: 13px;
+}
+
+/* Each built-in pack opens and closes */
+.pg-builtin-pack {
+    margin: 0 14px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.pg-builtin-pack > summary {
+    padding: 6px 10px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.pg-builtin-pack > summary span {
+    margin-left: 4px;
+    color: var(--text-faint);
+    font-weight: normal;
+}
+
+.pg-builtin-pack .pg-asset-list {
+    padding: 4px 8px 8px;
+}
+
+.pg-builtin-credit {
+    margin: 0;
+    padding: 0 10px 4px;
+    color: var(--text-faint);
+    font-size: 12px;
+}
+
+.pg-builtin-credit a {
+    color: var(--accent);
 }
 
 /* The files as tiles, each with a picture */
@@ -933,8 +970,8 @@ html {
 .pg-share-body .pg-share-warning {
     padding: 8px 12px;
     border-radius: var(--radius-small);
-    background-color: rgba(255, 200, 80, 0.1);
-    color: #ffd27f;
+    background-color: var(--warn-bg);
+    color: var(--warn-text);
 }
 
 .pg-share-row {
@@ -948,7 +985,7 @@ html {
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-small);
     outline: none;
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: var(--input-bg);
     color: var(--text);
     font-family: var(--font-mono) !important;
     font-size: 12px;
@@ -1036,7 +1073,7 @@ html {
     border: 1px solid var(--accent);
     border-radius: var(--radius-small);
     outline: none;
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: var(--input-bg);
     color: var(--text);
     font-family: var(--font-mono) !important;
     font-size: 12px;
@@ -1120,7 +1157,7 @@ html {
     border: 1px solid var(--accent);
     border-radius: var(--radius-small);
     outline: none;
-    background-color: rgba(255, 255, 255, 0.04);
+    background-color: var(--input-bg);
     color: var(--text);
 }
 

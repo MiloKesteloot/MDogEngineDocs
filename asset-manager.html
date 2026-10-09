@@ -53,6 +53,29 @@ function main() {
                     methodsTable([
                         {
                             name: "loadFile",
+                            demo: {
+                                width: 300,
+                                height: 84,
+                                code: `
+                                MDog.AssetManager.loadFile("levels/level1.csv", "level");
+
+                                function main() {
+                                    MDog.Draw.clear();
+                                    if (!MDog.AssetManager.doneLoading()) {
+                                        MDog.Draw.textImage("Loading...", 4, 4, "#ffffff", "fonts/marsfont.png");
+                                        return;
+                                    }
+
+                                    // The file's text, one line at a time
+                                    const lines = MDog.AssetManager.get("level").trim().split("\\n");
+                                    for (let i = 0; i < lines.length; i++) {
+                                        MDog.Draw.textImage(lines[i], 4, 4 + i * 8, "#88ccff", "fonts/marsfont.png");
+                                    }
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Starts loading a text file.",
                             details: "Starts loading a text file, and saves it under a name once it's loaded.",
                             parameters: [

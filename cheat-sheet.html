@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="The MDog Engine code you'll use the most, on one page.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MDog Engine Docs">
+    <meta property="og:title" content="Cheat Sheet - MDog Engine">
+    <meta property="og:description" content="The MDog Engine code you'll use the most, on one page. MDog Engine is made by Milo Kesteloot.">
+    <meta property="og:url" content="https://milokesteloot.github.io/MDogEngineDocs/cheat-sheet">
+    <meta property="og:image" content="https://milokesteloot.github.io/MDogEngineDocs/assets/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="MDog Engine, a retro game engine for the web">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Cheat Sheet - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page cheat-sheet-page">
+
+                <div class="breadcrums">Cheat Sheet</div>
+
+                <h1>Cheat Sheet</h1>
+
+                <p>The code you'll use the most, on one page. For everything a method can do, search for it, or see its page under Engine in the sidebar. This page also prints nicely, to keep next to your keyboard.</p>
+
+                <div class="cheat-sheet">
+
+                    <section>
+                        <h2>Starting a Game</h2>
+                        <pre><code>import MDog from "https://cdn.jsdelivr.net/gh/MiloKesteloot/MDogEngine@v1.4.0/MDogModules/MDogMain.js";
+
+MDog.Draw.setScreenSize(256, 192);  // Optional, 512 by 384 if not
+
+function main() {
+    // Runs 160 times per second
+}
+
+MDog.setActiveFunction(main);</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Drawing</h2>
+                        <pre><code>MDog.Draw.clear({color: "#1c1c3c"});
+MDog.Draw.rectangleFill(x, y, width, height, "#ff8800");
+MDog.Draw.rectangle(x, y, width, height, "#ffffff");
+MDog.Draw.circle(x, y, radius, "#ffcc33");
+MDog.Draw.line(x1, y1, x2, y2, "#88ccff");
+MDog.Draw.point(x, y, "#ffffff");
+MDog.Draw.image("player.png", x, y, {flipX: true});</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Text</h2>
+                        <pre><code>MDog.Draw.textImage("Score: " + score, x, y, "#ffffff",
+    "fonts/marsfont.png", {size: 2, alignX: "center"});</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Animations</h2>
+                        <pre><code>// Files run_1.png, run_2.png, ... at 12 frames per second
+const run = new MDog.Draw.MultipleFileAnimation("run_?.png", 8, 12);
+// Or every frame in one 16 pixel wide strip
+const walk = new MDog.Draw.SpriteSheetAnimation("walk.png", 6, 10, 16);
+
+MDog.Draw.animation(run, x, y, {flipX: facingLeft});
+run.reset();          // Back to the start
+run.getRawFrame();    // Frames shown so far</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Keyboard</h2>
+                        <pre><code>const Keyboard = MDog.Input.Keyboard;
+Keyboard.isDown("ArrowLeft")    // Held down
+Keyboard.isClicked(" ")         // Just pressed (space)
+// Keys: "a", "1", " ", "ArrowUp", "Shift", "Enter", "Escape"</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Mouse</h2>
+                        <pre><code>const Mouse = MDog.Input.Mouse;
+Mouse.getX(), Mouse.getY()   // In art pixels
+Mouse.getClick()             // Just pressed
+Mouse.getDown()              // Held down
+Mouse.getClick(2)            // Right button</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Vectors</h2>
+                        <pre><code>const position = new MDog.Math.Vector(10, 20);
+position.add(1, 0);           // Changes it, and gives it back
+position.add(velocity);
+const copy = position.clone();
+position.length();
+position.distanceTo(enemy);
+velocity.normalize().multiply(2);
+MDog.Math.lerp(start, end, 0.1);</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Collisions</h2>
+                        <pre><code>// A 16 by 16 hitbox that moves with position
+const box = new MDog.Basics.SquareKickbox(position, 0, 0, 16, 16);
+if (box.colliding(otherBox)) {
+    // Touching
+}
+box.getLeftX(), box.getRightX(), box.getTopY(), box.getBottomY()</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Layers and the Camera</h2>
+                        <pre><code>MDog.Draw.circle(x, y, 5, "#fff", {layer: 1});  // On top of layer 0
+MDog.Draw.translate(-cameraX, 0);  // Shift what's drawn next
+MDog.Draw.translate(0, 0);         // Back to normal</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Particles</h2>
+                        <pre><code>const sparks = new MDog.FX.ParticleSystem();
+sparks.addParticle(new MDog.FX.ChunkParticle(x, y, 60, "#ffcc00", vx, vy, {gy: 0.05}));
+sparks.update();                         // Every tick
+MDog.Draw.particleSystem(sparks);</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Switching Screens</h2>
+                        <pre><code>function title() {
+    if (MDog.Input.Keyboard.isClicked(" ")) {
+        MDog.setActiveFunction(game);
+    }
+}
+MDog.setActiveFunction(title);</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Timing</h2>
+                        <pre><code>// 160 ticks is one second
+if (cooldown > 0) {
+    cooldown--;
+}
+if (ticks % 160 === 0) {
+    // Once a second
+}</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Loading Files</h2>
+                        <pre><code>MDog.AssetManager.loadFile("levels/level1.csv", "level1");
+if (MDog.AssetManager.doneLoading()) {
+    const text = MDog.AssetManager.get("level1");
+}</code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Saving</h2>
+                        <pre><code>// Load, or 0 the first time
+let best = Number(localStorage.getItem("my-game-best") ?? 0);
+// Save
+localStorage.setItem("my-game-best", best);</code></pre>
+                    </section>
+
+                </div>
+
+                <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

@@ -214,6 +214,23 @@
                     methodsTable([
                         {
                             name: "requestStyle",
+                            demo: {
+                                code: `
+                                function main() {
+                                    const Mouse = MDog.Input.Mouse;
+
+                                    // Over the button, the cursor is a pointing hand
+                                    const over = Mouse.getX() >= 40 && Mouse.getX() < 120 && Mouse.getY() >= 45 && Mouse.getY() < 75;
+                                    Mouse.requestStyle(over ? "pointer" : "auto");
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.rectangleFill(40, 45, 80, 30, over ? "#4a7ac0" : "#3466b0");
+                                    MDog.Draw.textImage("Button", 80, 57, "#ffffff", "fonts/marsfont.png", {alignX: "center"});
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Sets the cursor style.",
                             details: "Sets what the mouse cursor looks like over the game. The new style is put in place at the end of the tick.",
                             parameters: [
@@ -237,11 +254,59 @@
                         },
                         {
                             name: "hide",
+                            demo: {
+                                code: `
+                                // The game draws its own crosshair instead of the mouse cursor
+                                MDog.Input.Mouse.hide();
+
+                                function main() {
+                                    const Mouse = MDog.Input.Mouse;
+                                    const x = Mouse.getX();
+                                    const y = Mouse.getY();
+
+                                    MDog.Draw.clear({color: "#203040"});
+                                    // Only while the mouse is over the game
+                                    if (Mouse.getOnScreen()) {
+                                        MDog.Draw.line(x - 7, y, x - 3, y, "#ffcc33");
+                                        MDog.Draw.line(x + 3, y, x + 7, y, "#ffcc33");
+                                        MDog.Draw.line(x, y - 7, x, y - 3, "#ffcc33");
+                                        MDog.Draw.line(x, y + 3, x, y + 7, "#ffcc33");
+                                    }
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Hides the cursor.",
                             details: "Hides the mouse cursor over the game.",
                         },
                         {
                             name: "disableContextMenu",
+                            demo: {
+                                code: `
+                                // The right mouse button paints too, without the browser's menu popping up
+                                MDog.Input.Mouse.disableContextMenu();
+                                const paint = [];
+
+                                function main() {
+                                    const Mouse = MDog.Input.Mouse;
+                                    if (Mouse.getDown(0)) {
+                                        paint.push([Mouse.getX(), Mouse.getY(), "#ffcc33"]);
+                                    }
+                                    if (Mouse.getDown(2)) {
+                                        paint.push([Mouse.getX(), Mouse.getY(), "#ff5566"]);
+                                    }
+
+                                    MDog.Draw.clear({color: "#203040"});
+                                    for (const [x, y, color] of paint) {
+                                        MDog.Draw.rectangleFill(x - 1, y - 1, 3, 3, color);
+                                    }
+                                    MDog.Draw.textImage("Left and right click", 4, 4, "#ffffff", "fonts/marsfont.png");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Turns off the right click menu.",
                             details: "Stops the browser's right click menu from opening over the game. This is useful for games that use the right mouse button.",
                         },

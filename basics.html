@@ -54,6 +54,32 @@ if (hitbox.colliding(enemyHitbox)) {
                     methodsTable([
                         {
                             name: "new SquareKickbox",
+                            demo: {
+                                keys: ["ArrowLeft","ArrowRight"],
+                                code: `
+                                const idle = new MDog.Draw.MultipleFileAnimation("warrior/Idle/Warrior_Idle_?.png", 6, 8);
+                                const position = new MDog.Math.Vector(70, 52);
+                                // The hitbox is just her body, smaller than her picture
+                                const box = new MDog.Basics.SquareKickbox(position, 0, 0, 14, 30);
+
+                                function main() {
+                                    if (MDog.Input.Keyboard.isDown("ArrowLeft")) {
+                                        position.x -= 0.5;
+                                    }
+                                    if (MDog.Input.Keyboard.isDown("ArrowRight")) {
+                                        position.x += 0.5;
+                                    }
+
+                                    MDog.Draw.clear({color: "#203040"});
+                                    MDog.Draw.rectangleFill(0, 82, 160, 38, "#3a5a40");
+                                    // Her picture is drawn up and to the left of the hitbox, so her feet line up with its bottom
+                                    MDog.Draw.animation(idle, box.getLeftX() - 19, box.getTopY() - 13);
+                                    MDog.Draw.rectangle(box.getLeftX(), box.getTopY(), box.getWidth(), box.getHeight(), "#ff5566");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Makes a new kickbox.",
                             parameters: [
                                 ["vector", "The position <code>Vector</code> the kickbox is attached to."],

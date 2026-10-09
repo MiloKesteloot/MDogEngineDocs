@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Make a space shooter with MDog Engine, step by step: bullets, cooldowns, enemy waves, and explosions.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MDog Engine Docs">
+    <meta property="og:title" content="Tutorial: Make a Space Shooter - MDog Engine">
+    <meta property="og:description" content="Make a space shooter with MDog Engine, step by step: bullets, cooldowns, enemy waves, and explosions. MDog Engine is made by Milo Kesteloot.">
+    <meta property="og:url" content="https://milokesteloot.github.io/MDogEngineDocs/tutorial-shooter">
+    <meta property="og:image" content="https://milokesteloot.github.io/MDogEngineDocs/assets/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="MDog Engine, a retro game engine for the web">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Tutorial: Make a Space Shooter - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Tutorials</div>
+
+                <h1>Make a Space Shooter</h1>
+
+                <p>In this tutorial you'll make a space shooter: a ship that flies over moving stars, shoots, and fights waves of enemies that shoot back, with explosions, lives, and a title screen.</p>
+
+                <p>It works like the <a href="tutorial.html">platformer tutorial</a>: every step has a game you can play, with its code right under it. Change the code and press Run to try it, or Reset code to put it back. If you haven't made a game with MDog Engine before, start with that one first.</p>
+
+                <p>In these boxes, MDog Engine is already imported and the screen is set to 256 by 192. In your own game, start with the import line from <a href="getting-started.html">Getting Started</a>.</p>
+
+                <h2>1. A Ship and Stars</h2>
+
+                <p>The ship sits near the bottom of the screen and slides left and right. Its position is a <code>Vector</code> for its middle, and it's drawn as a triangle with <code>polygonFill()</code>, which takes a list of corners.</p>
+
+                <p>The stars are what make it feel like flying. Each star is a small object with a position and a speed, and every tick they all move down. A star that falls off the bottom goes back to the top at a new spot, so there are always stars. Fast stars are drawn brighter, so they look closer.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight"],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const Keyboard = MDog.Input.Keyboard;
+
+                            // The middle of the ship
+                            const ship = new Vector(128, 170);
+
+                            // Each star has a position and a speed
+                            const stars = [];
+                            for (let i = 0; i < 50; i++) {
+                                stars.push({x: Math.random() * 256, y: Math.random() * 192, speed: 0.1 + Math.random() * 0.4});
+                            }
+
+                            function main() {
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    ship.x -= 0.9;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    ship.x += 0.9;
+                                }
+                                // Keep the ship on the screen
+                                ship.x = Math.max(8, Math.min(ship.x, 248));
+
+                                // Stars fall, and go back to the top after they leave the bottom
+                                for (const star of stars) {
+                                    star.y += star.speed;
+                                    if (star.y > 192) {
+                                        star.y = 0;
+                                        star.x = Math.random() * 256;
+                                    }
+                                }
+
+                                MDog.Draw.clear({color: "#0b0d1a"});
+                                for (const star of stars) {
+                                    MDog.Draw.point(Math.floor(star.x), Math.floor(star.y), star.speed > 0.35 ? "#ffffff" : "#5c6699");
+                                }
+                                drawShip();
+                            }
+
+                            function drawShip() {
+                                const x = Math.floor(ship.x);
+                                const y = Math.floor(ship.y);
+                                // A flickering flame, then the ship's body and window
+                                MDog.Draw.rectangleFill(x - 2, y + 6, 5, 2 + Math.floor(Math.random() * 3), "#ff9933");
+                                MDog.Draw.polygonFill([new Vector(x, y - 8), new Vector(x + 7, y + 6), new Vector(x - 7, y + 6)], "#66ccff");
+                                MDog.Draw.rectangleFill(x - 1, y - 2, 3, 4, "#ffffff");
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try making 200 stars, or making them fall faster.</p>
+
+                <h2>2. Shooting</h2>
+
+                <p>Each bullet is a <code>Vector</code> in a list. Pressing space adds one at the tip of the ship, and every tick each bullet moves up. Bullets that leave the top of the screen are taken out of the list, so it doesn't fill up forever.</p>
+
+                <p>Holding space keeps shooting, but not every tick, or it would be a solid laser. A <b>cooldown</b> counts down after each shot, and the ship can only shoot again once it's at 0. Here it's 20 ticks, so 8 shots a second (see <a href="guide-timers.html">Timers and Cooldowns</a>).</p>
+
+                <p>The loop that moves the bullets goes backwards through the list. Taking something out of a list moves everything after it back by one, and going backwards means those are things the loop has already looked at.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", " "],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const Keyboard = MDog.Input.Keyboard;
+
+                            const ship = new Vector(128, 170);
+                            const stars = [];
+                            for (let i = 0; i < 50; i++) {
+                                stars.push({x: Math.random() * 256, y: Math.random() * 192, speed: 0.1 + Math.random() * 0.4});
+                            }
+
+                            const bullets = [];
+                            // Ticks until the ship can shoot again
+                            let cooldown = 0;
+
+                            function main() {
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    ship.x -= 0.9;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    ship.x += 0.9;
+                                }
+                                ship.x = Math.max(8, Math.min(ship.x, 248));
+
+                                // Shoot while space is held, once every 20 ticks
+                                if (cooldown > 0) {
+                                    cooldown--;
+                                }
+                                if (Keyboard.isDown(" ") && cooldown === 0) {
+                                    bullets.push(new Vector(ship.x, ship.y - 8));
+                                    cooldown = 20;
+                                }
+
+                                // Move the bullets up, and take out the ones that left the screen
+                                for (let i = bullets.length - 1; i >= 0; i--) {
+                                    bullets[i].y -= 2.5;
+                                    if (bullets[i].y < -6) {
+                                        bullets.splice(i, 1);
+                                    }
+                                }
+
+                                moveStars();
+
+                                MDog.Draw.clear({color: "#0b0d1a"});
+                                drawStars();
+                                for (const bullet of bullets) {
+                                    MDog.Draw.rectangleFill(Math.floor(bullet.x) - 1, Math.floor(bullet.y), 2, 5, "#ffee66");
+                                }
+                                drawShip();
+                            }
+
+                            function moveStars() {
+                                for (const star of stars) {
+                                    star.y += star.speed;
+                                    if (star.y > 192) {
+                                        star.y = 0;
+                                        star.x = Math.random() * 256;
+                                    }
+                                }
+                            }
+
+                            function drawStars() {
+                                for (const star of stars) {
+                                    MDog.Draw.point(Math.floor(star.x), Math.floor(star.y), star.speed > 0.35 ? "#ffffff" : "#5c6699");
+                                }
+                            }
+
+                            function drawShip() {
+                                const x = Math.floor(ship.x);
+                                const y = Math.floor(ship.y);
+                                MDog.Draw.rectangleFill(x - 2, y + 6, 5, 2 + Math.floor(Math.random() * 3), "#ff9933");
+                                MDog.Draw.polygonFill([new Vector(x, y - 8), new Vector(x + 7, y + 6), new Vector(x - 7, y + 6)], "#66ccff");
+                                MDog.Draw.rectangleFill(x - 1, y - 2, 3, 4, "#ffffff");
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try changing the cooldown to 5, or shooting two bullets at once, one from each wing.</p>
+
+                <h2>3. Enemies</h2>
+
+                <p>Now there's something to shoot. Every 70 ticks, an enemy appears above the screen at a random spot and drifts down.</p>
+
+                <p>To tell when a bullet hits an enemy, both get a kickbox, which is MDog Engine's name for a hitbox (see <a href="basics.html">Basics</a>). A <code>SquareKickbox</code> is a rectangle attached to a <code>Vector</code>, so it moves along with it. Each bullet and enemy is now an object with a <code>position</code> and a <code>box</code>, made by <code>makeBullet()</code> and <code>makeEnemy()</code>. When a bullet's box is <code>colliding()</code> with an enemy's, both are taken out and the score goes up.</p>
+
+                <p>The score is drawn with <code>textImage()</code> and the <code>marsfont.png</code> pixel font. In your own game, the font image goes in your assets folder (see <a href="getting-started.html#fonts">Add Text</a>).</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", " "],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const font = "fonts/marsfont.png";
+
+                            const ship = new Vector(128, 170);
+                            const stars = [];
+                            for (let i = 0; i < 50; i++) {
+                                stars.push({x: Math.random() * 256, y: Math.random() * 192, speed: 0.1 + Math.random() * 0.4});
+                            }
+
+                            const bullets = [];
+                            let cooldown = 0;
+                            const enemies = [];
+                            // Ticks until the next enemy appears
+                            let spawnTimer = 0;
+                            let score = 0;
+
+                            // A bullet is 2 by 5, and an enemy is 14 by 10, around their middles
+                            function makeBullet(x, y) {
+                                const position = new Vector(x, y);
+                                return {position, box: new SquareKickbox(position, -1, 0, 1, 5)};
+                            }
+
+                            function makeEnemy(x, y) {
+                                const position = new Vector(x, y);
+                                return {position, box: new SquareKickbox(position, -7, -5, 7, 5)};
+                            }
+
+                            function main() {
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    ship.x -= 0.9;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    ship.x += 0.9;
+                                }
+                                ship.x = Math.max(8, Math.min(ship.x, 248));
+
+                                if (cooldown > 0) {
+                                    cooldown--;
+                                }
+                                if (Keyboard.isDown(" ") && cooldown === 0) {
+                                    bullets.push(makeBullet(ship.x, ship.y - 8));
+                                    cooldown = 20;
+                                }
+                                for (let i = bullets.length - 1; i >= 0; i--) {
+                                    bullets[i].position.y -= 2.5;
+                                    if (bullets[i].position.y < -6) {
+                                        bullets.splice(i, 1);
+                                    }
+                                }
+
+                                // A new enemy every 70 ticks, somewhere along the top
+                                spawnTimer--;
+                                if (spawnTimer <= 0) {
+                                    enemies.push(makeEnemy(16 + Math.random() * 224, -8));
+                                    spawnTimer = 70;
+                                }
+                                for (let i = enemies.length - 1; i >= 0; i--) {
+                                    enemies[i].position.y += 0.35;
+                                    if (enemies[i].position.y > 200) {
+                                        enemies.splice(i, 1);
+                                    }
+                                }
+
+                                // Take out every enemy that a bullet hits, and that bullet
+                                for (let i = enemies.length - 1; i >= 0; i--) {
+                                    for (let j = bullets.length - 1; j >= 0; j--) {
+                                        if (bullets[j].box.colliding(enemies[i].box)) {
+                                            enemies.splice(i, 1);
+                                            bullets.splice(j, 1);
+                                            score++;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                moveStars();
+
+                                MDog.Draw.clear({color: "#0b0d1a"});
+                                drawStars();
+                                for (const enemy of enemies) {
+                                    drawEnemy(enemy);
+                                }
+                                for (const bullet of bullets) {
+                                    MDog.Draw.rectangleFill(bullet.box.getLeftX(), bullet.box.getTopY(), 2, 5, "#ffee66");
+                                }
+                                drawShip();
+                                MDog.Draw.textImage("Score: " + score, 6, 6, "#ffffff", font);
+                            }
+
+                            function drawEnemy(enemy) {
+                                const x = Math.floor(enemy.position.x);
+                                const y = Math.floor(enemy.position.y);
+                                MDog.Draw.rectangleFill(x - 7, y - 2, 14, 5, "#ff5577");
+                                MDog.Draw.rectangleFill(x - 4, y - 5, 8, 10, "#ff5577");
+                                MDog.Draw.rectangleFill(x - 3, y - 1, 2, 2, "#1a0b14");
+                                MDog.Draw.rectangleFill(x + 1, y - 1, 2, 2, "#1a0b14");
+                            }
+
+                            function moveStars() {
+                                for (const star of stars) {
+                                    star.y += star.speed;
+                                    if (star.y > 192) {
+                                        star.y = 0;
+                                        star.x = Math.random() * 256;
+                                    }
+                                }
+                            }
+
+                            function drawStars() {
+                                for (const star of stars) {
+                                    MDog.Draw.point(Math.floor(star.x), Math.floor(star.y), star.speed > 0.35 ? "#ffffff" : "#5c6699");
+                                }
+                            }
+
+                            function drawShip() {
+                                const x = Math.floor(ship.x);
+                                const y = Math.floor(ship.y);
+                                MDog.Draw.rectangleFill(x - 2, y + 6, 5, 2 + Math.floor(Math.random() * 3), "#ff9933");
+                                MDog.Draw.polygonFill([new Vector(x, y - 8), new Vector(x + 7, y + 6), new Vector(x - 7, y + 6)], "#66ccff");
+                                MDog.Draw.rectangleFill(x - 1, y - 2, 3, 4, "#ffffff");
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>The <code>break</code> stops checking bullets once one has hit, since that enemy is gone. Try making the enemies come faster, or making them wider.</p>
+
+                <h2>4. Explosions</h2>
+
+                <p>Enemies just disappearing doesn't feel like much. Now each one explodes into a burst of particles from the <a href="fx.html">FX Module</a>: square chunks in fire colors flying out in every direction. Each chunk's direction is a <code>Vector</code> turned a random amount with <code>rotate()</code>.</p>
+
+                <p>The screen also shakes for a moment. <code>translate()</code> shifts everything drawn after it, so shifting by a small random amount each tick makes the screen shake. The score is drawn after <code>translate(0, 0)</code>, so it stays still.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", " "],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const font = "fonts/marsfont.png";
+
+                            const ship = new Vector(128, 170);
+                            const stars = [];
+                            for (let i = 0; i < 50; i++) {
+                                stars.push({x: Math.random() * 256, y: Math.random() * 192, speed: 0.1 + Math.random() * 0.4});
+                            }
+
+                            const bullets = [];
+                            let cooldown = 0;
+                            const enemies = [];
+                            let spawnTimer = 0;
+                            let score = 0;
+
+                            const particles = new MDog.FX.ParticleSystem();
+                            // Ticks left of shaking
+                            let shake = 0;
+
+                            function makeBullet(x, y) {
+                                const position = new Vector(x, y);
+                                return {position, box: new SquareKickbox(position, -1, 0, 1, 5)};
+                            }
+
+                            function makeEnemy(x, y) {
+                                const position = new Vector(x, y);
+                                return {position, box: new SquareKickbox(position, -7, -5, 7, 5)};
+                            }
+
+                            function main() {
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    ship.x -= 0.9;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    ship.x += 0.9;
+                                }
+                                ship.x = Math.max(8, Math.min(ship.x, 248));
+
+                                if (cooldown > 0) {
+                                    cooldown--;
+                                }
+                                if (Keyboard.isDown(" ") && cooldown === 0) {
+                                    bullets.push(makeBullet(ship.x, ship.y - 8));
+                                    cooldown = 20;
+                                }
+                                for (let i = bullets.length - 1; i >= 0; i--) {
+                                    bullets[i].position.y -= 2.5;
+                                    if (bullets[i].position.y < -6) {
+                                        bullets.splice(i, 1);
+                                    }
+                                }
+
+                                spawnTimer--;
+                                if (spawnTimer <= 0) {
+                                    enemies.push(makeEnemy(16 + Math.random() * 224, -8));
+                                    spawnTimer = 70;
+                                }
+                                for (let i = enemies.length - 1; i >= 0; i--) {
+                                    enemies[i].position.y += 0.35;
+                                    if (enemies[i].position.y > 200) {
+                                        enemies.splice(i, 1);
+                                    }
+                                }
+
+                                for (let i = enemies.length - 1; i >= 0; i--) {
+                                    for (let j = bullets.length - 1; j >= 0; j--) {
+                                        if (bullets[j].box.colliding(enemies[i].box)) {
+                                            explode(enemies[i].position.x, enemies[i].position.y);
+                                            enemies.splice(i, 1);
+                                            bullets.splice(j, 1);
+                                            score++;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                moveStars();
+                                particles.update();
+
+                                MDog.Draw.clear({color: "#0b0d1a"});
+                                // Shift everything by a random amount while shaking
+                                if (shake > 0) {
+                                    shake--;
+                                    MDog.Draw.translate(Math.floor(Math.random() * 5) - 2, Math.floor(Math.random() * 5) - 2);
+                                } else {
+                                    MDog.Draw.translate(0, 0);
+                                }
+                                drawStars();
+                                for (const enemy of enemies) {
+                                    drawEnemy(enemy);
+                                }
+                                for (const bullet of bullets) {
+                                    MDog.Draw.rectangleFill(bullet.box.getLeftX(), bullet.box.getTopY(), 2, 5, "#ffee66");
+                                }
+                                drawShip();
+                                MDog.Draw.particleSystem(particles);
+
+                                MDog.Draw.translate(0, 0);
+                                MDog.Draw.textImage("Score: " + score, 6, 6, "#ffffff", font);
+                            }
+
+                            // Chunks flying out in every direction, and a shake
+                            function explode(x, y) {
+                                const colors = ["#ffee66", "#ff9933", "#ff5577"];
+                                for (let i = 0; i < 20; i++) {
+                                    const direction = new Vector(0.2 + Math.random() * 0.8, 0).rotate(Math.random() * 360);
+                                    const color = colors[Math.floor(Math.random() * colors.length)];
+                                    particles.addParticle(new MDog.FX.ChunkParticle(x, y, 30 + Math.random() * 30, color, direction.x, direction.y, {size: 2}));
+                                }
+                                shake = 12;
+                            }
+
+                            function drawEnemy(enemy) {
+                                const x = Math.floor(enemy.position.x);
+                                const y = Math.floor(enemy.position.y);
+                                MDog.Draw.rectangleFill(x - 7, y - 2, 14, 5, "#ff5577");
+                                MDog.Draw.rectangleFill(x - 4, y - 5, 8, 10, "#ff5577");
+                                MDog.Draw.rectangleFill(x - 3, y - 1, 2, 2, "#1a0b14");
+                                MDog.Draw.rectangleFill(x + 1, y - 1, 2, 2, "#1a0b14");
+                            }
+
+                            function moveStars() {
+                                for (const star of stars) {
+                                    star.y += star.speed;
+                                    if (star.y > 192) {
+                                        star.y = 0;
+                                        star.x = Math.random() * 256;
+                                    }
+                                }
+                            }
+
+                            function drawStars() {
+                                for (const star of stars) {
+                                    MDog.Draw.point(Math.floor(star.x), Math.floor(star.y), star.speed > 0.35 ? "#ffffff" : "#5c6699");
+                                }
+                            }
+
+                            function drawShip() {
+                                const x = Math.floor(ship.x);
+                                const y = Math.floor(ship.y);
+                                MDog.Draw.rectangleFill(x - 2, y + 6, 5, 2 + Math.floor(Math.random() * 3), "#ff9933");
+                                MDog.Draw.polygonFill([new Vector(x, y - 8), new Vector(x + 7, y + 6), new Vector(x - 7, y + 6)], "#66ccff");
+                                MDog.Draw.rectangleFill(x - 1, y - 2, 3, 4, "#ffffff");
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try a bigger shake, or more chunks. Little things like these are a big part of what makes a game feel good to play.</p>
+
+                <h2>5. Waves</h2>
+
+                <p>Instead of one enemy at a time, enemies now come in <b>waves</b>. Each wave flies in from the top into rows, then the whole group sways side to side together. Once every enemy in a wave is gone, the next wave starts, with two more enemies than the last.</p>
+
+                <p>Each enemy remembers its <code>homeX</code> and <code>homeY</code>, its spot in the rows. It flies down until it reaches <code>homeY</code>, and its x is its <code>homeX</code> plus a sway made with <code>Math.sin()</code>, which goes smoothly back and forth between -1 and 1.</p>
+
+                <p>The enemies also shoot back now, a little more each wave. Their bullets can't hurt you yet. That's the next step.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", " "],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const font = "fonts/marsfont.png";
+
+                            const ship = new Vector(128, 170);
+                            const stars = [];
+                            for (let i = 0; i < 50; i++) {
+                                stars.push({x: Math.random() * 256, y: Math.random() * 192, speed: 0.1 + Math.random() * 0.4});
+                            }
+
+                            const bullets = [];
+                            const enemyBullets = [];
+                            let cooldown = 0;
+                            const enemies = [];
+                            let score = 0;
+                            const particles = new MDog.FX.ParticleSystem();
+                            let shake = 0;
+
+                            let wave = 0;
+                            // Ticks until the next wave starts, while "Wave 2" is shown
+                            let waveTimer = 0;
+                            // Counts up every tick, for the swaying
+                            let ticks = 0;
+
+                            function makeBullet(x, y) {
+                                const position = new Vector(x, y);
+                                return {position, box: new SquareKickbox(position, -1, 0, 1, 5)};
+                            }
+
+                            // An enemy starts above the screen and flies down to its home
+                            function makeEnemy(homeX, homeY) {
+                                const position = new Vector(homeX, homeY - 120);
+                                return {position, box: new SquareKickbox(position, -7, -5, 7, 5), homeX, homeY};
+                            }
+
+                            // Rows of 7, with 2 more enemies each wave
+                            function startWave() {
+                                wave++;
+                                const count = Math.min(2 + wave * 2, 21);
+                                for (let i = 0; i < count; i++) {
+                                    enemies.push(makeEnemy(44 + (i % 7) * 28, 24 + Math.floor(i / 7) * 18));
+                                }
+                            }
+
+                            function main() {
+                                ticks++;
+
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    ship.x -= 0.9;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    ship.x += 0.9;
+                                }
+                                ship.x = Math.max(8, Math.min(ship.x, 248));
+
+                                if (cooldown > 0) {
+                                    cooldown--;
+                                }
+                                if (Keyboard.isDown(" ") && cooldown === 0) {
+                                    bullets.push(makeBullet(ship.x, ship.y - 8));
+                                    cooldown = 20;
+                                }
+                                moveBullets(bullets, -2.5);
+                                moveBullets(enemyBullets, 1.2);
+
+                                // When the wave is cleared, wait a moment, then start the next one
+                                if (enemies.length === 0) {
+                                    if (waveTimer === 0) {
+                                        waveTimer = 160;
+                                    }
+                                    waveTimer--;
+                                    if (waveTimer === 0) {
+                                        startWave();
+                                    }
+                                }
+
+                                for (const enemy of enemies) {
+                                    // Fly down to its row, and sway with the others
+                                    enemy.position.y = Math.min(enemy.position.y + 0.6, enemy.homeY);
+                                    enemy.position.x = enemy.homeX + Math.sin(ticks / 90) * 24;
+                                    // Shoot now and then, more often in later waves
+                                    if (Math.random() < 0.0004 * wave) {
+                                        enemyBullets.push(makeBullet(enemy.position.x, enemy.position.y + 5));
+                                    }
+                                }
+
+                                for (let i = enemies.length - 1; i >= 0; i--) {
+                                    for (let j = bullets.length - 1; j >= 0; j--) {
+                                        if (bullets[j].box.colliding(enemies[i].box)) {
+                                            explode(enemies[i].position.x, enemies[i].position.y);
+                                            enemies.splice(i, 1);
+                                            bullets.splice(j, 1);
+                                            score++;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                moveStars();
+                                particles.update();
+
+                                MDog.Draw.clear({color: "#0b0d1a"});
+                                if (shake > 0) {
+                                    shake--;
+                                    MDog.Draw.translate(Math.floor(Math.random() * 5) - 2, Math.floor(Math.random() * 5) - 2);
+                                } else {
+                                    MDog.Draw.translate(0, 0);
+                                }
+                                drawStars();
+                                for (const enemy of enemies) {
+                                    drawEnemy(enemy);
+                                }
+                                for (const bullet of bullets) {
+                                    MDog.Draw.rectangleFill(bullet.box.getLeftX(), bullet.box.getTopY(), 2, 5, "#ffee66");
+                                }
+                                for (const bullet of enemyBullets) {
+                                    MDog.Draw.rectangleFill(bullet.box.getLeftX(), bullet.box.getTopY(), 2, 5, "#ff77aa");
+                                }
+                                drawShip();
+                                MDog.Draw.particleSystem(particles);
+
+                                MDog.Draw.translate(0, 0);
+                                MDog.Draw.textImage("Score: " + score, 6, 6, "#ffffff", font);
+                                if (waveTimer > 0) {
+                                    MDog.Draw.textImage("Wave " + (wave + 1), 128, 90, "#ffcc33", font, {alignX: "center", size: 2});
+                                }
+                            }
+
+                            // Moves bullets up or down, and takes out the ones that left the screen
+                            function moveBullets(list, speed) {
+                                for (let i = list.length - 1; i >= 0; i--) {
+                                    list[i].position.y += speed;
+                                    if (list[i].position.y < -6 || list[i].position.y > 196) {
+                                        list.splice(i, 1);
+                                    }
+                                }
+                            }
+
+                            function explode(x, y) {
+                                const colors = ["#ffee66", "#ff9933", "#ff5577"];
+                                for (let i = 0; i < 20; i++) {
+                                    const direction = new Vector(0.2 + Math.random() * 0.8, 0).rotate(Math.random() * 360);
+                                    const color = colors[Math.floor(Math.random() * colors.length)];
+                                    particles.addParticle(new MDog.FX.ChunkParticle(x, y, 30 + Math.random() * 30, color, direction.x, direction.y, {size: 2}));
+                                }
+                                shake = 12;
+                            }
+
+                            function drawEnemy(enemy) {
+                                const x = Math.floor(enemy.position.x);
+                                const y = Math.floor(enemy.position.y);
+                                MDog.Draw.rectangleFill(x - 7, y - 2, 14, 5, "#ff5577");
+                                MDog.Draw.rectangleFill(x - 4, y - 5, 8, 10, "#ff5577");
+                                MDog.Draw.rectangleFill(x - 3, y - 1, 2, 2, "#1a0b14");
+                                MDog.Draw.rectangleFill(x + 1, y - 1, 2, 2, "#1a0b14");
+                            }
+
+                            function moveStars() {
+                                for (const star of stars) {
+                                    star.y += star.speed;
+                                    if (star.y > 192) {
+                                        star.y = 0;
+                                        star.x = Math.random() * 256;
+                                    }
+                                }
+                            }
+
+                            function drawStars() {
+                                for (const star of stars) {
+                                    MDog.Draw.point(Math.floor(star.x), Math.floor(star.y), star.speed > 0.35 ? "#ffffff" : "#5c6699");
+                                }
+                            }
+
+                            function drawShip() {
+                                const x = Math.floor(ship.x);
+                                const y = Math.floor(ship.y);
+                                MDog.Draw.rectangleFill(x - 2, y + 6, 5, 2 + Math.floor(Math.random() * 3), "#ff9933");
+                                MDog.Draw.polygonFill([new Vector(x, y - 8), new Vector(x + 7, y + 6), new Vector(x - 7, y + 6)], "#66ccff");
+                                MDog.Draw.rectangleFill(x - 1, y - 2, 3, 4, "#ffffff");
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try making the sway wider by changing the 24, or faster by changing the 90.</p>
+
+                <h2>6. Lives and Game Over</h2>
+
+                <p>Last, the enemies' bullets can hit the ship. The ship gets its own kickbox, and each hit takes one of its three lives. After a hit, the ship can't be hit again for a second, and it blinks so you can tell. Blinking is just not drawing the ship on some ticks.</p>
+
+                <p>When the last life is gone, the ship explodes and the game switches to a game over screen. Like in the platformer, each screen is its own function, <code>setActiveFunction()</code> switches between them, and <code>startGame()</code> puts everything back so you can play again. The stars keep moving on every screen, so they're in a function all the screens use.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", " "],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const font = "fonts/marsfont.png";
+
+                            const ship = new Vector(128, 170);
+                            // The ship's kickbox is a little smaller than it looks, which feels fair
+                            const shipBox = new SquareKickbox(ship, -5, -4, 6, 6);
+                            const stars = [];
+                            for (let i = 0; i < 50; i++) {
+                                stars.push({x: Math.random() * 256, y: Math.random() * 192, speed: 0.1 + Math.random() * 0.4});
+                            }
+
+                            let bullets = [];
+                            let enemyBullets = [];
+                            let enemies = [];
+                            const particles = new MDog.FX.ParticleSystem();
+                            let cooldown = 0;
+                            let shake = 0;
+                            let score = 0;
+                            let wave = 0;
+                            let waveTimer = 0;
+                            let ticks = 0;
+                            let lives = 3;
+                            // Ticks left that the ship can't be hit
+                            let safeTimer = 0;
+
+                            function makeBullet(x, y) {
+                                const position = new Vector(x, y);
+                                return {position, box: new SquareKickbox(position, -1, 0, 1, 5)};
+                            }
+
+                            function makeEnemy(homeX, homeY) {
+                                const position = new Vector(homeX, homeY - 120);
+                                return {position, box: new SquareKickbox(position, -7, -5, 7, 5), homeX, homeY};
+                            }
+
+                            function startWave() {
+                                wave++;
+                                const count = Math.min(2 + wave * 2, 21);
+                                for (let i = 0; i < count; i++) {
+                                    enemies.push(makeEnemy(44 + (i % 7) * 28, 24 + Math.floor(i / 7) * 18));
+                                }
+                            }
+
+                            function titleScreen() {
+                                ticks++;
+                                moveStars();
+                                MDog.Draw.clear({color: "#0b0d1a"});
+                                drawStars();
+                                MDog.Draw.textImage("Star Blaster", 128, 60, "#66ccff", font, {alignX: "center", size: 3});
+                                if (Math.floor(ticks / 40) % 2 === 0) {
+                                    MDog.Draw.textImage("Press space to start", 128, 120, "#ffffff", font, {alignX: "center"});
+                                }
+                                if (Keyboard.isClicked(" ")) {
+                                    startGame();
+                                }
+                            }
+
+                            // Put everything back where it started, then switch to the game
+                            function startGame() {
+                                ship.set(128, 170);
+                                bullets = [];
+                                enemyBullets = [];
+                                enemies = [];
+                                particles.clear();
+                                score = 0;
+                                wave = 0;
+                                waveTimer = 0;
+                                lives = 3;
+                                safeTimer = 0;
+                                // Space was just pressed to start, so don't shoot right away
+                                cooldown = 20;
+                                MDog.setActiveFunction(game);
+                            }
+
+                            function game() {
+                                ticks++;
+
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    ship.x -= 0.9;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    ship.x += 0.9;
+                                }
+                                ship.x = Math.max(8, Math.min(ship.x, 248));
+
+                                if (cooldown > 0) {
+                                    cooldown--;
+                                }
+                                if (Keyboard.isDown(" ") && cooldown === 0) {
+                                    bullets.push(makeBullet(ship.x, ship.y - 8));
+                                    cooldown = 20;
+                                }
+                                moveBullets(bullets, -2.5);
+                                moveBullets(enemyBullets, 1.2);
+
+                                if (enemies.length === 0) {
+                                    if (waveTimer === 0) {
+                                        waveTimer = 160;
+                                    }
+                                    waveTimer--;
+                                    if (waveTimer === 0) {
+                                        startWave();
+                                    }
+                                }
+
+                                for (const enemy of enemies) {
+                                    enemy.position.y = Math.min(enemy.position.y + 0.6, enemy.homeY);
+                                    enemy.position.x = enemy.homeX + Math.sin(ticks / 90) * 24;
+                                    if (Math.random() < 0.0004 * wave) {
+                                        enemyBullets.push(makeBullet(enemy.position.x, enemy.position.y + 5));
+                                    }
+                                }
+
+                                for (let i = enemies.length - 1; i >= 0; i--) {
+                                    for (let j = bullets.length - 1; j >= 0; j--) {
+                                        if (bullets[j].box.colliding(enemies[i].box)) {
+                                            explode(enemies[i].position.x, enemies[i].position.y);
+                                            enemies.splice(i, 1);
+                                            bullets.splice(j, 1);
+                                            score++;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // An enemy bullet hitting the ship takes a life
+                                if (safeTimer > 0) {
+                                    safeTimer--;
+                                }
+                                for (let i = enemyBullets.length - 1; i >= 0; i--) {
+                                    if (safeTimer === 0 && enemyBullets[i].box.colliding(shipBox)) {
+                                        enemyBullets.splice(i, 1);
+                                        lives--;
+                                        safeTimer = 160;
+                                        shake = 20;
+                                        if (lives === 0) {
+                                            explode(ship.x, ship.y);
+                                            MDog.setActiveFunction(gameOver);
+                                        }
+                                    }
+                                }
+
+                                moveStars();
+                                particles.update();
+                                drawGame(true);
+
+                                MDog.Draw.textImage("Score: " + score, 6, 6, "#ffffff", font);
+                                MDog.Draw.textImage("Lives: " + lives, 250, 6, "#ffffff", font, {alignX: "right"});
+                                if (waveTimer > 0) {
+                                    MDog.Draw.textImage("Wave " + (wave + 1), 128, 90, "#ffcc33", font, {alignX: "center", size: 2});
+                                }
+                            }
+
+                            // Everything keeps moving behind the words, but without the ship
+                            function gameOver() {
+                                ticks++;
+                                for (const enemy of enemies) {
+                                    enemy.position.x = enemy.homeX + Math.sin(ticks / 90) * 24;
+                                }
+                                moveBullets(enemyBullets, 1.2);
+                                moveStars();
+                                particles.update();
+                                drawGame(false);
+
+                                MDog.Draw.textImage("Game Over", 128, 70, "#ff5577", font, {alignX: "center", size: 3});
+                                MDog.Draw.textImage("Score: " + score, 128, 100, "#ffffff", font, {alignX: "center"});
+                                MDog.Draw.textImage("Press space to play again", 128, 120, "#ffffff", font, {alignX: "center"});
+                                if (Keyboard.isClicked(" ")) {
+                                    startGame();
+                                }
+                            }
+
+                            // Draws the stars, enemies, bullets, ship, and explosions, shaking if needed
+                            function drawGame(showShip) {
+                                MDog.Draw.clear({color: "#0b0d1a"});
+                                if (shake > 0) {
+                                    shake--;
+                                    MDog.Draw.translate(Math.floor(Math.random() * 5) - 2, Math.floor(Math.random() * 5) - 2);
+                                } else {
+                                    MDog.Draw.translate(0, 0);
+                                }
+                                drawStars();
+                                for (const enemy of enemies) {
+                                    drawEnemy(enemy);
+                                }
+                                for (const bullet of bullets) {
+                                    MDog.Draw.rectangleFill(bullet.box.getLeftX(), bullet.box.getTopY(), 2, 5, "#ffee66");
+                                }
+                                for (const bullet of enemyBullets) {
+                                    MDog.Draw.rectangleFill(bullet.box.getLeftX(), bullet.box.getTopY(), 2, 5, "#ff77aa");
+                                }
+                                // Blink while the ship can't be hit
+                                if (showShip && Math.floor(safeTimer / 8) % 2 === 0) {
+                                    drawShip();
+                                }
+                                MDog.Draw.particleSystem(particles);
+                                MDog.Draw.translate(0, 0);
+                            }
+
+                            function moveBullets(list, speed) {
+                                for (let i = list.length - 1; i >= 0; i--) {
+                                    list[i].position.y += speed;
+                                    if (list[i].position.y < -6 || list[i].position.y > 196) {
+                                        list.splice(i, 1);
+                                    }
+                                }
+                            }
+
+                            function explode(x, y) {
+                                const colors = ["#ffee66", "#ff9933", "#ff5577"];
+                                for (let i = 0; i < 20; i++) {
+                                    const direction = new Vector(0.2 + Math.random() * 0.8, 0).rotate(Math.random() * 360);
+                                    const color = colors[Math.floor(Math.random() * colors.length)];
+                                    particles.addParticle(new MDog.FX.ChunkParticle(x, y, 30 + Math.random() * 30, color, direction.x, direction.y, {size: 2}));
+                                }
+                                shake = 12;
+                            }
+
+                            function drawEnemy(enemy) {
+                                const x = Math.floor(enemy.position.x);
+                                const y = Math.floor(enemy.position.y);
+                                MDog.Draw.rectangleFill(x - 7, y - 2, 14, 5, "#ff5577");
+                                MDog.Draw.rectangleFill(x - 4, y - 5, 8, 10, "#ff5577");
+                                MDog.Draw.rectangleFill(x - 3, y - 1, 2, 2, "#1a0b14");
+                                MDog.Draw.rectangleFill(x + 1, y - 1, 2, 2, "#1a0b14");
+                            }
+
+                            function moveStars() {
+                                for (const star of stars) {
+                                    star.y += star.speed;
+                                    if (star.y > 192) {
+                                        star.y = 0;
+                                        star.x = Math.random() * 256;
+                                    }
+                                }
+                            }
+
+                            function drawStars() {
+                                for (const star of stars) {
+                                    MDog.Draw.point(Math.floor(star.x), Math.floor(star.y), star.speed > 0.35 ? "#ffffff" : "#5c6699");
+                                }
+                            }
+
+                            function drawShip() {
+                                const x = Math.floor(ship.x);
+                                const y = Math.floor(ship.y);
+                                MDog.Draw.rectangleFill(x - 2, y + 6, 5, 2 + Math.floor(Math.random() * 3), "#ff9933");
+                                MDog.Draw.polygonFill([new Vector(x, y - 8), new Vector(x + 7, y + 6), new Vector(x - 7, y + 6)], "#66ccff");
+                                MDog.Draw.rectangleFill(x - 1, y - 2, 3, 4, "#ffffff");
+                            }
+
+                            MDog.setActiveFunction(titleScreen);
+                        `,
+                    });
+                </script>
+
+                <h2>What's Next</h2>
+
+                <p>That's a whole space shooter! Here are some ideas to try next:</p>
+
+                <ul>
+                    <li>Add power-ups that fall from exploded enemies, like a double shot or an extra life.</li>
+                    <li>Make some enemies dive down at the ship instead of staying in their rows.</li>
+                    <li>Save the high score with <code>localStorage</code> (see <a href="guide-saving.html">Saving Progress</a>).</li>
+                </ul>
+
+                <p>Ready for 3D? The <a href="tutorial-racer.html">racing game tutorial</a> is next.</p>
+
+                <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

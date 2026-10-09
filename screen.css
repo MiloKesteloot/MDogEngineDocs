@@ -28,12 +28,125 @@
     --accent-bg: rgba(140, 184, 255, 0.12);
     --accent-strong: #3466b0;
     --error: #ff8a8a;
+    --warn-text: #ffd27f;
+    --warn-bg: rgba(255, 200, 80, 0.08);
+
+    --input-bg: rgba(255, 255, 255, 0.04);
+    --button-hover: #353941;
+    --selection: rgba(140, 184, 255, 0.3);
+    --scrollbar: rgba(255, 255, 255, 0.18);
+    --scrollbar-hover: rgba(255, 255, 255, 0.3);
+    --code-text: #d4d4d4;
+
+    /* Code colors, from VS Code's dark theme */
+    --tok-comment: #6a9955;
+    --tok-string: #ce9178;
+    --tok-number: #b5cea8;
+    --tok-keyword: #569cd6;
+    --tok-control: #c586c0;
+    --tok-function: #dcdcaa;
+    --tok-class: #4ec9b0;
+    --tok-variable: #9cdcfe;
+    --tok-tag: #569cd6;
+    --tok-attribute: #9cdcfe;
+    --tok-punctuation: #808080;
 
     --font-sans: gitlab-sans, system-ui, -apple-system, "Segoe UI", sans-serif;
     --font-mono: Consolas, "SF Mono", Menlo, "Liberation Mono", monospace;
 
     --radius: 8px;
     --radius-small: 5px;
+}
+
+/* The light theme, picked with the button at the bottom of the sidebar (see docsSetTheme in build-tables.js). The game
+   areas stay dark either way, since games draw their own colors. */
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    --bg: #ffffff;
+    --surface: #f5f6f8;
+    --surface-raised: #ffffff;
+    --code-bg: #f6f7f9;
+    --hover-bg: rgba(0, 0, 0, 0.045);
+    --input-bg: #ffffff;
+    --button-hover: #e9ecf1;
+    --selection: rgba(37, 99, 201, 0.2);
+
+    --border: rgba(0, 0, 0, 0.1);
+    --border-strong: rgba(0, 0, 0, 0.18);
+    --scrollbar: rgba(0, 0, 0, 0.2);
+    --scrollbar-hover: rgba(0, 0, 0, 0.35);
+
+    --text: #1d2026;
+    --text-muted: #4d5562;
+    --text-faint: #7c8491;
+    --code-text: #24292f;
+
+    --accent: #2563c9;
+    --accent-bg: rgba(37, 99, 201, 0.1);
+    --accent-strong: #2f63b8;
+    --error: #c62828;
+    --warn-text: #8a5a00;
+    --warn-bg: rgba(255, 190, 60, 0.15);
+
+    /* Code colors, from VS Code's light theme */
+    --tok-comment: #008000;
+    --tok-string: #a31515;
+    --tok-number: #098658;
+    --tok-keyword: #0000ff;
+    --tok-control: #af00db;
+    --tok-function: #795e26;
+    --tok-class: #267f99;
+    --tok-variable: #001080;
+    --tok-tag: #800000;
+    --tok-attribute: #e50000;
+    --tok-punctuation: #6e7681;
+}
+
+/* Printing always uses the light colors, so it doesn't use up ink */
+@media print {
+    :root, :root[data-theme="light"] {
+        color-scheme: light;
+
+        --bg: #ffffff;
+        --surface: #f5f6f8;
+        --surface-raised: #ffffff;
+        --code-bg: #f6f7f9;
+        --hover-bg: rgba(0, 0, 0, 0.045);
+        --input-bg: #ffffff;
+        --button-hover: #e9ecf1;
+        --selection: rgba(37, 99, 201, 0.2);
+
+        --border: rgba(0, 0, 0, 0.1);
+        --border-strong: rgba(0, 0, 0, 0.18);
+        --scrollbar: rgba(0, 0, 0, 0.2);
+        --scrollbar-hover: rgba(0, 0, 0, 0.35);
+
+        --text: #1d2026;
+        --text-muted: #4d5562;
+        --text-faint: #7c8491;
+        --code-text: #24292f;
+
+        --accent: #2563c9;
+        --accent-bg: rgba(37, 99, 201, 0.1);
+        --accent-strong: #2f63b8;
+        --error: #c62828;
+        --warn-text: #8a5a00;
+        --warn-bg: rgba(255, 190, 60, 0.15);
+
+        /* Code colors, from VS Code's light theme */
+        --tok-comment: #008000;
+        --tok-string: #a31515;
+        --tok-number: #098658;
+        --tok-keyword: #0000ff;
+        --tok-control: #af00db;
+        --tok-function: #795e26;
+        --tok-class: #267f99;
+        --tok-variable: #001080;
+        --tok-tag: #800000;
+        --tok-attribute: #e50000;
+        --tok-punctuation: #6e7681;
+    }
 }
 
 /* ===== Page layout ===== */
@@ -55,7 +168,7 @@ body {
 }
 
 ::selection {
-    background-color: rgba(140, 184, 255, 0.3);
+    background-color: var(--selection);
 }
 
 :focus-visible {
@@ -67,11 +180,11 @@ body {
    Firefox and Chrome use scrollbar-width and scrollbar-color. Safari only understands the ::-webkit-scrollbar rules. */
 * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+    scrollbar-color: var(--scrollbar) transparent;
 }
 
 *:hover {
-    scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+    scrollbar-color: var(--scrollbar-hover) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -87,12 +200,12 @@ body {
     /* The see-through border makes the thumb look thinner than the space it takes, with room around it */
     border: 3px solid transparent;
     border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.18);
+    background-color: var(--scrollbar);
     background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(255, 255, 255, 0.32);
+    background-color: var(--scrollbar-hover);
 }
 
 ::-webkit-scrollbar-corner {
@@ -295,7 +408,7 @@ body {
     border-radius: var(--radius);
     border: 1px solid var(--border);
     background-color: var(--code-bg);
-    color: #d4d4d4;
+    color: var(--code-text);
     overflow-x: auto;
     line-height: 1.45;
 }
@@ -329,7 +442,7 @@ body {
 }
 
 .page pre .copy-button:hover, .page .demo-bar button:hover {
-    background-color: #353941;
+    background-color: var(--button-hover);
 }
 
 .page pre .copy-button {
@@ -347,17 +460,17 @@ body {
 }
 
 /* Code colors, like VS Code's dark theme (see syntax.js) */
-.page .tok-comment { color: #6a9955; }
-.page .tok-string { color: #ce9178; }
-.page .tok-number { color: #b5cea8; }
-.page .tok-keyword { color: #569cd6; }
-.page .tok-control { color: #c586c0; }
-.page .tok-function { color: #dcdcaa; }
-.page .tok-class { color: #4ec9b0; }
-.page .tok-variable { color: #9cdcfe; }
-.page .tok-tag { color: #569cd6; }
-.page .tok-attribute { color: #9cdcfe; }
-.page .tok-punctuation { color: #808080; }
+.page .tok-comment { color: var(--tok-comment); }
+.page .tok-string { color: var(--tok-string); }
+.page .tok-number { color: var(--tok-number); }
+.page .tok-keyword { color: var(--tok-keyword); }
+.page .tok-control { color: var(--tok-control); }
+.page .tok-function { color: var(--tok-function); }
+.page .tok-class { color: var(--tok-class); }
+.page .tok-variable { color: var(--tok-variable); }
+.page .tok-tag { color: var(--tok-tag); }
+.page .tok-attribute { color: var(--tok-attribute); }
+.page .tok-punctuation { color: var(--tok-punctuation); }
 
 /* ===== Method tables (see build-tables.js) ===== */
 
@@ -693,6 +806,363 @@ tr.has-dropdown:has(input:checked) + tr {
     }
 }
 
+/* A glossary word (see addGlossaryLinks in page.js): plain text with a dotted underline */
+.page a.glossary-link {
+    color: inherit;
+    text-decoration: underline dotted;
+    text-decoration-color: var(--text-faint);
+    text-underline-offset: 3px;
+    cursor: help;
+}
+
+.page a.glossary-link:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+}
+
+/* The Glossary page: each word and its meaning */
+.page .glossary h3 {
+    margin-top: 1.6rem;
+}
+
+.page .glossary h3 + p {
+    margin-top: 0.3rem;
+}
+
+/* ===== All Methods ===== */
+
+.page .method-index-filter {
+    width: 100%;
+    max-width: 420px;
+    margin-top: 1rem;
+    padding: 8px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-small);
+    outline: none;
+    background-color: var(--surface);
+    color: var(--text);
+    font-size: 15px;
+}
+
+.page .method-index-filter:focus {
+    border-color: var(--accent);
+}
+
+.page .method-index-group {
+    display: flex;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.page .method-index-group[hidden], .page .method-index-row[hidden] {
+    display: none;
+}
+
+.page .method-index-letter {
+    flex-shrink: 0;
+    width: 28px;
+    color: var(--text-faint);
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.page .method-index-list {
+    flex: 1;
+    min-width: 0;
+}
+
+.page a.method-index-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) 130px minmax(0, 1fr);
+    gap: 12px;
+    align-items: baseline;
+    padding: 4px 8px;
+    border-radius: var(--radius-small);
+    color: var(--text);
+    text-decoration: none;
+}
+
+.page a.method-index-row:hover {
+    background-color: var(--hover-bg);
+}
+
+.page .method-index-name {
+    overflow-wrap: anywhere;
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+
+.page a.method-index-row:hover .method-index-name {
+    color: var(--accent);
+}
+
+.page .method-index-name span {
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+}
+
+.page .method-index-from {
+    color: var(--text-faint);
+    font-size: 13px;
+}
+
+.page .method-index-description {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+@media (max-width: 700px) {
+    .page a.method-index-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+        padding: 6px 8px;
+    }
+}
+
+/* ===== The Cheat Sheet ===== */
+
+.page .cheat-sheet {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 14px;
+    margin-top: 1.2rem;
+}
+
+.page .cheat-sheet section {
+    min-width: 0;
+    padding: 12px 14px 4px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--surface);
+}
+
+.page .cheat-sheet h2 {
+    margin: 0 0 8px;
+    padding: 0;
+    border: none;
+    font-size: 16px;
+}
+
+.page .cheat-sheet pre {
+    margin: 0 0 10px;
+}
+
+.page .cheat-sheet pre, .page .cheat-sheet pre * {
+    font-size: 12.5px;
+}
+
+/* Long lines wrap instead of scrolling, so everything can be seen (and printed) at once */
+.page .cheat-sheet pre code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+    .page .cheat-sheet {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Printing: just the page, with no sidebar or buttons, and boxes that don't split across two sheets of paper */
+@media print {
+    .sidebar-container, .mobile-topbar, .sidebar-overlay, .page .breadcrums, .page .page-nav, .page pre .copy-button {
+        display: none !important;
+    }
+
+    .page {
+        width: 100%;
+        padding: 0;
+    }
+
+    .page .cheat-sheet section, .page pre {
+        break-inside: avoid;
+    }
+}
+
+/* ===== Asset Packs (see mdogRenderAssetPacks in asset-packs.js) ===== */
+
+/* A part of a pack that opens, so the page isn't too long to scroll through */
+.page details.pack-section {
+    margin-top: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--surface);
+}
+
+.page details.pack-section > summary {
+    padding: 10px 14px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+}
+
+.page details.pack-section > summary:hover {
+    color: var(--accent);
+}
+
+.page details.pack-section[open] > summary {
+    border-bottom: 1px solid var(--border);
+}
+
+.page details.pack-section > :not(summary) {
+    margin-left: 14px;
+    margin-right: 14px;
+}
+
+.page details.pack-section > :last-child {
+    margin-bottom: 14px;
+}
+
+.page .pack-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+/* A pack shown as a grid of small playing pictures, with the chosen one's code under it */
+.page .pack-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+    gap: 8px;
+}
+
+.page .pack-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 4px 4px 6px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--surface);
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.page .pack-tile:hover {
+    border-color: rgba(140, 184, 255, 0.45);
+    color: var(--text);
+}
+
+.page .pack-tile.chosen {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.page .pack-tile .pack-preview {
+    width: auto;
+    min-height: 88px;
+}
+
+.page .pack-chosen {
+    margin-top: 10px;
+}
+
+.page .pack-chosen .pack-card[hidden] {
+    display: none;
+}
+
+.page .pack-card {
+    display: flex;
+    gap: 16px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--surface);
+}
+
+.page .pack-card.wide {
+    flex-direction: column;
+}
+
+.page .pack-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 160px;
+    min-height: 100px;
+    border-radius: var(--radius-small);
+    background-color: #2b3340;
+}
+
+.page .pack-card.wide .pack-preview {
+    width: auto;
+    min-height: 0;
+    padding: 16px;
+}
+
+.page .pack-preview canvas {
+    image-rendering: pixelated;
+}
+
+.page .pack-card.wide .pack-preview canvas {
+    width: 100%;
+    max-width: 780px;
+}
+
+.page .pack-card-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.page .pack-card-title {
+    font-weight: 600;
+}
+
+.page .pack-card-info {
+    margin-left: 6px;
+    color: var(--text-faint);
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.page .pack-card pre {
+    margin-top: 6px;
+}
+
+.page .pack-card-buttons {
+    margin-top: 8px;
+}
+
+.page .pack-card-buttons button, .page .pack-download-link, .page .pack-download-all {
+    padding: 4px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-small);
+    background-color: var(--surface-raised);
+    color: var(--text);
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.page .pack-card-buttons button:hover, .page .pack-download-link:hover, .page .pack-download-all:hover {
+    border-color: var(--accent);
+}
+
+.page .pack-download-all {
+    margin-top: 10px;
+    border-color: var(--accent-strong);
+    background-color: var(--accent-strong);
+    color: #fff;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+    .page .pack-card {
+        flex-direction: column;
+    }
+
+    .page .pack-preview {
+        width: auto;
+    }
+}
+
 /* ===== Playable games on the home page (see showcase.js) ===== */
 
 .page .showcase {
@@ -926,7 +1396,7 @@ tr.has-dropdown:has(input:checked) + tr {
     height: 100%;
     border: none;
     background-color: #111318;
-    color: var(--text);
+    color: #e6e9ee;
     font-family: var(--font-sans);
     font-size: 16px;
     cursor: pointer;
@@ -946,7 +1416,7 @@ tr.has-dropdown:has(input:checked) + tr {
 .page .demo-start span::before {
     content: "▶";
     margin-right: 10px;
-    color: var(--accent);
+    color: #8cb8ff;
 }
 
 /* With a preview, the first frame is dimmed a little, and the label gets a dark pill so it can be read on any picture */
@@ -1012,7 +1482,7 @@ tr.has-dropdown:has(input:checked) + tr {
 }
 
 .page .demo-touch-key:active {
-    background-color: #3a3f48;
+    background-color: var(--button-hover);
 }
 
 /* The assets a demo uses */
@@ -1152,7 +1622,7 @@ tr.has-dropdown:has(input:checked) + tr {
     overflow: hidden;
     border-radius: 0;
     background: none;
-    color: #d4d4d4;
+    color: var(--code-text);
     pointer-events: none;
 }
 

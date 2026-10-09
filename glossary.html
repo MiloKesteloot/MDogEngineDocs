@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="What the words in the MDog Engine docs mean, like tick, art pixel, layer, and kickbox.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MDog Engine Docs">
+    <meta property="og:title" content="Glossary - MDog Engine">
+    <meta property="og:description" content="What the words in the MDog Engine docs mean, like tick, art pixel, layer, and kickbox. MDog Engine is made by Milo Kesteloot.">
+    <meta property="og:url" content="https://milokesteloot.github.io/MDogEngineDocs/glossary">
+    <meta property="og:image" content="https://milokesteloot.github.io/MDogEngineDocs/assets/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="MDog Engine, a retro game engine for the web">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Glossary - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Glossary</div>
+
+                <h1>Glossary</h1>
+
+                <p>What the words in these docs mean. Around the docs, the first time one of these words shows up on a page, it's underlined with dots. Hold the mouse over it to see what it means, or click it to come here.</p>
+
+                <!--
+                    Each word is an h3 with its definition after it. data-terms lists the ways the word is written in the
+                    docs, which page.js uses to find and underline it on other pages. Words without data-terms aren't
+                    underlined anywhere, usually because they're too common to mean only this.
+                -->
+                <div class="glossary">
+
+                    <h3 data-terms="active function">Active Function</h3>
+                    <p>The function MDog Engine runs every tick, set with <code>MDog.setActiveFunction()</code>. Changing it is how a game switches screens, like from a title screen to the game.</p>
+
+                    <h3>Animation</h3>
+                    <p>Pictures shown one after another, made with <code>MultipleFileAnimation</code> (one file per frame) or <code>SpriteSheetAnimation</code> (every frame in one file), and drawn with <code>MDog.Draw.animation()</code>. Each time it's drawn, it moves forward by one tick.</p>
+
+                    <h3 data-terms="art pixel, art pixels">Art Pixel</h3>
+                    <p>One pixel of the game's own small screen. The screen is 512 by 384 art pixels unless it's changed with <code>setScreenSize()</code>, and each art pixel is drawn as a square of real pixels, so the game is scaled up without getting blurry. Every position in a game is in art pixels.</p>
+
+                    <h3 data-terms="assets folder">Assets Folder</h3>
+                    <p>The folder named <code>assets</code> next to a game's <code>index.html</code>, where its images, fonts, and other files go. MDog Engine adds <code>assets/</code> to the start of every file name, so <code>"player.png"</code> means <code>assets/player.png</code>.</p>
+
+                    <h3>Camera</h3>
+                    <p>In the <a href="threedee.html">ThreeDee Module</a>, where a 3D scene is seen from. In 2D games, a "camera" that follows the player is made by shifting everything with <code>translate()</code> (see <a href="guide-camera.html">A Camera That Follows the Player</a>).</p>
+
+                    <h3 data-terms="clicked">Clicked</h3>
+                    <p>True for only the one tick a key or mouse button is first pressed, from <code>isClicked()</code> or <code>getClick()</code>. Good for things that should happen once per press, like jumping.</p>
+
+                    <h3>Down</h3>
+                    <p>True for every tick a key or mouse button is held, from <code>isDown()</code> or <code>getDown()</code>. Good for things that keep happening while it's held, like walking.</p>
+
+                    <h3>Frame</h3>
+                    <p>One picture of an animation. Animations count frames from 0 in code, but the files of a <code>MultipleFileAnimation</code> are numbered from 1.</p>
+
+                    <h3 data-terms="hex code, hex codes">Hex Code</h3>
+                    <p>How colors are written, like <code>"#ff8800"</code>: a <code>#</code>, then two digits each for red, green, and blue, from <code>00</code> (none) to <code>ff</code> (all). Two more digits at the end, like <code>"#00000099"</code>, make it see-through.</p>
+
+                    <h3>Hitbox</h3>
+                    <p>An invisible shape used to check if things touch, usually simpler than what's drawn. In MDog Engine, hitboxes are <a href="basics.html">kickboxes</a>.</p>
+
+                    <h3 data-terms="interactable, interactables">Interactable</h3>
+                    <p>Something from the <a href="ui.html">UI Module</a> that's drawn on the screen and can tell where the mouse is, like a tilemap or a grid. Drawn with <code>MDog.Draw.interactable()</code>, or in a <code>Page</code>.</p>
+
+                    <h3 data-terms="kickbox, kickboxes">Kickbox</h3>
+                    <p>MDog Engine's name for a hitbox. A <a href="basics.html#squarekickbox"><code>SquareKickbox</code></a> is a rectangle attached to a position <code>Vector</code>, so it moves along with whatever it belongs to.</p>
+
+                    <h3 data-terms="layer, layers">Layer</h3>
+                    <p>One of the game's canvases. Layers are numbered, and higher ones are drawn on top of lower ones, so a background can be on layer 0 and the player on layer 1. Drawing methods take a <code>layer</code> setting.</p>
+
+                    <h3>Module</h3>
+                    <p>One part of MDog Engine, like <code>MDog.Draw</code> or <code>MDog.Input</code>. Each has its own page under Engine in the sidebar.</p>
+
+                    <h3 data-terms="particle system, particle systems">Particle System</h3>
+                    <p>A group of particles that are moved and drawn together. Particles are small things that fly around for a while and then disappear, like sparks and dust (see the <a href="fx.html">FX Module</a>).</p>
+
+                    <h3 data-terms="pixel font, pixel fonts">Pixel Font</h3>
+                    <p>A font made of pixel art, drawn with <code>textImage()</code>. MDog Engine comes with two: <code>marsfont.png</code> and <code>determinationfont.png</code> (see <a href="asset-packs.html#fonts">Asset Packs</a>).</p>
+
+                    <h3>Settings</h3>
+                    <p>The last thing many methods take: an object of extra options, like <code>{flipX: true, scale: 2}</code>. Every setting has a default, so only the ones that matter need to be written.</p>
+
+                    <h3 data-terms="sprite sheet, sprite sheets">Sprite Sheet</h3>
+                    <p>One image with every frame of an animation side by side, from left to right. Made into an animation with <code>SpriteSheetAnimation</code>.</p>
+
+                    <h3 data-terms="tick, ticks">Tick</h3>
+                    <p>One run of the active function. MDog Engine runs 160 ticks per second on every computer, so moving something 1 art pixel per tick always moves it 160 art pixels per second. Timers in games are usually counted in ticks (see <a href="guide-timers.html">Timers and Cooldowns</a>).</p>
+
+                    <h3 data-terms="tilemap, tilemaps">Tilemap</h3>
+                    <p>A grid of small square pictures called tiles, all from one sprite sheet, written as rows of tile numbers. Made with <a href="ui.html#tilemapinteractable"><code>TilemapInteractable</code></a>, often from a <code>.csv</code> file (see <a href="guide-levels.html">Levels From a File</a>).</p>
+
+                    <h3>Vector</h3>
+                    <p>A point or direction with an <code>x</code> and a <code>y</code> (or an <code>x</code>, <code>y</code>, and <code>z</code> for a <code>Vector3</code>), from the <a href="math.html">Math Module</a>. Used for positions, speeds, and directions.</p>
+
+                </div>
+
+                <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

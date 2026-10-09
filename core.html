@@ -49,6 +49,35 @@
                     methodsTable([
                         {
                             name: "setActiveFunction",
+                            demo: {
+                                keys: [" ","Escape"],
+                                code: `
+                                let ticks = 0;
+
+                                // The title screen: space switches to the game
+                                function title() {
+                                    MDog.Draw.clear({color: "#1a1030"});
+                                    MDog.Draw.textImage("Title Screen", 80, 40, "#ffcc33", "fonts/marsfont.png", {alignX: "center", size: 2});
+                                    MDog.Draw.textImage("Press space", 80, 80, "#ffffff", "fonts/marsfont.png", {alignX: "center"});
+                                    if (MDog.Input.Keyboard.isClicked(" ")) {
+                                        MDog.setActiveFunction(game);
+                                    }
+                                }
+
+                                // The game: Escape goes back to the title screen
+                                function game() {
+                                    ticks++;
+                                    MDog.Draw.clear({color: "#203040"});
+                                    MDog.Draw.circle(80 + Math.round(Math.sin(ticks / 30) * 50), 60, 8, "#66dd88");
+                                    MDog.Draw.textImage("Escape to go back", 4, 4, "#ffffff", "fonts/marsfont.png");
+                                    if (MDog.Input.Keyboard.isClicked("Escape")) {
+                                        MDog.setActiveFunction(title);
+                                    }
+                                }
+
+                                MDog.setActiveFunction(title);
+                                `,
+                            },
                             description: "Sets the function that runs every tick.",
                             details: "Sets the function that runs every tick. This can be called again at any time to switch to a different function, like going from a title screen to the game.",
                             parameters: [

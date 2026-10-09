@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Make a retro 3D racing game with MDog Engine, step by step: a road, steering, curves, other cars, and lap times.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MDog Engine Docs">
+    <meta property="og:title" content="Tutorial: Make a 3D Racer - MDog Engine">
+    <meta property="og:description" content="Make a retro 3D racing game with MDog Engine, step by step: a road, steering, curves, other cars, and lap times. MDog Engine is made by Milo Kesteloot.">
+    <meta property="og:url" content="https://milokesteloot.github.io/MDogEngineDocs/tutorial-racer">
+    <meta property="og:image" content="https://milokesteloot.github.io/MDogEngineDocs/assets/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="MDog Engine, a retro game engine for the web">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Tutorial: Make a 3D Racer - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Tutorials</div>
+
+                <h1>Make a 3D Racer</h1>
+
+                <p>In this tutorial you'll make a retro 3D racing game, like the arcade racers from the 80s: a curvy road, a car you drive, trees flying past, other cars to pass, and lap times to beat.</p>
+
+                <p>It uses the <a href="threedee.html">ThreeDee Module</a>, which draws flat shapes with perspective, so far away things look smaller. Every step has a game you can play, with its code right under it. Change the code and press Run to try it, or Reset code to put it back. If you haven't made a game with MDog Engine before, start with the <a href="tutorial.html">platformer tutorial</a>.</p>
+
+                <p>In these boxes, MDog Engine is already imported and the screen is set to 256 by 192. In your own game, start with the import line from <a href="getting-started.html">Getting Started</a>.</p>
+
+                <h2>1. A Road</h2>
+
+                <p>In 3D, positions have a third number, <code>z</code>, for how far away something is. The camera looks forward along z, so things with a bigger z are farther ahead. Driving is just moving the camera forward by adding to its z every tick.</p>
+
+                <p>The road is made of stripes, each 4 long, in two colors. That's what makes it look like it's moving. Every tick the game makes a new <code>ThreeDeeScene</code> with only the stripes that can be seen, from 3 in front of the camera to 100 away. Each stripe is a <code>ThreeDeeFloor</code> of grass across the whole screen, with the road on top made of <code>ThreeDeeShape</code>s, which are flat shapes made from 3D corners.</p>
+
+                <p>A scene draws things in the order they were added, so the farthest stripes are added first and the closer ones are drawn on top of them.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: [],
+                        code: `
+                            const ThreeDee = MDog.ThreeDee;
+                            const Vector3 = MDog.Math.Vector3;
+
+                            // The ground is 10 below the camera
+                            const groundY = 10;
+                            const camera = new ThreeDee.Camera(0, 0, 0, 50);
+                            const stripeLength = 4;
+                            const viewDistance = 100;
+
+                            function main() {
+                                // Drive forward
+                                camera.position.z += 0.12;
+
+                                const scene = new ThreeDee.ThreeDeeScene(camera);
+                                addRoad(scene);
+
+                                MDog.Draw.clear({color: "#87b8e8"});
+                                MDog.Draw.threeDeeScene(scene);
+                            }
+
+                            // Adds the stripes that can be seen, from farthest to closest
+                            function addRoad(scene) {
+                                const near = camera.getZ() + 3;
+                                const far = camera.getZ() + viewDistance;
+                                // Grass all the way to the horizon, behind everything else
+                                scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, far + 1000, far, "#3f7d3a"));
+                                for (let z = Math.floor(far / stripeLength) * stripeLength; z + stripeLength > near; z -= stripeLength) {
+                                    const zFar = z + stripeLength;
+                                    // The closest stripe gets shorter as the camera drives over it
+                                    const zNear = Math.max(z, near);
+                                    const light = Math.floor(z / stripeLength) % 2 === 0;
+
+                                    scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, zFar, zNear, light ? "#4a8f42" : "#3f7d3a"));
+                                    addStrip(scene, zNear, zFar, -6, 6, light ? "#666666" : "#5e5e5e");
+                                    // Red and white edges, and a dashed line down the middle
+                                    addStrip(scene, zNear, zFar, -6.8, -6, light ? "#ffffff" : "#d03030");
+                                    addStrip(scene, zNear, zFar, 6, 6.8, light ? "#ffffff" : "#d03030");
+                                    if (light) {
+                                        addStrip(scene, zNear, zFar, -0.15, 0.15, "#ffffff");
+                                    }
+                                }
+                            }
+
+                            // A piece of road from zNear to zFar, between two distances from the middle of the road
+                            function addStrip(scene, zNear, zFar, left, right, color) {
+                                scene.addObject(new ThreeDee.ThreeDeeShape([
+                                    new Vector3(roadCenter(zNear) + left, groundY, zNear),
+                                    new Vector3(roadCenter(zNear) + right, groundY, zNear),
+                                    new Vector3(roadCenter(zFar) + right, groundY, zFar),
+                                    new Vector3(roadCenter(zFar) + left, groundY, zFar),
+                                ], color));
+                            }
+
+                            // The x of the middle of the road at a distance. It's straight for now.
+                            function roadCenter(z) {
+                                return 0;
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try making the stripes longer, or the road wider by changing the 6s.</p>
+
+                <h2>2. Your Car</h2>
+
+                <p>Now there's a car to drive. Its position is a <code>Vector3</code>, and it moves forward by its <code>speed</code> every tick. Holding up speeds it up, letting go slows it down a little, and holding down brakes. Driving on the grass slows it down too.</p>
+
+                <p>The camera stays 5 behind the car and right in line with it, so the car is always in the middle of the screen, and the road moves around it instead. The car is a few <code>ThreeDeeRectangle</code>s, which are rectangles that face the camera: wheels, a body, a window, and tail lights, each added after the one it covers.</p>
+
+                <p>Steering turns more the faster the car goes, so it can't slide sideways while it's stopped.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"],
+                        code: `
+                            const ThreeDee = MDog.ThreeDee;
+                            const Vector3 = MDog.Math.Vector3;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const font = "fonts/marsfont.png";
+
+                            const groundY = 10;
+                            const camera = new ThreeDee.Camera(0, 0, 0, 50);
+                            const stripeLength = 4;
+                            const viewDistance = 100;
+
+                            const player = new Vector3(0, groundY, 5);
+                            let speed = 0;
+                            const maxSpeed = 0.2;
+
+                            function main() {
+                                drive();
+
+                                const scene = new ThreeDee.ThreeDeeScene(camera);
+                                addRoad(scene);
+                                addCar(scene, player.x, player.z, "#3388ff");
+
+                                MDog.Draw.clear({color: "#87b8e8"});
+                                MDog.Draw.threeDeeScene(scene);
+                                MDog.Draw.textImage(Math.round(speed * 1000) + " km/h", 250, 6, "#ffffff", font, {alignX: "right"});
+                            }
+
+                            function drive() {
+                                // Up speeds up, down brakes, and letting go slowly coasts to a stop
+                                if (Keyboard.isDown("ArrowUp")) {
+                                    speed += 0.0008;
+                                } else {
+                                    speed -= 0.0003;
+                                }
+                                if (Keyboard.isDown("ArrowDown")) {
+                                    speed -= 0.002;
+                                }
+                                // The grass slows the car down
+                                if (Math.abs(player.x - roadCenter(player.z)) > 6.5 && speed > 0.05) {
+                                    speed -= 0.002;
+                                }
+                                speed = Math.max(0, Math.min(speed, maxSpeed));
+
+                                // Steering turns more the faster the car is going
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    player.x -= speed * 0.45;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    player.x += speed * 0.45;
+                                }
+                                player.z += speed;
+
+                                // The camera stays right behind the car
+                                camera.position.x = player.x;
+                                camera.position.z = player.z - 5;
+                            }
+
+                            // A car seen from behind, with its bottom middle at x and z
+                            function addCar(scene, x, z, color) {
+                                const y = groundY;
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.6, y - 0.6, x - 0.9, y, "#1a1a1a"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 0.9, y - 0.6, x + 1.6, y, "#1a1a1a"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.5, y - 1.4, x + 1.5, y - 0.4, color));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1, y - 2.2, x + 1, y - 1.4, "#223344"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.4, y - 1.2, x - 0.9, y - 0.9, "#ff3333"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 0.9, y - 1.2, x + 1.4, y - 0.9, "#ff3333"));
+                            }
+
+                            function addRoad(scene) {
+                                const near = camera.getZ() + 3;
+                                const far = camera.getZ() + viewDistance;
+                                scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, far + 1000, far, "#3f7d3a"));
+                                for (let z = Math.floor(far / stripeLength) * stripeLength; z + stripeLength > near; z -= stripeLength) {
+                                    const zFar = z + stripeLength;
+                                    const zNear = Math.max(z, near);
+                                    const light = Math.floor(z / stripeLength) % 2 === 0;
+
+                                    scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, zFar, zNear, light ? "#4a8f42" : "#3f7d3a"));
+                                    addStrip(scene, zNear, zFar, -6, 6, light ? "#666666" : "#5e5e5e");
+                                    addStrip(scene, zNear, zFar, -6.8, -6, light ? "#ffffff" : "#d03030");
+                                    addStrip(scene, zNear, zFar, 6, 6.8, light ? "#ffffff" : "#d03030");
+                                    if (light) {
+                                        addStrip(scene, zNear, zFar, -0.15, 0.15, "#ffffff");
+                                    }
+                                }
+                            }
+
+                            function addStrip(scene, zNear, zFar, left, right, color) {
+                                scene.addObject(new ThreeDee.ThreeDeeShape([
+                                    new Vector3(roadCenter(zNear) + left, groundY, zNear),
+                                    new Vector3(roadCenter(zNear) + right, groundY, zNear),
+                                    new Vector3(roadCenter(zFar) + right, groundY, zFar),
+                                    new Vector3(roadCenter(zFar) + left, groundY, zFar),
+                                ], color));
+                            }
+
+                            function roadCenter(z) {
+                                return 0;
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try changing <code>maxSpeed</code>, or making the car a different color.</p>
+
+                <h2>3. Curves and Trees</h2>
+
+                <p>A straight road gets boring fast. <code>roadCenter()</code> now curves the road back and forth with two <code>Math.sin()</code> waves added together, so the curves aren't all the same. Since every stripe asks <code>roadCenter()</code> where it goes, the whole road follows. Now you have to steer to stay on it.</p>
+
+                <p>Trees stand beside the road every 10, on alternating sides, so you can feel how fast you're going. Trees and the car can be in front of or behind each other, so they're all put in one list, sorted from farthest to closest, then added to the scene in that order. The road is flat, so it can all be added first, under everything.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"],
+                        code: `
+                            const ThreeDee = MDog.ThreeDee;
+                            const Vector3 = MDog.Math.Vector3;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const font = "fonts/marsfont.png";
+
+                            const groundY = 10;
+                            const camera = new ThreeDee.Camera(0, 0, 0, 50);
+                            const stripeLength = 4;
+                            const viewDistance = 100;
+
+                            const player = new Vector3(0, groundY, 5);
+                            let speed = 0;
+                            const maxSpeed = 0.2;
+
+                            function main() {
+                                drive();
+
+                                const scene = new ThreeDee.ThreeDeeScene(camera);
+                                addRoad(scene);
+
+                                // Everything standing up, in one list
+                                const things = [{type: "car", x: player.x, z: player.z, color: "#3388ff"}];
+                                const firstTree = Math.ceil((camera.getZ() + 1) / 10) * 10;
+                                for (let z = firstTree; z < camera.getZ() + viewDistance; z += 10) {
+                                    const side = Math.floor(z / 10) % 2 === 0 ? -1 : 1;
+                                    things.push({type: "tree", x: roadCenter(z) + side * 10, z});
+                                }
+                                // Farthest first, so closer things are drawn on top
+                                things.sort((a, b) => b.z - a.z);
+                                for (const thing of things) {
+                                    if (thing.type === "tree") {
+                                        addTree(scene, thing.x, thing.z);
+                                    } else {
+                                        addCar(scene, thing.x, thing.z, thing.color);
+                                    }
+                                }
+
+                                MDog.Draw.clear({color: "#87b8e8"});
+                                MDog.Draw.threeDeeScene(scene);
+                                MDog.Draw.textImage(Math.round(speed * 1000) + " km/h", 250, 6, "#ffffff", font, {alignX: "right"});
+                            }
+
+                            // Two waves added together, for curves that aren't all the same
+                            function roadCenter(z) {
+                                return Math.sin(z / 50) * 14 + Math.sin(z / 19) * 4;
+                            }
+
+                            function addTree(scene, x, z) {
+                                const y = groundY;
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 0.4, y - 3, x + 0.4, y, "#7a5230"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 2, y - 6.5, x + 2, y - 2.5, "#2f6b2f"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.2, y - 8, x + 1.2, y - 6.5, "#2f6b2f"));
+                            }
+
+                            function drive() {
+                                if (Keyboard.isDown("ArrowUp")) {
+                                    speed += 0.0008;
+                                } else {
+                                    speed -= 0.0003;
+                                }
+                                if (Keyboard.isDown("ArrowDown")) {
+                                    speed -= 0.002;
+                                }
+                                if (Math.abs(player.x - roadCenter(player.z)) > 6.5 && speed > 0.05) {
+                                    speed -= 0.002;
+                                }
+                                speed = Math.max(0, Math.min(speed, maxSpeed));
+
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    player.x -= speed * 0.45;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    player.x += speed * 0.45;
+                                }
+                                player.z += speed;
+
+                                camera.position.x = player.x;
+                                camera.position.z = player.z - 5;
+                            }
+
+                            function addCar(scene, x, z, color) {
+                                const y = groundY;
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.6, y - 0.6, x - 0.9, y, "#1a1a1a"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 0.9, y - 0.6, x + 1.6, y, "#1a1a1a"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.5, y - 1.4, x + 1.5, y - 0.4, color));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1, y - 2.2, x + 1, y - 1.4, "#223344"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.4, y - 1.2, x - 0.9, y - 0.9, "#ff3333"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 0.9, y - 1.2, x + 1.4, y - 0.9, "#ff3333"));
+                            }
+
+                            function addRoad(scene) {
+                                const near = camera.getZ() + 3;
+                                const far = camera.getZ() + viewDistance;
+                                scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, far + 1000, far, "#3f7d3a"));
+                                for (let z = Math.floor(far / stripeLength) * stripeLength; z + stripeLength > near; z -= stripeLength) {
+                                    const zFar = z + stripeLength;
+                                    const zNear = Math.max(z, near);
+                                    const light = Math.floor(z / stripeLength) % 2 === 0;
+
+                                    scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, zFar, zNear, light ? "#4a8f42" : "#3f7d3a"));
+                                    addStrip(scene, zNear, zFar, -6, 6, light ? "#666666" : "#5e5e5e");
+                                    addStrip(scene, zNear, zFar, -6.8, -6, light ? "#ffffff" : "#d03030");
+                                    addStrip(scene, zNear, zFar, 6, 6.8, light ? "#ffffff" : "#d03030");
+                                    if (light) {
+                                        addStrip(scene, zNear, zFar, -0.15, 0.15, "#ffffff");
+                                    }
+                                }
+                            }
+
+                            function addStrip(scene, zNear, zFar, left, right, color) {
+                                scene.addObject(new ThreeDee.ThreeDeeShape([
+                                    new Vector3(roadCenter(zNear) + left, groundY, zNear),
+                                    new Vector3(roadCenter(zNear) + right, groundY, zNear),
+                                    new Vector3(roadCenter(zFar) + right, groundY, zFar),
+                                    new Vector3(roadCenter(zFar) + left, groundY, zFar),
+                                ], color));
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try making the curves sharper by changing the 14, or putting trees on both sides.</p>
+
+                <h2>4. Other Cars</h2>
+
+                <p>A race needs someone to race. Six other cars drive along the road, each in a lane and at its own speed, a little slower than your top speed. A car's lane is how far it is from the middle of the road, so it follows the curves too.</p>
+
+                <p>There are only six cars, but the road feels busy because they're reused. A car that falls far behind you is moved far ahead, past where you can see, and comes back as if it were a new car. If you're the slow one, cars that get far ahead are moved back behind you.</p>
+
+                <p>Bumping into the back of a car puts you right behind it and slows you down. Cars only need to be close in x and z to crash, since they're all on the ground.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"],
+                        code: `
+                            const ThreeDee = MDog.ThreeDee;
+                            const Vector3 = MDog.Math.Vector3;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const font = "fonts/marsfont.png";
+
+                            const groundY = 10;
+                            const camera = new ThreeDee.Camera(0, 0, 0, 50);
+                            const stripeLength = 4;
+                            const viewDistance = 100;
+
+                            const player = new Vector3(0, groundY, 5);
+                            let speed = 0;
+                            const maxSpeed = 0.2;
+
+                            // Each car has a lane, how far it is along the road, and its own speed
+                            const colors = ["#ff5544", "#ffcc33", "#44cc66", "#cc66ff", "#ff8844", "#eeeeee"];
+                            const cars = colors.map((color, i) => ({
+                                lane: i % 2 === 0 ? -3 : 3,
+                                z: 30 + i * 25,
+                                speed: 0.1 + Math.random() * 0.05,
+                                color,
+                            }));
+
+                            function main() {
+                                drive();
+                                moveCars();
+
+                                const scene = new ThreeDee.ThreeDeeScene(camera);
+                                addRoad(scene);
+
+                                const things = [{type: "car", x: player.x, z: player.z, color: "#3388ff"}];
+                                for (const car of cars) {
+                                    if (car.z > camera.getZ() + 1) {
+                                        things.push({type: "car", x: roadCenter(car.z) + car.lane, z: car.z, color: car.color});
+                                    }
+                                }
+                                const firstTree = Math.ceil((camera.getZ() + 1) / 10) * 10;
+                                for (let z = firstTree; z < camera.getZ() + viewDistance; z += 10) {
+                                    const side = Math.floor(z / 10) % 2 === 0 ? -1 : 1;
+                                    things.push({type: "tree", x: roadCenter(z) + side * 10, z});
+                                }
+                                things.sort((a, b) => b.z - a.z);
+                                for (const thing of things) {
+                                    if (thing.type === "tree") {
+                                        addTree(scene, thing.x, thing.z);
+                                    } else {
+                                        addCar(scene, thing.x, thing.z, thing.color);
+                                    }
+                                }
+
+                                MDog.Draw.clear({color: "#87b8e8"});
+                                MDog.Draw.threeDeeScene(scene);
+                                MDog.Draw.textImage(Math.round(speed * 1000) + " km/h", 250, 6, "#ffffff", font, {alignX: "right"});
+                            }
+
+                            function moveCars() {
+                                for (const car of cars) {
+                                    car.z += car.speed;
+
+                                    // Reuse cars that are too far behind or too far ahead
+                                    if (car.z < player.z - 10) {
+                                        car.z += 150;
+                                    }
+                                    if (car.z > player.z + 140) {
+                                        car.z -= 150;
+                                    }
+
+                                    // Bump into the back of a car
+                                    const x = roadCenter(car.z) + car.lane;
+                                    if (Math.abs(car.z - player.z) < 1.2 && Math.abs(x - player.x) < 3) {
+                                        if (player.z < car.z) {
+                                            player.z = car.z - 1.2;
+                                            speed = car.speed * 0.5;
+                                        } else {
+                                            car.z = player.z - 1.2;
+                                        }
+                                    }
+                                }
+                            }
+
+                            function drive() {
+                                if (Keyboard.isDown("ArrowUp")) {
+                                    speed += 0.0008;
+                                } else {
+                                    speed -= 0.0003;
+                                }
+                                if (Keyboard.isDown("ArrowDown")) {
+                                    speed -= 0.002;
+                                }
+                                if (Math.abs(player.x - roadCenter(player.z)) > 6.5 && speed > 0.05) {
+                                    speed -= 0.002;
+                                }
+                                speed = Math.max(0, Math.min(speed, maxSpeed));
+
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    player.x -= speed * 0.45;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    player.x += speed * 0.45;
+                                }
+                                player.z += speed;
+
+                                camera.position.x = player.x;
+                                camera.position.z = player.z - 5;
+                            }
+
+                            function roadCenter(z) {
+                                return Math.sin(z / 50) * 14 + Math.sin(z / 19) * 4;
+                            }
+
+                            function addTree(scene, x, z) {
+                                const y = groundY;
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 0.4, y - 3, x + 0.4, y, "#7a5230"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 2, y - 6.5, x + 2, y - 2.5, "#2f6b2f"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.2, y - 8, x + 1.2, y - 6.5, "#2f6b2f"));
+                            }
+
+                            function addCar(scene, x, z, color) {
+                                const y = groundY;
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.6, y - 0.6, x - 0.9, y, "#1a1a1a"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 0.9, y - 0.6, x + 1.6, y, "#1a1a1a"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.5, y - 1.4, x + 1.5, y - 0.4, color));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1, y - 2.2, x + 1, y - 1.4, "#223344"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.4, y - 1.2, x - 0.9, y - 0.9, "#ff3333"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 0.9, y - 1.2, x + 1.4, y - 0.9, "#ff3333"));
+                            }
+
+                            function addRoad(scene) {
+                                const near = camera.getZ() + 3;
+                                const far = camera.getZ() + viewDistance;
+                                scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, far + 1000, far, "#3f7d3a"));
+                                for (let z = Math.floor(far / stripeLength) * stripeLength; z + stripeLength > near; z -= stripeLength) {
+                                    const zFar = z + stripeLength;
+                                    const zNear = Math.max(z, near);
+                                    const light = Math.floor(z / stripeLength) % 2 === 0;
+
+                                    scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, zFar, zNear, light ? "#4a8f42" : "#3f7d3a"));
+                                    addStrip(scene, zNear, zFar, -6, 6, light ? "#666666" : "#5e5e5e");
+                                    addStrip(scene, zNear, zFar, -6.8, -6, light ? "#ffffff" : "#d03030");
+                                    addStrip(scene, zNear, zFar, 6, 6.8, light ? "#ffffff" : "#d03030");
+                                    if (light) {
+                                        addStrip(scene, zNear, zFar, -0.15, 0.15, "#ffffff");
+                                    }
+                                }
+                            }
+
+                            function addStrip(scene, zNear, zFar, left, right, color) {
+                                scene.addObject(new ThreeDee.ThreeDeeShape([
+                                    new Vector3(roadCenter(zNear) + left, groundY, zNear),
+                                    new Vector3(roadCenter(zNear) + right, groundY, zNear),
+                                    new Vector3(roadCenter(zFar) + right, groundY, zFar),
+                                    new Vector3(roadCenter(zFar) + left, groundY, zFar),
+                                ], color));
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try adding more colors to the list for more cars, or making them faster.</p>
+
+                <h2>5. Laps and Times</h2>
+
+                <p>The road now goes around in a loop, 600 long. The trick is that <code>roadCenter()</code> uses waves that repeat exactly every 600, so every lap has the same curves. A checkered finish line on the road and a banner over it mark where each lap starts.</p>
+
+                <p>The lap you're on is the car's z divided by the lap length, rounded down, plus one. When that number goes up, a lap just ended, so the game remembers how long it took and starts timing the next one. Times are counted in ticks, and there are 160 ticks in a second, so dividing by 160 gives seconds.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"],
+                        code: `
+                            const ThreeDee = MDog.ThreeDee;
+                            const Vector3 = MDog.Math.Vector3;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const font = "fonts/marsfont.png";
+
+                            const groundY = 10;
+                            const camera = new ThreeDee.Camera(0, 0, 0, 50);
+                            const stripeLength = 4;
+                            const viewDistance = 100;
+                            const lapLength = 600;
+
+                            // Starting just past the finish line
+                            const player = new Vector3(0, groundY, 2);
+                            let speed = 0;
+                            const maxSpeed = 0.2;
+
+                            const colors = ["#ff5544", "#ffcc33", "#44cc66", "#cc66ff", "#ff8844", "#eeeeee"];
+                            const cars = colors.map((color, i) => ({
+                                lane: i % 2 === 0 ? -3 : 3,
+                                z: 30 + i * 25,
+                                speed: 0.1 + Math.random() * 0.05,
+                                color,
+                            }));
+
+                            let lap = 1;
+                            // Ticks since this lap started
+                            let lapTicks = 0;
+                            let lastLap = null;
+                            let bestLap = null;
+
+                            function main() {
+                                drive();
+                                moveCars();
+
+                                // A lap ends when the car crosses the finish line
+                                lapTicks++;
+                                const currentLap = Math.floor(player.z / lapLength) + 1;
+                                if (currentLap > lap) {
+                                    lap = currentLap;
+                                    lastLap = lapTicks;
+                                    if (bestLap === null || lastLap < bestLap) {
+                                        bestLap = lastLap;
+                                    }
+                                    lapTicks = 0;
+                                }
+
+                                drawWorld();
+                                MDog.Draw.textImage("Lap " + lap, 6, 6, "#ffffff", font);
+                                MDog.Draw.textImage("Time " + formatTime(lapTicks), 6, 14, "#ffffff", font);
+                                if (lastLap !== null) {
+                                    MDog.Draw.textImage("Last " + formatTime(lastLap), 6, 22, "#ffffff", font);
+                                    MDog.Draw.textImage("Best " + formatTime(bestLap), 6, 30, "#ffcc33", font);
+                                }
+                                MDog.Draw.textImage(Math.round(speed * 1000) + " km/h", 250, 6, "#ffffff", font, {alignX: "right"});
+                            }
+
+                            // Ticks as seconds, like 12.34
+                            function formatTime(ticks) {
+                                return (ticks / 160).toFixed(2);
+                            }
+
+                            // Both waves repeat exactly every 600, so every lap is the same
+                            function roadCenter(z) {
+                                return Math.sin(z / lapLength * Math.PI * 4) * 14 + Math.sin(z / lapLength * Math.PI * 10) * 4;
+                            }
+
+                            function drawWorld() {
+                                const scene = new ThreeDee.ThreeDeeScene(camera);
+                                addRoad(scene);
+
+                                const things = [{type: "car", x: player.x, z: player.z, color: "#3388ff"}];
+                                for (const car of cars) {
+                                    if (car.z > camera.getZ() + 1) {
+                                        things.push({type: "car", x: roadCenter(car.z) + car.lane, z: car.z, color: car.color});
+                                    }
+                                }
+                                const firstTree = Math.ceil((camera.getZ() + 1) / 10) * 10;
+                                for (let z = firstTree; z < camera.getZ() + viewDistance; z += 10) {
+                                    const side = Math.floor(z / 10) % 2 === 0 ? -1 : 1;
+                                    things.push({type: "tree", x: roadCenter(z) + side * 10, z});
+                                }
+                                // The banner over the next finish line
+                                const finish = Math.ceil((camera.getZ() + 1) / lapLength) * lapLength;
+                                if (finish < camera.getZ() + viewDistance) {
+                                    things.push({type: "banner", x: roadCenter(finish), z: finish});
+                                }
+                                things.sort((a, b) => b.z - a.z);
+                                for (const thing of things) {
+                                    if (thing.type === "tree") {
+                                        addTree(scene, thing.x, thing.z);
+                                    } else if (thing.type === "banner") {
+                                        addBanner(scene, thing.x, thing.z);
+                                    } else {
+                                        addCar(scene, thing.x, thing.z, thing.color);
+                                    }
+                                }
+
+                                MDog.Draw.clear({color: "#87b8e8"});
+                                MDog.Draw.threeDeeScene(scene);
+                            }
+
+                            // Two posts and a banner high over the road
+                            function addBanner(scene, x, z) {
+                                const y = groundY;
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 7.6, y - 14, x - 7.1, y, "#dddddd"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 7.1, y - 14, x + 7.6, y, "#dddddd"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 7.6, y - 14, x + 7.6, y - 12, "#d03030"));
+                            }
+
+                            // A checkered line across the road, 2 rows of 12 squares
+                            function addFinishLine(scene, z) {
+                                for (let row = 0; row < 2; row++) {
+                                    for (let column = 0; column < 12; column++) {
+                                        const color = (row + column) % 2 === 0 ? "#ffffff" : "#222222";
+                                        addStrip(scene, z + row, z + row + 1, column - 6, column - 5, color);
+                                    }
+                                }
+                            }
+
+                            function moveCars() {
+                                for (const car of cars) {
+                                    car.z += car.speed;
+                                    if (car.z < player.z - 10) {
+                                        car.z += 150;
+                                    }
+                                    if (car.z > player.z + 140) {
+                                        car.z -= 150;
+                                    }
+                                    const x = roadCenter(car.z) + car.lane;
+                                    if (Math.abs(car.z - player.z) < 1.2 && Math.abs(x - player.x) < 3) {
+                                        if (player.z < car.z) {
+                                            player.z = car.z - 1.2;
+                                            speed = car.speed * 0.5;
+                                        } else {
+                                            car.z = player.z - 1.2;
+                                        }
+                                    }
+                                }
+                            }
+
+                            function drive() {
+                                if (Keyboard.isDown("ArrowUp")) {
+                                    speed += 0.0008;
+                                } else {
+                                    speed -= 0.0003;
+                                }
+                                if (Keyboard.isDown("ArrowDown")) {
+                                    speed -= 0.002;
+                                }
+                                if (Math.abs(player.x - roadCenter(player.z)) > 6.5 && speed > 0.05) {
+                                    speed -= 0.002;
+                                }
+                                speed = Math.max(0, Math.min(speed, maxSpeed));
+
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    player.x -= speed * 0.45;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    player.x += speed * 0.45;
+                                }
+                                player.z += speed;
+
+                                camera.position.x = player.x;
+                                camera.position.z = player.z - 5;
+                            }
+
+                            function addTree(scene, x, z) {
+                                const y = groundY;
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 0.4, y - 3, x + 0.4, y, "#7a5230"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 2, y - 6.5, x + 2, y - 2.5, "#2f6b2f"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.2, y - 8, x + 1.2, y - 6.5, "#2f6b2f"));
+                            }
+
+                            function addCar(scene, x, z, color) {
+                                const y = groundY;
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.6, y - 0.6, x - 0.9, y, "#1a1a1a"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 0.9, y - 0.6, x + 1.6, y, "#1a1a1a"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.5, y - 1.4, x + 1.5, y - 0.4, color));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1, y - 2.2, x + 1, y - 1.4, "#223344"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.4, y - 1.2, x - 0.9, y - 0.9, "#ff3333"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 0.9, y - 1.2, x + 1.4, y - 0.9, "#ff3333"));
+                            }
+
+                            function addRoad(scene) {
+                                const near = camera.getZ() + 3;
+                                const far = camera.getZ() + viewDistance;
+                                scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, far + 1000, far, "#3f7d3a"));
+                                for (let z = Math.floor(far / stripeLength) * stripeLength; z + stripeLength > near; z -= stripeLength) {
+                                    const zFar = z + stripeLength;
+                                    const zNear = Math.max(z, near);
+                                    const light = Math.floor(z / stripeLength) % 2 === 0;
+
+                                    scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, zFar, zNear, light ? "#4a8f42" : "#3f7d3a"));
+                                    addStrip(scene, zNear, zFar, -6, 6, light ? "#666666" : "#5e5e5e");
+                                    addStrip(scene, zNear, zFar, -6.8, -6, light ? "#ffffff" : "#d03030");
+                                    addStrip(scene, zNear, zFar, 6, 6.8, light ? "#ffffff" : "#d03030");
+                                    if (light) {
+                                        addStrip(scene, zNear, zFar, -0.15, 0.15, "#ffffff");
+                                    }
+                                }
+                                // The finish line, if it's in view
+                                const finish = Math.ceil(near / lapLength) * lapLength;
+                                if (finish < far) {
+                                    addFinishLine(scene, finish);
+                                }
+                            }
+
+                            function addStrip(scene, zNear, zFar, left, right, color) {
+                                scene.addObject(new ThreeDee.ThreeDeeShape([
+                                    new Vector3(roadCenter(zNear) + left, groundY, zNear),
+                                    new Vector3(roadCenter(zNear) + right, groundY, zNear),
+                                    new Vector3(roadCenter(zFar) + right, groundY, zFar),
+                                    new Vector3(roadCenter(zFar) + left, groundY, zFar),
+                                ], color));
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try making <code>lapLength</code> shorter for quicker laps. Since the waves are made from it, the track still loops.</p>
+
+                <h2>6. Start Lights and Finish</h2>
+
+                <p>Last, the race gets a beginning and an end. The title screen shows the road slowly driving by. Pressing space puts everyone on the starting line, and a countdown of 3, 2, 1, GO holds the cars still until it's done. After 3 laps the race is over, the results show your total time and best lap, and your car coasts to a stop.</p>
+
+                <p>Like the other tutorials, each screen is its own function, and <code>setActiveFunction()</code> switches between them. <code>drive()</code> now takes whether the keys work, so the title and results screens can use it too, with nobody at the wheel.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "],
+                        code: `
+                            const ThreeDee = MDog.ThreeDee;
+                            const Vector3 = MDog.Math.Vector3;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const font = "fonts/marsfont.png";
+
+                            const groundY = 10;
+                            const camera = new ThreeDee.Camera(0, 0, 0, 50);
+                            const stripeLength = 4;
+                            const viewDistance = 100;
+                            const lapLength = 600;
+                            const totalLaps = 3;
+
+                            const player = new Vector3(0, groundY, 2);
+                            let speed = 0;
+                            const maxSpeed = 0.2;
+
+                            const colors = ["#ff5544", "#ffcc33", "#44cc66", "#cc66ff", "#ff8844", "#eeeeee"];
+                            let cars = [];
+
+                            let lap = 1;
+                            let lapTicks = 0;
+                            let raceTicks = 0;
+                            let bestLap = null;
+                            // Ticks left in the countdown, 160 for each number
+                            let countdown = 0;
+                            let ticks = 0;
+
+                            function titleScreen() {
+                                ticks++;
+                                // Cruise down the middle of the road
+                                speed = 0.08;
+                                player.x = roadCenter(player.z);
+                                drive(false);
+                                moveCars();
+                                drawWorld();
+
+                                MDog.Draw.textImage("Turbo Road", 128, 40, "#ffcc33", font, {alignX: "center", size: 3});
+                                if (Math.floor(ticks / 40) % 2 === 0) {
+                                    MDog.Draw.textImage("Press space to start", 128, 70, "#ffffff", font, {alignX: "center"});
+                                }
+                                if (Keyboard.isClicked(" ")) {
+                                    startRace();
+                                }
+                            }
+
+                            // Everyone on the starting line, then the countdown
+                            function startRace() {
+                                player.set(0, groundY, 2);
+                                speed = 0;
+                                cars = colors.map((color, i) => ({
+                                    lane: i % 2 === 0 ? -3 : 3,
+                                    z: 10 + Math.floor(i / 2) * 6,
+                                    speed: 0.1 + Math.random() * 0.05,
+                                    color,
+                                }));
+                                lap = 1;
+                                lapTicks = 0;
+                                raceTicks = 0;
+                                bestLap = null;
+                                countdown = 160 * 3;
+                                camera.position.x = player.x;
+                                camera.position.z = player.z - 5;
+                                MDog.setActiveFunction(race);
+                            }
+
+                            function race() {
+                                if (countdown > 0) {
+                                    countdown--;
+                                } else {
+                                    drive(true);
+                                    moveCars();
+                                    lapTicks++;
+                                    raceTicks++;
+                                }
+
+                                const currentLap = Math.floor(player.z / lapLength) + 1;
+                                if (currentLap > lap) {
+                                    if (bestLap === null || lapTicks < bestLap) {
+                                        bestLap = lapTicks;
+                                    }
+                                    lap = currentLap;
+                                    lapTicks = 0;
+                                    if (lap > totalLaps) {
+                                        MDog.setActiveFunction(results);
+                                    }
+                                }
+
+                                drawWorld();
+                                MDog.Draw.textImage("Lap " + Math.min(lap, totalLaps) + "/" + totalLaps, 6, 6, "#ffffff", font);
+                                MDog.Draw.textImage("Time " + formatTime(raceTicks), 6, 14, "#ffffff", font);
+                                if (bestLap !== null) {
+                                    MDog.Draw.textImage("Best lap " + formatTime(bestLap), 6, 22, "#ffcc33", font);
+                                }
+                                MDog.Draw.textImage(Math.round(speed * 1000) + " km/h", 250, 6, "#ffffff", font, {alignX: "right"});
+
+                                // 3, 2, 1, then GO for a moment after
+                                if (countdown > 0) {
+                                    const number = Math.ceil(countdown / 160);
+                                    MDog.Draw.textImage(String(number), 128, 30, "#ff5544", font, {alignX: "center", size: 4});
+                                } else if (raceTicks < 100) {
+                                    MDog.Draw.textImage("GO!", 128, 30, "#44cc66", font, {alignX: "center", size: 4});
+                                }
+                            }
+
+                            // The car coasts to a stop behind the results
+                            function results() {
+                                drive(false);
+                                moveCars();
+                                drawWorld();
+
+                                MDog.Draw.textImage("Finished!", 128, 30, "#ffcc33", font, {alignX: "center", size: 3});
+                                MDog.Draw.textImage("Time " + formatTime(raceTicks), 128, 56, "#ffffff", font, {alignX: "center"});
+                                MDog.Draw.textImage("Best lap " + formatTime(bestLap), 128, 66, "#ffffff", font, {alignX: "center"});
+                                MDog.Draw.textImage("Press space to race again", 128, 82, "#ffffff", font, {alignX: "center"});
+                                if (Keyboard.isClicked(" ")) {
+                                    startRace();
+                                }
+                            }
+
+                            function formatTime(ticks) {
+                                return (ticks / 160).toFixed(2);
+                            }
+
+                            // With keys off, nobody presses anything, so the car coasts
+                            function drive(keys) {
+                                if (keys && Keyboard.isDown("ArrowUp")) {
+                                    speed += 0.0008;
+                                } else {
+                                    speed -= 0.0003;
+                                }
+                                if (keys && Keyboard.isDown("ArrowDown")) {
+                                    speed -= 0.002;
+                                }
+                                if (Math.abs(player.x - roadCenter(player.z)) > 6.5 && speed > 0.05) {
+                                    speed -= 0.002;
+                                }
+                                speed = Math.max(0, Math.min(speed, maxSpeed));
+
+                                if (keys && Keyboard.isDown("ArrowLeft")) {
+                                    player.x -= speed * 0.45;
+                                }
+                                if (keys && Keyboard.isDown("ArrowRight")) {
+                                    player.x += speed * 0.45;
+                                }
+                                player.z += speed;
+
+                                camera.position.x = player.x;
+                                camera.position.z = player.z - 5;
+                            }
+
+                            function moveCars() {
+                                for (const car of cars) {
+                                    car.z += car.speed;
+                                    if (car.z < player.z - 10) {
+                                        car.z += 150;
+                                    }
+                                    if (car.z > player.z + 140) {
+                                        car.z -= 150;
+                                    }
+                                    const x = roadCenter(car.z) + car.lane;
+                                    if (Math.abs(car.z - player.z) < 1.2 && Math.abs(x - player.x) < 3) {
+                                        if (player.z < car.z) {
+                                            player.z = car.z - 1.2;
+                                            speed = car.speed * 0.5;
+                                        } else {
+                                            car.z = player.z - 1.2;
+                                        }
+                                    }
+                                }
+                            }
+
+                            function roadCenter(z) {
+                                return Math.sin(z / lapLength * Math.PI * 4) * 14 + Math.sin(z / lapLength * Math.PI * 10) * 4;
+                            }
+
+                            function drawWorld() {
+                                const scene = new ThreeDee.ThreeDeeScene(camera);
+                                addRoad(scene);
+
+                                const things = [{type: "car", x: player.x, z: player.z, color: "#3388ff"}];
+                                for (const car of cars) {
+                                    if (car.z > camera.getZ() + 1) {
+                                        things.push({type: "car", x: roadCenter(car.z) + car.lane, z: car.z, color: car.color});
+                                    }
+                                }
+                                const firstTree = Math.ceil((camera.getZ() + 1) / 10) * 10;
+                                for (let z = firstTree; z < camera.getZ() + viewDistance; z += 10) {
+                                    const side = Math.floor(z / 10) % 2 === 0 ? -1 : 1;
+                                    things.push({type: "tree", x: roadCenter(z) + side * 10, z});
+                                }
+                                const finish = Math.ceil((camera.getZ() + 1) / lapLength) * lapLength;
+                                if (finish < camera.getZ() + viewDistance) {
+                                    things.push({type: "banner", x: roadCenter(finish), z: finish});
+                                }
+                                things.sort((a, b) => b.z - a.z);
+                                for (const thing of things) {
+                                    if (thing.type === "tree") {
+                                        addTree(scene, thing.x, thing.z);
+                                    } else if (thing.type === "banner") {
+                                        addBanner(scene, thing.x, thing.z);
+                                    } else {
+                                        addCar(scene, thing.x, thing.z, thing.color);
+                                    }
+                                }
+
+                                MDog.Draw.clear({color: "#87b8e8"});
+                                MDog.Draw.threeDeeScene(scene);
+                            }
+
+                            function addBanner(scene, x, z) {
+                                const y = groundY;
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 7.6, y - 14, x - 7.1, y, "#dddddd"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 7.1, y - 14, x + 7.6, y, "#dddddd"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 7.6, y - 14, x + 7.6, y - 12, "#d03030"));
+                            }
+
+                            function addFinishLine(scene, z) {
+                                for (let row = 0; row < 2; row++) {
+                                    for (let column = 0; column < 12; column++) {
+                                        const color = (row + column) % 2 === 0 ? "#ffffff" : "#222222";
+                                        addStrip(scene, z + row, z + row + 1, column - 6, column - 5, color);
+                                    }
+                                }
+                            }
+
+                            function addTree(scene, x, z) {
+                                const y = groundY;
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 0.4, y - 3, x + 0.4, y, "#7a5230"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 2, y - 6.5, x + 2, y - 2.5, "#2f6b2f"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.2, y - 8, x + 1.2, y - 6.5, "#2f6b2f"));
+                            }
+
+                            function addCar(scene, x, z, color) {
+                                const y = groundY;
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.6, y - 0.6, x - 0.9, y, "#1a1a1a"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 0.9, y - 0.6, x + 1.6, y, "#1a1a1a"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.5, y - 1.4, x + 1.5, y - 0.4, color));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1, y - 2.2, x + 1, y - 1.4, "#223344"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x - 1.4, y - 1.2, x - 0.9, y - 0.9, "#ff3333"));
+                                scene.addObject(new ThreeDee.ThreeDeeRectangle(z, x + 0.9, y - 1.2, x + 1.4, y - 0.9, "#ff3333"));
+                            }
+
+                            function addRoad(scene) {
+                                const near = camera.getZ() + 3;
+                                const far = camera.getZ() + viewDistance;
+                                scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, far + 1000, far, "#3f7d3a"));
+                                for (let z = Math.floor(far / stripeLength) * stripeLength; z + stripeLength > near; z -= stripeLength) {
+                                    const zFar = z + stripeLength;
+                                    const zNear = Math.max(z, near);
+                                    const light = Math.floor(z / stripeLength) % 2 === 0;
+
+                                    scene.addObject(new ThreeDee.ThreeDeeFloor(groundY, zFar, zNear, light ? "#4a8f42" : "#3f7d3a"));
+                                    addStrip(scene, zNear, zFar, -6, 6, light ? "#666666" : "#5e5e5e");
+                                    addStrip(scene, zNear, zFar, -6.8, -6, light ? "#ffffff" : "#d03030");
+                                    addStrip(scene, zNear, zFar, 6, 6.8, light ? "#ffffff" : "#d03030");
+                                    if (light) {
+                                        addStrip(scene, zNear, zFar, -0.15, 0.15, "#ffffff");
+                                    }
+                                }
+                                const finish = Math.ceil(near / lapLength) * lapLength;
+                                if (finish < far) {
+                                    addFinishLine(scene, finish);
+                                }
+                            }
+
+                            function addStrip(scene, zNear, zFar, left, right, color) {
+                                scene.addObject(new ThreeDee.ThreeDeeShape([
+                                    new Vector3(roadCenter(zNear) + left, groundY, zNear),
+                                    new Vector3(roadCenter(zNear) + right, groundY, zNear),
+                                    new Vector3(roadCenter(zFar) + right, groundY, zFar),
+                                    new Vector3(roadCenter(zFar) + left, groundY, zFar),
+                                ], color));
+                            }
+
+                            MDog.setActiveFunction(titleScreen);
+                        `,
+                    });
+                </script>
+
+                <h2>What's Next</h2>
+
+                <p>That's a whole racing game! Here are some ideas to try next:</p>
+
+                <ul>
+                    <li>Add hills by changing <code>groundY</code> along the road, the same way <code>roadCenter()</code> changes x.</li>
+                    <li>Push the car toward the outside of curves, so steering through them takes more skill.</li>
+                    <li>Save your best lap with <code>localStorage</code> (see <a href="guide-saving.html">Saving Progress</a>), and show it on the title screen.</li>
+                </ul>
+
+                <p>For the last and biggest one, try the <a href="tutorial-adventure.html">adventure game tutorial</a>.</p>
+
+                <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

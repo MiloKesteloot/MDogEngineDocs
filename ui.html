@@ -43,6 +43,33 @@
                     methodsTable([
                         {
                             name: "new Page",
+                            demo: {
+                                code: `
+                                const page = new MDog.UI.Page(MDog.Draw);
+                                const ground = new MDog.UI.TilemapInteractable(16, 72,
+                                    "0,0,0,0,0,0,0,0\\n" +
+                                    "1,1,1,1,1,1,1,1\\n" +
+                                    "2,2,2,2,2,2,2,2",
+                                    16, "tiles.png", 4);
+                                const title = new MDog.UI.TextInteractable(80, 12, "My Level", "#ffffff", "fonts/marsfont.png", {alignX: "center", size: 2});
+                                // Added in the order they're drawn, so the title is on top
+                                page.addInteractable(ground);
+                                page.addInteractable(title);
+                                let ticks = 0;
+
+                                function main() {
+                                    ticks++;
+                                    title.setY(12 + Math.round(Math.sin(ticks / 30) * 4));
+
+                                    // Everything on the page is updated and drawn together
+                                    page.update();
+                                    MDog.Draw.clear({color: "#87b8e8"});
+                                    page.draw();
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Makes a new page.",
                             parameters: [
                                 ["Draw", "The Draw Module, <code>MDog.Draw</code>."],
@@ -120,6 +147,26 @@
                     methodsTable([
                         {
                             name: "new TextInteractable",
+                            demo: {
+                                code: `
+                                const score = new MDog.UI.TextInteractable(4, 4, "Score: 0", "#ffcc33", "fonts/marsfont.png", {size: 2});
+                                let points = 0;
+
+                                function main() {
+                                    // Its text can be changed any time
+                                    if (MDog.Input.Mouse.getClick()) {
+                                        points++;
+                                        score.text = "Score: " + points;
+                                    }
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.interactable(score);
+                                    MDog.Draw.textImage("Click to score", 80, 100, "#88ccff", "fonts/marsfont.png", {alignX: "center"});
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Makes new text.",
                             parameters: [
                                 ["x, y", "The integer position of the text. This is the top left unless <code>alignX</code> or <code>alignY</code> are changed."],
@@ -264,6 +311,25 @@ MDog.Draw.interactable(tilemap);</code></pre>
                     methodsTable([
                         {
                             name: "new RectangleGridInteractable",
+                            demo: {
+                                code: `
+                                // Cells 16 by 16, starting a little in from the corner
+                                const grid = new MDog.UI.RectangleGridInteractable(8, 4, 16, 16);
+
+                                function main() {
+                                    // Which cell the mouse is in, and where that cell's corner is on the screen
+                                    const cell = grid.screenToTile(MDog.Input.Mouse.getX(), MDog.Input.Mouse.getY());
+                                    const corner = grid.tileToScreen(cell.x, cell.y);
+
+                                    MDog.Draw.clear({color: "#203040"});
+                                    MDog.Draw.rectangleFill(corner.x, corner.y, 16, 16, "#3466b0");
+                                    MDog.Draw.interactable(grid);
+                                    MDog.Draw.textImage("Cell " + cell.x + ", " + cell.y, 4, 110, "#ffffff", "fonts/marsfont.png");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Makes a new rectangle grid.",
                             parameters: [
                                 ["x, y", "The integer top left of the grid."],
@@ -297,6 +363,29 @@ MDog.Draw.interactable(tilemap);</code></pre>
                     methodsTable([
                         {
                             name: "new VectorGridInteractable",
+                            demo: {
+                                code: `
+                                // Each step across goes right and down, and each step down goes left and down, like an isometric game
+                                const grid = new MDog.UI.VectorGridInteractable(80, 20, 6, 6, 12, 6, -12, 6);
+
+                                function main() {
+                                    const hovered = grid.screenToTile(MDog.Input.Mouse.getX(), MDog.Input.Mouse.getY());
+
+                                    MDog.Draw.clear({color: "#203040"});
+                                    for (let x = 0; x < 5; x++) {
+                                        for (let y = 0; y < 5; y++) {
+                                            // The four corners of the cell, from its grid points
+                                            const corners = [grid.getPoint(x, y), grid.getPoint(x + 1, y), grid.getPoint(x + 1, y + 1), grid.getPoint(x, y + 1)];
+                                            const color = hovered.x === x && hovered.y === y ? "#ffcc33" : (x + y) % 2 === 0 ? "#4a8f42" : "#3f7d3a";
+                                            MDog.Draw.polygonFill(corners, color);
+                                        }
+                                    }
+                                    MDog.Draw.interactable(grid);
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Makes a new vector grid.",
                             parameters: [
                                 ["x, y", "The integer screen position of grid point <code>(0, 0)</code>."],

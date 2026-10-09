@@ -48,11 +48,25 @@ async function main() {
         const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/);
         const pageTitle = h1 ? context.docsStripTags(h1[1]).trim() : page;
 
-        index.push({page, kind: "page", id: "", title: pageTitle});
+        // The words under each heading (and under the title, for the page itself), so search can find things that are
+        // only in the text, like in the guides. Code and demos are left out, and it's cut short to keep the index small.
+        const headings = [...html.matchAll(/<h([23])(\s[^>]*)?>([\s\S]*?)<\/h\1>/g)];
+        const end = html.indexOf('<div class="copyright">');
+        const textBetween = (from, to) => context.docsStripTags(html.slice(from, to)
+            .replace(/<script[\s\S]*?<\/script>/g, " ")
+            .replace(/<pre[\s\S]*?<\/pre>/g, " "))
+            .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&")
+            .replace(/\s+/g, " ").trim().slice(0, 400);
+        const h1End = h1 ? h1.index + h1[0].length : 0;
+        index.push({page, kind: "page", id: "", title: pageTitle, text: textBetween(h1End, headings[0]?.index ?? end)});
 
         // Headings get the same ids page.js gives them
         const usedIds = new Set();
-        for (const m of html.matchAll(/<h([23])(\s[^>]*)?>([\s\S]*?)<\/h\1>/g)) {
+        for (const [n, m] of headings.entries()) {
+            // The Playground's headings are only in its pop-up boxes, which aren't useful to search for
+            if (page === "playground.html") {
+                break;
+            }
             const title = context.docsStripTags(m[3]).trim();
             const explicitId = (m[2] ?? "").match(/id="([^"]+)"/);
             let id = explicitId ? explicitId[1] : context.docsSlugify(title);
@@ -64,7 +78,8 @@ async function main() {
                 }
             }
             usedIds.add(id);
-            index.push({page, kind: "heading", id, title, context: pageTitle});
+            const text = textBetween(m.index + m[0].length, headings[n + 1]?.index ?? end);
+            index.push({page, kind: "heading", id, title, context: pageTitle, text});
         }
 
         const methodIds = new Set();

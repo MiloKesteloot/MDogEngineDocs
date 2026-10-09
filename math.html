@@ -107,6 +107,30 @@
                     methodsTable([
                         {
                             name: "add",
+                            demo: {
+                                code: `
+                                const position = new MDog.Math.Vector(40, 30);
+                                const velocity = new MDog.Math.Vector(0.7, 0.5);
+
+                                function main() {
+                                    // Move by the velocity every tick
+                                    position.add(velocity);
+
+                                    // Bounce off the edges by turning the velocity around
+                                    if (position.x < 6 || position.x > 154) {
+                                        velocity.x = -velocity.x;
+                                    }
+                                    if (position.y < 6 || position.y > 114) {
+                                        velocity.y = -velocity.y;
+                                    }
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.circle(Math.round(position.x), Math.round(position.y), 6, "#66dd88");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Adds to this vector.",
                             parameters: [X_OR_VECTOR],
                             returns: "This vector.",
@@ -127,6 +151,23 @@
                         },
                         {
                             name: "distanceTo",
+                            demo: {
+                                code: `
+                                const target = new MDog.Math.Vector(80, 60);
+
+                                function main() {
+                                    const mouse = new MDog.Math.Vector(MDog.Input.Mouse.getX(), MDog.Input.Mouse.getY());
+                                    const distance = mouse.distanceTo(target);
+
+                                    // Close enough counts as touching
+                                    MDog.Draw.clear();
+                                    MDog.Draw.circle(80, 60, 25, distance < 25 ? "#66dd88" : "#2c3e50");
+                                    MDog.Draw.textImage("Distance: " + Math.round(distance), 4, 4, "#ffffff", "fonts/marsfont.png");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Gets the distance to another vector.",
                             parameters: [
                                 ["other", "The other vector."],
@@ -157,6 +198,24 @@
                         },
                         {
                             name: "getAngle",
+                            demo: {
+                                code: `
+                                const center = new MDog.Math.Vector(80, 60);
+
+                                function main() {
+                                    // The arrow points from the middle to the mouse
+                                    const toMouse = new MDog.Math.Vector(MDog.Input.Mouse.getX(), MDog.Input.Mouse.getY()).subtract(center);
+                                    const tip = toMouse.clone().setLength(30).add(center);
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.line(center.x, center.y, Math.round(tip.x), Math.round(tip.y), "#ffcc33");
+                                    MDog.Draw.circle(center.x, center.y, 3, "#ffcc33");
+                                    MDog.Draw.textImage(Math.round(toMouse.getAngle()) + " degrees", 4, 4, "#ffffff", "fonts/marsfont.png");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Gets the angle of this vector.",
                             details: "Gets the angle of this vector in degrees, from <code>-180</code> to <code>180</code>. <code>0</code> points right. Since y goes down the screen, positive angles go clockwise on screen.",
                             returns: "The angle in degrees.",
@@ -183,6 +242,27 @@
                         },
                         {
                             name: "normalize",
+                            demo: {
+                                code: `
+                                const chaser = new MDog.Math.Vector(20, 20);
+
+                                function main() {
+                                    const mouse = new MDog.Math.Vector(MDog.Input.Mouse.getX(), MDog.Input.Mouse.getY());
+
+                                    // The direction to the mouse, made 1 long, so the chaser always moves at the same speed
+                                    const step = mouse.clone().subtract(chaser);
+                                    if (step.length() > 1) {
+                                        chaser.add(step.normalize().multiply(0.6));
+                                    }
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.circle(Math.round(chaser.x), Math.round(chaser.y), 5, "#ff5566");
+                                    MDog.Draw.circle(mouse.x, mouse.y, 2, "#ffffff");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Sets the length of this vector to 1.",
                             details: "Sets the length of this vector to 1, without changing its direction. A vector of <code>(0, 0)</code> stays the same.",
                             returns: "This vector.",

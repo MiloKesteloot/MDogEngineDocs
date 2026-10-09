@@ -79,6 +79,32 @@ function main() {
                         },
                         {
                             name: "count",
+                            demo: {
+                                keys: [" "],
+                                code: `
+                                const sparks = new MDog.FX.ParticleSystem();
+
+                                function main() {
+                                    // Hold the mouse down to add sparks, and press space to clear them all
+                                    if (MDog.Input.Mouse.getDown()) {
+                                        for (let i = 0; i < 3; i++) {
+                                            sparks.addParticle(new MDog.FX.ChunkParticle(
+                                                MDog.Input.Mouse.getX(), MDog.Input.Mouse.getY(), 300, "#ffcc33", Math.random() - 0.5, Math.random() - 0.5));
+                                        }
+                                    }
+                                    if (MDog.Input.Keyboard.isClicked(" ")) {
+                                        sparks.clear();
+                                    }
+                                    sparks.update();
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.particleSystem(sparks);
+                                    MDog.Draw.textImage("Particles: " + sparks.count(), 4, 4, "#ffffff", "fonts/marsfont.png");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Gets the number of particles.",
                         },
                         {
@@ -182,6 +208,26 @@ function main() {
                         },
                         {
                             name: "new AnimationParticle",
+                            demo: {
+                                code: `
+                                const runners = new MDog.FX.ParticleSystem();
+
+                                function main() {
+                                    // Click to send a warrior running. Each one gets its own animation, so they all run at the normal speed.
+                                    if (MDog.Input.Mouse.getClick()) {
+                                        const run = new MDog.Draw.MultipleFileAnimation("warrior/Run/Warrior_Run_?.png", 8, 12);
+                                        runners.addParticle(new MDog.FX.AnimationParticle(MDog.Input.Mouse.getX(), MDog.Input.Mouse.getY(), 400, run, 0.6, 0, {size: 64}));
+                                    }
+                                    runners.update();
+
+                                    MDog.Draw.clear({color: "#203040"});
+                                    MDog.Draw.particleSystem(runners);
+                                    MDog.Draw.textImage("Click", 4, 4, "#ffffff", "fonts/marsfont.png");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Makes an animated particle.",
                             details: "Makes a particle that's drawn as an <a href=\"draw.html#animations\">animation</a>. Every particle that shares an animation moves it forward when drawn, so give each particle its own animation for them to play at normal speed.",
                             parameters: [

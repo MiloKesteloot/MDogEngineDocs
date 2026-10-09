@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Make a top-down adventure game with MDog Engine, step by step: tilemap walls, keys and doors, enemies, a sword, and rooms to explore.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MDog Engine Docs">
+    <meta property="og:title" content="Tutorial: Make a Top-Down Adventure - MDog Engine">
+    <meta property="og:description" content="Make a top-down adventure game with MDog Engine, step by step: tilemap walls, keys and doors, enemies, a sword, and rooms to explore. MDog Engine is made by Milo Kesteloot.">
+    <meta property="og:url" content="https://milokesteloot.github.io/MDogEngineDocs/tutorial-adventure">
+    <meta property="og:image" content="https://milokesteloot.github.io/MDogEngineDocs/assets/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="MDog Engine, a retro game engine for the web">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Tutorial: Make a Top-Down Adventure - MDog Engine Docs</title>
+    <link rel="icon" href="favicon.svg">
+    <link rel="stylesheet" type="text/css" href="screen.css">
+    <link rel="stylesheet" type="text/css" href="sidebar.css">
+    <script src="build-tables.js"></script>
+    <script src="docs-index.js"></script>
+</head>
+<body>
+    <div class="screen">
+        <script src="sidebar.js"></script>
+        <div class="page-centerer">
+            <div class="page">
+
+                <div class="breadcrums">Tutorials</div>
+
+                <h1>Make a Top-Down Adventure</h1>
+
+                <p>In this tutorial you'll make a top-down adventure game, seen from above: the warrior explores rooms with walls and water, finds keys to open locked doors, fights slimes with her sword, and searches for treasure.</p>
+
+                <p>This is the biggest of the tutorials, and it uses ideas from the others, like kickboxes, animations, particles, and screens, so try the <a href="tutorial.html">platformer tutorial</a> first. Every step has a game you can play, with its code right under it. Change the code and press Run to try it, or Reset code to put it back.</p>
+
+                <p>In these boxes, MDog Engine is already imported and the screen is set to 256 by 192. In your own game, start with the import line from <a href="getting-started.html">Getting Started</a>. The tiles are from <code>tiles.png</code> in the <a href="asset-packs.html#tiles">Asset Packs</a>.</p>
+
+                <h2>1. Walking Around</h2>
+
+                <p>The room is a <code>TilemapInteractable</code> from the <a href="ui.html">UI Module</a>: a grid of 16 by 16 tiles, made from rows of tile numbers. In <code>tiles.png</code>, <code>1</code> is dirt, <code>2</code> is stone, and <code>3</code> is water. Tile <code>0</code> is grass with dirt under it, made for side-on games like the platformer, so it isn't used here. Grass is an empty tile, <code>-1</code>, with the green background showing through.</p>
+
+                <p>Rows of numbers are hard to read, so the room is written as rows of letters instead, one letter per tile, that look like the room: <code>.</code> is grass, <code>=</code> is dirt, <code>#</code> is stone, and <code>~</code> is water. <code>makeRoom()</code> turns each letter into its tile number and makes the tilemap. The room is 16 tiles wide and 12 tall, which fills the 256 by 192 screen exactly.</p>
+
+                <p>Seen from above, the player walks in four directions. Each tick, the arrow keys being held make a direction, like <code>(1, -1)</code> for right and up. That direction is longer going diagonally than going straight, which would make diagonal walking faster. <code>setLength()</code> makes it the same length either way, so the player always walks at the same speed.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const Keyboard = MDog.Input.Keyboard;
+
+                            const room = makeRoom([
+                                "################",
+                                "#.......#......#",
+                                "#.......#......#",
+                                "#..~~...#......#",
+                                "#..~~...#......#",
+                                "#=============.#",
+                                "#......==....=.#",
+                                "#......=#..~~=.#",
+                                "#......=#..~~=.#",
+                                "#......=#....=.#",
+                                "#......=#....=.#",
+                                "################",
+                            ]);
+
+                            // Each letter is one tile: . is grass, = is dirt, # is stone, and ~ is water
+                            function makeRoom(rows) {
+                                const tileNumbers = {".": -1, "=": 1, "#": 2, "~": 3};
+                                const text = rows.map(row => [...row].map(letter => tileNumbers[letter]).join(",")).join("\\n");
+                                return new MDog.UI.TilemapInteractable(0, 0, text, 16, "tiles.png", 4);
+                            }
+
+                            // The player's top left corner
+                            const player = new Vector(40, 140);
+                            const speed = 0.6;
+
+                            function main() {
+                                // Which way the arrow keys point
+                                const direction = new Vector(0, 0);
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    direction.x -= 1;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    direction.x += 1;
+                                }
+                                if (Keyboard.isDown("ArrowUp")) {
+                                    direction.y -= 1;
+                                }
+                                if (Keyboard.isDown("ArrowDown")) {
+                                    direction.y += 1;
+                                }
+                                // The same speed in every direction, even diagonally
+                                direction.setLength(speed);
+                                player.add(direction);
+
+                                MDog.Draw.clear({color: "#4e9a3a"});
+                                MDog.Draw.interactable(room);
+                                MDog.Draw.rectangleFill(Math.floor(player.x), Math.floor(player.y), 12, 12, "#ffcc33");
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try changing some of the letters in the room, then press Run to see it change.</p>
+
+                <h2>2. Walls</h2>
+
+                <p>Now stone and water stop the player. To tell if the player is in a wall, <code>hitsWall()</code> looks at the tiles under each corner of its kickbox. Dividing a position by 16 and rounding down gives which tile it's in, and <code>get()</code> gives that tile's number.</p>
+
+                <p>Moving works like in the platformer: first move across, and if that put the player in a wall, move back. Then the same going up and down. Doing them one at a time means the player can slide along a wall while walking into it diagonally, instead of getting stuck.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+                            const Keyboard = MDog.Input.Keyboard;
+
+                            const room = makeRoom([
+                                "################",
+                                "#.......#......#",
+                                "#.......#......#",
+                                "#..~~...#......#",
+                                "#..~~...#......#",
+                                "#=============.#",
+                                "#......==....=.#",
+                                "#......=#..~~=.#",
+                                "#......=#..~~=.#",
+                                "#......=#....=.#",
+                                "#......=#....=.#",
+                                "################",
+                            ]);
+
+                            // Each letter is one tile: . is grass, = is dirt, # is stone, and ~ is water
+                            function makeRoom(rows) {
+                                const tileNumbers = {".": -1, "=": 1, "#": 2, "~": 3};
+                                const text = rows.map(row => [...row].map(letter => tileNumbers[letter]).join(",")).join("\\n");
+                                return new MDog.UI.TilemapInteractable(0, 0, text, 16, "tiles.png", 4);
+                            }
+
+                            const player = new Vector(40, 140);
+                            const playerBox = new SquareKickbox(player, 0, 0, 12, 12);
+                            const speed = 0.6;
+
+                            function main() {
+                                const direction = new Vector(0, 0);
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    direction.x -= 1;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    direction.x += 1;
+                                }
+                                if (Keyboard.isDown("ArrowUp")) {
+                                    direction.y -= 1;
+                                }
+                                if (Keyboard.isDown("ArrowDown")) {
+                                    direction.y += 1;
+                                }
+                                direction.setLength(speed);
+                                move(direction);
+
+                                MDog.Draw.clear({color: "#4e9a3a"});
+                                MDog.Draw.interactable(room);
+                                MDog.Draw.rectangleFill(playerBox.getLeftX(), playerBox.getTopY(), 12, 12, "#ffcc33");
+                            }
+
+                            // Move across, then up or down, backing up out of any wall
+                            function move(direction) {
+                                player.x += direction.x;
+                                if (hitsWall(playerBox)) {
+                                    player.x -= direction.x;
+                                }
+                                player.y += direction.y;
+                                if (hitsWall(playerBox)) {
+                                    player.y -= direction.y;
+                                }
+                            }
+
+                            // Checks the tile under each corner of a kickbox
+                            function hitsWall(box) {
+                                for (const x of [box.getLeftX(), box.getRightX()]) {
+                                    for (const y of [box.getTopY(), box.getBottomY()]) {
+                                        const tile = room.get(Math.floor(x / 16), Math.floor(y / 16));
+                                        if (tile === 2 || tile === 3) {
+                                            return true;
+                                        }
+                                    }
+                                }
+                                return false;
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Checking only the corners works as long as the kickbox is no bigger than a tile. Try making dirt a wall too, by adding <code>|| tile === 1</code> in <code>hitsWall()</code>.</p>
+
+                <h2>3. The Warrior</h2>
+
+                <p>Time to swap the square for the warrior from the <a href="asset-packs.html#warrior">Asset Packs</a>. She uses her idle animation while standing and her run animation while walking, flipped with <code>flipX</code> when she faces left. Walking up or down keeps her facing the way she was.</p>
+
+                <p>Seen from above, things are standing on the ground, so only their feet should bump into walls. Her kickbox is now just her feet, 12 by 8, and her picture is drawn above it. That way her head can go in front of a wall behind her, which makes the room feel like it has depth.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const Animation = MDog.Draw.MultipleFileAnimation;
+
+                            const room = makeRoom([
+                                "################",
+                                "#.......#......#",
+                                "#.......#......#",
+                                "#..~~...#......#",
+                                "#..~~...#......#",
+                                "#=============.#",
+                                "#......==....=.#",
+                                "#......=#..~~=.#",
+                                "#......=#..~~=.#",
+                                "#......=#....=.#",
+                                "#......=#....=.#",
+                                "################",
+                            ]);
+
+                            // Each letter is one tile: . is grass, = is dirt, # is stone, and ~ is water
+                            function makeRoom(rows) {
+                                const tileNumbers = {".": -1, "=": 1, "#": 2, "~": 3};
+                                const text = rows.map(row => [...row].map(letter => tileNumbers[letter]).join(",")).join("\\n");
+                                return new MDog.UI.TilemapInteractable(0, 0, text, 16, "tiles.png", 4);
+                            }
+
+                            // The player's position is the top left of her feet
+                            const player = new Vector(40, 140);
+                            const playerBox = new SquareKickbox(player, 0, 0, 12, 8);
+                            const speed = 0.6;
+                            let facingLeft = false;
+
+                            const idle = new Animation("warrior/Idle/Warrior_Idle_?.png", 6, 8);
+                            const run = new Animation("warrior/Run/Warrior_Run_?.png", 8, 12);
+
+                            function main() {
+                                const direction = new Vector(0, 0);
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    direction.x -= 1;
+                                    facingLeft = true;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    direction.x += 1;
+                                    facingLeft = false;
+                                }
+                                if (Keyboard.isDown("ArrowUp")) {
+                                    direction.y -= 1;
+                                }
+                                if (Keyboard.isDown("ArrowDown")) {
+                                    direction.y += 1;
+                                }
+                                direction.setLength(speed);
+                                move(direction);
+
+                                MDog.Draw.clear({color: "#4e9a3a"});
+                                MDog.Draw.interactable(room);
+                                drawPlayer(direction.length() > 0 ? run : idle);
+                            }
+
+                            // Her feet are at y 42 in each picture, so the picture is drawn 35 above the top of
+                            // her 8 tall kickbox. Flipped pictures need a different x to keep her in the same place.
+                            function drawPlayer(animation) {
+                                const x = playerBox.getLeftX() - (facingLeft ? 31 : 20);
+                                MDog.Draw.animation(animation, x, playerBox.getTopY() - 35, {flipX: facingLeft});
+                            }
+
+                            function move(direction) {
+                                player.x += direction.x;
+                                if (hitsWall(playerBox)) {
+                                    player.x -= direction.x;
+                                }
+                                player.y += direction.y;
+                                if (hitsWall(playerBox)) {
+                                    player.y -= direction.y;
+                                }
+                            }
+
+                            function hitsWall(box) {
+                                for (const x of [box.getLeftX(), box.getRightX()]) {
+                                    for (const y of [box.getTopY(), box.getBottomY()]) {
+                                        const tile = room.get(Math.floor(x / 16), Math.floor(y / 16));
+                                        if (tile === 2 || tile === 3) {
+                                            return true;
+                                        }
+                                    }
+                                }
+                                return false;
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>To see her kickbox, try drawing a rectangle at <code>playerBox.getLeftX(), playerBox.getTopY()</code> that's 12 by 8, after she's drawn.</p>
+
+                <h2>4. Keys and Doors</h2>
+
+                <p>Now the way to the right side of the room is locked. The door is a kickbox that counts as a wall in <code>blocked()</code>, which checks the walls and every door. A key lies on the left side, and walking over it picks it up.</p>
+
+                <p>To open the door, the warrior needs to be right next to it with a key. A second kickbox, <code>reachBox</code>, is attached to the same <code>Vector</code> as her feet but is 2 pixels bigger on every side, so it touches things she's standing against. When it touches a door and she has a key, the key is used up and the door is taken out of the list.</p>
+
+                <p>Behind the door is a treasure chest. Walking into it opens it, and that's how you win.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const Animation = MDog.Draw.MultipleFileAnimation;
+                            const font = "fonts/marsfont.png";
+
+                            const room = makeRoom([
+                                "################",
+                                "#.......#......#",
+                                "#.......#......#",
+                                "#..~~...#......#",
+                                "#..~~...#......#",
+                                "#=============.#",
+                                "#......==....=.#",
+                                "#......=#..~~=.#",
+                                "#......=#..~~=.#",
+                                "#......=#....=.#",
+                                "#......=#....=.#",
+                                "################",
+                            ]);
+
+                            // Each letter is one tile: . is grass, = is dirt, # is stone, and ~ is water
+                            function makeRoom(rows) {
+                                const tileNumbers = {".": -1, "=": 1, "#": 2, "~": 3};
+                                const text = rows.map(row => [...row].map(letter => tileNumbers[letter]).join(",")).join("\\n");
+                                return new MDog.UI.TilemapInteractable(0, 0, text, 16, "tiles.png", 4);
+                            }
+
+                            const player = new Vector(40, 140);
+                            const playerBox = new SquareKickbox(player, 0, 0, 12, 8);
+                            // 2 pixels bigger than her feet, to touch things she's standing against
+                            const reachBox = new SquareKickbox(player, -2, -2, 14, 10);
+                            const speed = 0.6;
+                            let facingLeft = false;
+
+                            const idle = new Animation("warrior/Idle/Warrior_Idle_?.png", 6, 8);
+                            const run = new Animation("warrior/Run/Warrior_Run_?.png", 8, 12);
+
+                            // A key's position is its middle, and a door's is its top left
+                            const keys = [makeKey(104, 40)];
+                            const doors = [makeDoor(128, 80, 16, 32)];
+                            const chest = new SquareKickbox(new Vector(212, 140), 0, 0, 16, 12);
+                            let keyCount = 0;
+                            let chestOpen = false;
+
+                            function makeKey(x, y) {
+                                return new SquareKickbox(new Vector(x, y), -6, -4, 7, 4);
+                            }
+
+                            function makeDoor(x, y, width, height) {
+                                return new SquareKickbox(new Vector(x, y), 0, 0, width, height);
+                            }
+
+                            function main() {
+                                const direction = new Vector(0, 0);
+                                if (Keyboard.isDown("ArrowLeft")) {
+                                    direction.x -= 1;
+                                    facingLeft = true;
+                                }
+                                if (Keyboard.isDown("ArrowRight")) {
+                                    direction.x += 1;
+                                    facingLeft = false;
+                                }
+                                if (Keyboard.isDown("ArrowUp")) {
+                                    direction.y -= 1;
+                                }
+                                if (Keyboard.isDown("ArrowDown")) {
+                                    direction.y += 1;
+                                }
+                                direction.setLength(speed);
+                                move(direction);
+
+                                // Pick up keys
+                                for (let i = keys.length - 1; i >= 0; i--) {
+                                    if (playerBox.colliding(keys[i])) {
+                                        keys.splice(i, 1);
+                                        keyCount++;
+                                    }
+                                }
+                                // Open a door she's next to, if she has a key
+                                for (let i = doors.length - 1; i >= 0; i--) {
+                                    if (keyCount > 0 && reachBox.colliding(doors[i])) {
+                                        doors.splice(i, 1);
+                                        keyCount--;
+                                    }
+                                }
+                                if (playerBox.colliding(chest)) {
+                                    chestOpen = true;
+                                }
+
+                                MDog.Draw.clear({color: "#4e9a3a"});
+                                MDog.Draw.interactable(room);
+                                for (const key of keys) {
+                                    drawKey(key.getMiddleX(), key.getMiddleY());
+                                }
+                                for (const door of doors) {
+                                    drawDoor(door);
+                                }
+                                drawChest();
+                                drawPlayer(direction.length() > 0 ? run : idle);
+
+                                // How many keys she has, in the corner
+                                drawKey(12, 10);
+                                MDog.Draw.textImage("x " + keyCount, 22, 8, "#ffffff", font);
+                                if (chestOpen) {
+                                    MDog.Draw.textImage("You found the treasure!", 128, 60, "#ffcc33", font, {alignX: "center"});
+                                }
+                            }
+
+                            function drawKey(x, y) {
+                                MDog.Draw.circle(x - 3, y, 3, "#ffcc33");
+                                MDog.Draw.point(x - 3, y, "#5a4000");
+                                MDog.Draw.rectangleFill(x, y - 1, 7, 2, "#ffcc33");
+                                MDog.Draw.rectangleFill(x + 4, y + 1, 1, 2, "#ffcc33");
+                                MDog.Draw.rectangleFill(x + 6, y + 1, 1, 2, "#ffcc33");
+                            }
+
+                            function drawDoor(door) {
+                                const x = door.getLeftX();
+                                const y = door.getTopY();
+                                MDog.Draw.rectangleFill(x, y, door.getWidth(), door.getHeight(), "#6b3a17");
+                                MDog.Draw.rectangle(x, y, door.getWidth(), door.getHeight(), "#2a1406");
+                                // A keyhole in the middle
+                                MDog.Draw.rectangleFill(door.getMiddleX() - 1, door.getMiddleY() - 2, 3, 5, "#ffcc33");
+                            }
+
+                            function drawChest() {
+                                const x = chest.getLeftX();
+                                const y = chest.getTopY();
+                                if (chestOpen) {
+                                    // The lid is up, and there's gold inside
+                                    MDog.Draw.rectangleFill(x, y - 5, 16, 5, "#4a2610");
+                                    MDog.Draw.rectangleFill(x, y, 16, 12, "#6b3a17");
+                                    MDog.Draw.rectangle(x, y, 16, 12, "#2a1406");
+                                    MDog.Draw.rectangleFill(x + 2, y + 1, 12, 3, "#ffcc33");
+                                } else {
+                                    MDog.Draw.rectangleFill(x, y, 16, 12, "#6b3a17");
+                                    MDog.Draw.rectangle(x, y, 16, 12, "#2a1406");
+                                    MDog.Draw.rectangleFill(x + 1, y + 4, 14, 2, "#ffcc33");
+                                    MDog.Draw.rectangleFill(x + 7, y + 4, 2, 4, "#ffcc33");
+                                }
+                            }
+
+                            function drawPlayer(animation) {
+                                const x = playerBox.getLeftX() - (facingLeft ? 31 : 20);
+                                MDog.Draw.animation(animation, x, playerBox.getTopY() - 35, {flipX: facingLeft});
+                            }
+
+                            function move(direction) {
+                                player.x += direction.x;
+                                if (blocked(playerBox)) {
+                                    player.x -= direction.x;
+                                }
+                                player.y += direction.y;
+                                if (blocked(playerBox)) {
+                                    player.y -= direction.y;
+                                }
+                            }
+
+                            // Walls and closed doors both block the way
+                            function blocked(box) {
+                                return hitsWall(box) || doors.some(door => box.colliding(door));
+                            }
+
+                            function hitsWall(box) {
+                                for (const x of [box.getLeftX(), box.getRightX()]) {
+                                    for (const y of [box.getTopY(), box.getBottomY()]) {
+                                        const tile = room.get(Math.floor(x / 16), Math.floor(y / 16));
+                                        if (tile === 2 || tile === 3) {
+                                            return true;
+                                        }
+                                    }
+                                }
+                                return false;
+                            }
+
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try adding a second door, with a second key to open it.</p>
+
+                <h2>5. Slimes and a Sword</h2>
+
+                <p>The room isn't safe anymore. Slimes wander around, and when the warrior gets close, they chase her. A slime's direction toward her is her position minus its own, set to the slime's speed with <code>setLength()</code>. Slimes move with the same <code>move()</code> as her, so walls stop them too. It now takes the position and kickbox to move.</p>
+
+                <p>Touching a slime takes one of her three hearts, knocks her back, and makes her blink for a moment while she can't be hurt again. Losing every heart starts the game over.</p>
+
+                <p>Press space to swing her sword. While the attack animation plays she stands still, and during the frames where the sword is out, a kickbox in front of her defeats any slime it touches.</p>
+
+                <p>Now that things can be in front of each other, they're drawn in order from the top of the screen to the bottom. Things lower on the screen are closer, so they're drawn last, on top.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const Animation = MDog.Draw.MultipleFileAnimation;
+                            const font = "fonts/marsfont.png";
+
+                            const room = makeRoom([
+                                "################",
+                                "#.......#......#",
+                                "#.......#......#",
+                                "#..~~...#......#",
+                                "#..~~...#......#",
+                                "#=============.#",
+                                "#......==....=.#",
+                                "#......=#..~~=.#",
+                                "#......=#..~~=.#",
+                                "#......=#....=.#",
+                                "#......=#....=.#",
+                                "################",
+                            ]);
+
+                            // Each letter is one tile: . is grass, = is dirt, # is stone, and ~ is water
+                            function makeRoom(rows) {
+                                const tileNumbers = {".": -1, "=": 1, "#": 2, "~": 3};
+                                const text = rows.map(row => [...row].map(letter => tileNumbers[letter]).join(",")).join("\\n");
+                                return new MDog.UI.TilemapInteractable(0, 0, text, 16, "tiles.png", 4);
+                            }
+
+                            const player = new Vector(0, 0);
+                            const playerBox = new SquareKickbox(player, 0, 0, 12, 8);
+                            const reachBox = new SquareKickbox(player, -2, -2, 14, 10);
+                            const speed = 0.6;
+                            let facingLeft = false;
+
+                            const idle = new Animation("warrior/Idle/Warrior_Idle_?.png", 6, 8);
+                            const run = new Animation("warrior/Run/Warrior_Run_?.png", 8, 12);
+                            const attack = new Animation("warrior/Attack/Warrior_Attack_?.png", 12, 16);
+                            let attacking = false;
+
+                            let hearts = 3;
+                            // Ticks left that she can't be hurt, and how fast she's being knocked back
+                            let hurtTimer = 0;
+                            const knockback = new Vector(0, 0);
+
+                            const chest = new SquareKickbox(new Vector(212, 140), 0, 0, 16, 12);
+                            const particles = new MDog.FX.ParticleSystem();
+                            let keys = [];
+                            let doors = [];
+                            let slimes = [];
+                            let keyCount = 0;
+                            let chestOpen = false;
+                            let ticks = 0;
+
+                            function makeKey(x, y) {
+                                return new SquareKickbox(new Vector(x, y), -6, -4, 7, 4);
+                            }
+
+                            function makeDoor(x, y, width, height) {
+                                return new SquareKickbox(new Vector(x, y), 0, 0, width, height);
+                            }
+
+                            // A slime's position is the middle of its bottom
+                            function makeSlime(x, y) {
+                                const position = new Vector(x, y);
+                                return {position, box: new SquareKickbox(position, -6, -6, 6, 0), wander: new Vector(0, 0), wanderTimer: 0};
+                            }
+
+                            // Everything back where it started
+                            function reset() {
+                                player.set(40, 140);
+                                hearts = 3;
+                                hurtTimer = 0;
+                                knockback.set(0, 0);
+                                attacking = false;
+                                keys = [makeKey(104, 40)];
+                                doors = [makeDoor(128, 80, 16, 32)];
+                                slimes = [makeSlime(90, 130), makeSlime(170, 50), makeSlime(220, 110)];
+                                keyCount = 0;
+                                chestOpen = false;
+                                particles.clear();
+                            }
+
+                            function main() {
+                                ticks++;
+
+                                // Space starts a swing, and she stands still until it's done
+                                if (Keyboard.isClicked(" ") && !attacking) {
+                                    attacking = true;
+                                    attack.reset();
+                                }
+
+                                const direction = new Vector(0, 0);
+                                if (!attacking) {
+                                    if (Keyboard.isDown("ArrowLeft")) {
+                                        direction.x -= 1;
+                                        facingLeft = true;
+                                    }
+                                    if (Keyboard.isDown("ArrowRight")) {
+                                        direction.x += 1;
+                                        facingLeft = false;
+                                    }
+                                    if (Keyboard.isDown("ArrowUp")) {
+                                        direction.y -= 1;
+                                    }
+                                    if (Keyboard.isDown("ArrowDown")) {
+                                        direction.y += 1;
+                                    }
+                                }
+                                direction.setLength(speed);
+                                move(player, playerBox, direction.add(knockback));
+                                knockback.multiply(0.85);
+
+                                for (let i = keys.length - 1; i >= 0; i--) {
+                                    if (playerBox.colliding(keys[i])) {
+                                        keys.splice(i, 1);
+                                        keyCount++;
+                                    }
+                                }
+                                for (let i = doors.length - 1; i >= 0; i--) {
+                                    if (keyCount > 0 && reachBox.colliding(doors[i])) {
+                                        doors.splice(i, 1);
+                                        keyCount--;
+                                    }
+                                }
+                                if (playerBox.colliding(chest)) {
+                                    chestOpen = true;
+                                }
+
+                                moveSlimes();
+                                swingSword();
+                                particles.update();
+
+                                MDog.Draw.clear({color: "#4e9a3a"});
+                                MDog.Draw.interactable(room);
+                                for (const key of keys) {
+                                    drawKey(key.getMiddleX(), key.getMiddleY());
+                                }
+                                for (const door of doors) {
+                                    drawDoor(door);
+                                }
+                                drawChest();
+
+                                // From the top of the screen to the bottom, so closer things are on top
+                                const things = slimes.map(slime => ({y: slime.position.y, draw: () => drawSlime(slime)}));
+                                things.push({y: playerBox.getBottomY(), draw: () => drawPlayer(direction.length() > 0 ? run : idle)});
+                                things.sort((a, b) => a.y - b.y);
+                                for (const thing of things) {
+                                    thing.draw();
+                                }
+                                MDog.Draw.particleSystem(particles);
+
+                                drawHearts();
+                                drawKey(12, 22);
+                                MDog.Draw.textImage("x " + keyCount, 22, 20, "#ffffff", font);
+                                if (chestOpen) {
+                                    MDog.Draw.textImage("You found the treasure!", 128, 60, "#ffcc33", font, {alignX: "center"});
+                                }
+                            }
+
+                            function moveSlimes() {
+                                const target = new Vector(playerBox.getMiddleX(), playerBox.getMiddleY());
+                                for (const slime of slimes) {
+                                    const toPlayer = target.clone().subtract(slime.position);
+                                    let step;
+                                    if (toPlayer.length() < 70) {
+                                        // Close enough to chase her
+                                        step = toPlayer.setLength(0.3);
+                                    } else {
+                                        // Otherwise, pick a new random direction every so often
+                                        slime.wanderTimer--;
+                                        if (slime.wanderTimer <= 0) {
+                                            slime.wander = new Vector(0.15, 0).rotate(Math.random() * 360);
+                                            slime.wanderTimer = 100 + Math.random() * 100;
+                                        }
+                                        step = slime.wander.clone();
+                                    }
+                                    move(slime.position, slime.box, step);
+
+                                    // Touching a slime hurts, and knocks her away from it
+                                    if (hurtTimer === 0 && playerBox.colliding(slime.box)) {
+                                        hearts--;
+                                        hurtTimer = 160;
+                                        knockback.set(target.clone().subtract(slime.position).setLength(2));
+                                        if (hearts === 0) {
+                                            reset();
+                                            return;
+                                        }
+                                    }
+                                }
+                                if (hurtTimer > 0) {
+                                    hurtTimer--;
+                                }
+                            }
+
+                            // The sword is out from frame 3 to 9 of the attack
+                            function swingSword() {
+                                if (!attacking) {
+                                    return;
+                                }
+                                const frame = attack.getRawFrame();
+                                if (frame >= 3 && frame <= 9) {
+                                    const swordX = facingLeft ? player.x - 22 : player.x + 12;
+                                    const sword = new SquareKickbox(new Vector(swordX, player.y - 14), 0, 0, 22, 22);
+                                    for (let i = slimes.length - 1; i >= 0; i--) {
+                                        if (sword.colliding(slimes[i].box)) {
+                                            splat(slimes[i].position.x, slimes[i].position.y - 4);
+                                            slimes.splice(i, 1);
+                                        }
+                                    }
+                                }
+                                if (frame >= 12) {
+                                    attacking = false;
+                                }
+                            }
+
+                            function splat(x, y) {
+                                for (let i = 0; i < 16; i++) {
+                                    const direction = new Vector(0.3 + Math.random() * 0.6, 0).rotate(Math.random() * 360);
+                                    particles.addParticle(new MDog.FX.ChunkParticle(x, y, 40, "#77dd66", direction.x, direction.y, {size: 2}));
+                                }
+                            }
+
+                            function drawSlime(slime) {
+                                const x = Math.floor(slime.position.x);
+                                // It bounces a little as it goes
+                                const y = Math.floor(slime.position.y) - Math.floor(Math.abs(Math.sin(ticks / 20 + slime.position.x)) * 2);
+                                MDog.Draw.circle(x, y - 5, 5, "#55bb44");
+                                MDog.Draw.rectangleFill(x - 7, y - 5, 14, 5, "#55bb44");
+                                MDog.Draw.rectangleFill(x - 3, y - 6, 2, 2, "#10300a");
+                                MDog.Draw.rectangleFill(x + 1, y - 6, 2, 2, "#10300a");
+                            }
+
+                            function drawHearts() {
+                                for (let i = 0; i < 3; i++) {
+                                    const x = 6 + i * 11;
+                                    const color = i < hearts ? "#ff4466" : "#444444";
+                                    MDog.Draw.circle(x + 2, 7, 2, color);
+                                    MDog.Draw.circle(x + 6, 7, 2, color);
+                                    MDog.Draw.polygonFill([new Vector(x, 8), new Vector(x + 9, 8), new Vector(x + 4, 13)], color);
+                                }
+                            }
+
+                            function drawKey(x, y) {
+                                MDog.Draw.circle(x - 3, y, 3, "#ffcc33");
+                                MDog.Draw.point(x - 3, y, "#5a4000");
+                                MDog.Draw.rectangleFill(x, y - 1, 7, 2, "#ffcc33");
+                                MDog.Draw.rectangleFill(x + 4, y + 1, 1, 2, "#ffcc33");
+                                MDog.Draw.rectangleFill(x + 6, y + 1, 1, 2, "#ffcc33");
+                            }
+
+                            function drawDoor(door) {
+                                const x = door.getLeftX();
+                                const y = door.getTopY();
+                                MDog.Draw.rectangleFill(x, y, door.getWidth(), door.getHeight(), "#6b3a17");
+                                MDog.Draw.rectangle(x, y, door.getWidth(), door.getHeight(), "#2a1406");
+                                MDog.Draw.rectangleFill(door.getMiddleX() - 1, door.getMiddleY() - 2, 3, 5, "#ffcc33");
+                            }
+
+                            function drawChest() {
+                                const x = chest.getLeftX();
+                                const y = chest.getTopY();
+                                if (chestOpen) {
+                                    MDog.Draw.rectangleFill(x, y - 5, 16, 5, "#4a2610");
+                                    MDog.Draw.rectangleFill(x, y, 16, 12, "#6b3a17");
+                                    MDog.Draw.rectangle(x, y, 16, 12, "#2a1406");
+                                    MDog.Draw.rectangleFill(x + 2, y + 1, 12, 3, "#ffcc33");
+                                } else {
+                                    MDog.Draw.rectangleFill(x, y, 16, 12, "#6b3a17");
+                                    MDog.Draw.rectangle(x, y, 16, 12, "#2a1406");
+                                    MDog.Draw.rectangleFill(x + 1, y + 4, 14, 2, "#ffcc33");
+                                    MDog.Draw.rectangleFill(x + 7, y + 4, 2, 4, "#ffcc33");
+                                }
+                            }
+
+                            // Blinks while she can't be hurt
+                            function drawPlayer(animation) {
+                                if (Math.floor(hurtTimer / 8) % 2 === 1) {
+                                    return;
+                                }
+                                if (attacking) {
+                                    animation = attack;
+                                }
+                                const x = playerBox.getLeftX() - (facingLeft ? 31 : 20);
+                                MDog.Draw.animation(animation, x, playerBox.getTopY() - 35, {flipX: facingLeft});
+                            }
+
+                            // Moves a position, backing up out of walls, for her and the slimes
+                            function move(position, box, direction) {
+                                position.x += direction.x;
+                                if (blocked(box)) {
+                                    position.x -= direction.x;
+                                }
+                                position.y += direction.y;
+                                if (blocked(box)) {
+                                    position.y -= direction.y;
+                                }
+                            }
+
+                            function blocked(box) {
+                                return hitsWall(box) || doors.some(door => box.colliding(door));
+                            }
+
+                            function hitsWall(box) {
+                                for (const x of [box.getLeftX(), box.getRightX()]) {
+                                    for (const y of [box.getTopY(), box.getBottomY()]) {
+                                        const tile = room.get(Math.floor(x / 16), Math.floor(y / 16));
+                                        if (tile === 2 || tile === 3) {
+                                            return true;
+                                        }
+                                    }
+                                }
+                                return false;
+                            }
+
+                            reset();
+                            MDog.setActiveFunction(main);
+                        `,
+                    });
+                </script>
+
+                <p>Try making the slimes faster, or giving them more room to notice her by changing the 70.</p>
+
+                <h2>6. Rooms to Explore</h2>
+
+                <p>Last, the world gets bigger. There are now three rooms, and walking out through a gap in a room's edge goes into the room next to it. Rooms are named by where they are in a grid, like <code>"1,0"</code> for one room to the right of the start. When her middle goes past the right edge, the game switches to the room one to the right and moves her back by the width of the screen, so she's at its left edge.</p>
+
+                <p>Each room keeps its own tilemap, keys, doors, slimes, and chest, all made from <code>roomData</code> by <code>makeRooms()</code>. A slime you defeated stays gone if you leave and come back. To find the treasure, you'll need both keys.</p>
+
+                <p>The game also has a title screen, a game over screen, and a winning screen, which work like the ones in the other tutorials. <code>startGame()</code> makes the rooms again, so everything comes back for a new game.</p>
+
+                <script>
+                    demo({
+                        width: 256,
+                        height: 192,
+                        keys: ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "],
+                        code: `
+                            const Vector = MDog.Math.Vector;
+                            const SquareKickbox = MDog.Basics.SquareKickbox;
+                            const Keyboard = MDog.Input.Keyboard;
+                            const Animation = MDog.Draw.MultipleFileAnimation;
+                            const font = "fonts/marsfont.png";
+
+                            // Each room's tiles, and where its keys, doors, slimes, and chest start
+                            const roomData = {
+                                "0,0": {
+                                    tiles: [
+                                        "################",
+                                        "#..............#",
+                                        "#.~~........##.#",
+                                        "#.~~~.......#..#",
+                                        "#..~...........#",
+                                        "#.....==========",
+                                        "#.....==========",
+                                        "#.....==.......#",
+                                        "#.....==...~~..#",
+                                        "#.##..==...~~..#",
+                                        "#.....==.......#",
+                                        "################",
+                                    ],
+                                    keys: [[218, 56]],
+                                    doors: [],
+                                    slimes: [[80, 80], [170, 150]],
+                                    chest: null,
+                                },
+                                "1,0": {
+                                    tiles: [
+                                        "################",
+                                        "#..............#",
+                                        "#...~~~~~~.....#",
+                                        "#..~~~~~~~~....#",
+                                        "#..~~~~~~~~....#",
+                                        "===.~~~~~~.....#",
+                                        "===............#",
+                                        "#.....===......#",
+                                        "#......==......#",
+                                        "#......==......#",
+                                        "#......==......#",
+                                        "#######==#######",
+                                    ],
+                                    keys: [[218, 26]],
+                                    doors: [[112, 176, 32, 16]],
+                                    slimes: [[200, 80], [200, 140]],
+                                    chest: null,
+                                },
+                                "1,1": {
+                                    tiles: [
+                                        "#######==#######",
+                                        "#......==......#",
+                                        "#......==......#",
+                                        "#..#...==...#..#",
+                                        "#......==......#",
+                                        "#......==......#",
+                                        "#..#...==...#..#",
+                                        "#......==......#",
+                                        "#....##==##....#",
+                                        "#....#====#....#",
+                                        "#....#====#....#",
+                                        "################",
+                                    ],
+                                    keys: [],
+                                    doors: [[112, 128, 32, 16]],
+                                    slimes: [[50, 150], [210, 150], [210, 70]],
+                                    chest: [120, 152],
+                                },
+                            };
+
+                            const player = new Vector(0, 0);
+                            const playerBox = new SquareKickbox(player, 0, 0, 12, 8);
+                            const reachBox = new SquareKickbox(player, -2, -2, 14, 10);
+                            const speed = 0.6;
+                            let facingLeft = false;
+
+                            const idle = new Animation("warrior/Idle/Warrior_Idle_?.png", 6, 8);
+                            const run = new Animation("warrior/Run/Warrior_Run_?.png", 8, 12);
+                            const attack = new Animation("warrior/Attack/Warrior_Attack_?.png", 12, 16);
+                            let attacking = false;
+
+                            let hearts = 3;
+                            let hurtTimer = 0;
+                            const knockback = new Vector(0, 0);
+                            let keyCount = 0;
+                            const particles = new MDog.FX.ParticleSystem();
+                            let ticks = 0;
+
+                            let rooms = {};
+                            let roomName = "0,0";
+                            // The room she's in right now
+                            let room = null;
+
+                            function makeRooms() {
+                                rooms = {};
+                                for (const name in roomData) {
+                                    const data = roomData[name];
+                                    rooms[name] = {
+                                        tilemap: makeRoom(data.tiles),
+                                        keys: data.keys.map(([x, y]) => new SquareKickbox(new Vector(x, y), -6, -4, 7, 4)),
+                                        doors: data.doors.map(([x, y, width, height]) => new SquareKickbox(new Vector(x, y), 0, 0, width, height)),
+                                        slimes: data.slimes.map(([x, y]) => makeSlime(x, y)),
+                                        chest: data.chest ? new SquareKickbox(new Vector(data.chest[0], data.chest[1]), 0, 0, 16, 12) : null,
+                                        chestOpen: false,
+                                    };
+                                }
+                            }
+
+                            // Each letter is one tile: . is grass, = is dirt, # is stone, and ~ is water
+                            function makeRoom(rows) {
+                                const tileNumbers = {".": -1, "=": 1, "#": 2, "~": 3};
+                                const text = rows.map(row => [...row].map(letter => tileNumbers[letter]).join(",")).join("\\n");
+                                return new MDog.UI.TilemapInteractable(0, 0, text, 16, "tiles.png", 4);
+                            }
+
+                            function makeSlime(x, y) {
+                                const position = new Vector(x, y);
+                                return {position, box: new SquareKickbox(position, -6, -6, 6, 0), wander: new Vector(0, 0), wanderTimer: 0};
+                            }
+
+                            function titleScreen() {
+                                ticks++;
+                                MDog.Draw.clear({color: "#4e9a3a"});
+                                MDog.Draw.interactable(room.tilemap);
+                                MDog.Draw.rectangleFill(0, 40, 256, 80, "#00000099");
+                                MDog.Draw.textImage("Warrior Quest", 128, 56, "#ffcc33", font, {alignX: "center", size: 3});
+                                MDog.Draw.textImage("Find the treasure!", 128, 84, "#ffffff", font, {alignX: "center"});
+                                if (Math.floor(ticks / 40) % 2 === 0) {
+                                    MDog.Draw.textImage("Press space to start", 128, 100, "#ffffff", font, {alignX: "center"});
+                                }
+                                if (Keyboard.isClicked(" ")) {
+                                    startGame();
+                                }
+                            }
+
+                            function startGame() {
+                                makeRooms();
+                                roomName = "0,0";
+                                room = rooms[roomName];
+                                player.set(40, 116);
+                                facingLeft = false;
+                                hearts = 3;
+                                hurtTimer = 0;
+                                knockback.set(0, 0);
+                                keyCount = 0;
+                                particles.clear();
+                                attacking = false;
+                                MDog.setActiveFunction(game);
+                            }
+
+                            function game() {
+                                ticks++;
+
+                                if (Keyboard.isClicked(" ") && !attacking) {
+                                    attacking = true;
+                                    attack.reset();
+                                }
+
+                                const direction = new Vector(0, 0);
+                                if (!attacking) {
+                                    if (Keyboard.isDown("ArrowLeft")) {
+                                        direction.x -= 1;
+                                        facingLeft = true;
+                                    }
+                                    if (Keyboard.isDown("ArrowRight")) {
+                                        direction.x += 1;
+                                        facingLeft = false;
+                                    }
+                                    if (Keyboard.isDown("ArrowUp")) {
+                                        direction.y -= 1;
+                                    }
+                                    if (Keyboard.isDown("ArrowDown")) {
+                                        direction.y += 1;
+                                    }
+                                }
+                                direction.setLength(speed);
+                                move(player, playerBox, direction.add(knockback), false);
+                                knockback.multiply(0.85);
+                                const walking = direction.length() > 0;
+
+                                changeRooms();
+
+                                for (let i = room.keys.length - 1; i >= 0; i--) {
+                                    if (playerBox.colliding(room.keys[i])) {
+                                        room.keys.splice(i, 1);
+                                        keyCount++;
+                                    }
+                                }
+                                for (let i = room.doors.length - 1; i >= 0; i--) {
+                                    if (keyCount > 0 && reachBox.colliding(room.doors[i])) {
+                                        room.doors.splice(i, 1);
+                                        keyCount--;
+                                    }
+                                }
+
+                                moveSlimes();
+                                swingSword();
+                                particles.update();
+                                drawRoom(walking ? run : idle);
+
+                                // Opening the chest wins the game
+                                if (room.chest && playerBox.colliding(room.chest)) {
+                                    room.chestOpen = true;
+                                    MDog.setActiveFunction(won);
+                                }
+                                if (hearts === 0) {
+                                    MDog.setActiveFunction(gameOver);
+                                }
+                            }
+
+                            // Going past an edge moves her into the room on that side
+                            function changeRooms() {
+                                let [x, y] = roomName.split(",").map(Number);
+                                if (playerBox.getMiddleX() < 0) {
+                                    x--;
+                                    player.x += 256;
+                                } else if (playerBox.getMiddleX() >= 256) {
+                                    x++;
+                                    player.x -= 256;
+                                } else if (playerBox.getMiddleY() < 0) {
+                                    y--;
+                                    player.y += 192;
+                                } else if (playerBox.getMiddleY() >= 192) {
+                                    y++;
+                                    player.y -= 192;
+                                } else {
+                                    return;
+                                }
+                                roomName = x + "," + y;
+                                room = rooms[roomName];
+                                particles.clear();
+                            }
+
+                            function won() {
+                                ticks++;
+                                drawRoom(idle);
+                                MDog.Draw.rectangleFill(0, 40, 256, 60, "#00000099");
+                                MDog.Draw.textImage("You found the treasure!", 128, 52, "#ffcc33", font, {alignX: "center", size: 2});
+                                MDog.Draw.textImage("Press space to play again", 128, 80, "#ffffff", font, {alignX: "center"});
+                                if (Keyboard.isClicked(" ")) {
+                                    startGame();
+                                }
+                            }
+
+                            function gameOver() {
+                                ticks++;
+                                drawRoom(idle);
+                                MDog.Draw.rectangleFill(0, 40, 256, 60, "#00000099");
+                                MDog.Draw.textImage("Game Over", 128, 52, "#ff4466", font, {alignX: "center", size: 2});
+                                MDog.Draw.textImage("Press space to try again", 128, 80, "#ffffff", font, {alignX: "center"});
+                                if (Keyboard.isClicked(" ")) {
+                                    startGame();
+                                }
+                            }
+
+                            function drawRoom(animation) {
+                                MDog.Draw.clear({color: "#4e9a3a"});
+                                MDog.Draw.interactable(room.tilemap);
+                                for (const key of room.keys) {
+                                    drawKey(key.getMiddleX(), key.getMiddleY());
+                                }
+                                for (const door of room.doors) {
+                                    drawDoor(door);
+                                }
+                                if (room.chest) {
+                                    drawChest(room.chest, room.chestOpen);
+                                }
+
+                                const things = room.slimes.map(slime => ({y: slime.position.y, draw: () => drawSlime(slime)}));
+                                if (hearts > 0) {
+                                    things.push({y: playerBox.getBottomY(), draw: () => drawPlayer(animation)});
+                                }
+                                things.sort((a, b) => a.y - b.y);
+                                for (const thing of things) {
+                                    thing.draw();
+                                }
+                                MDog.Draw.particleSystem(particles);
+
+                                drawHearts();
+                                drawKey(12, 22);
+                                MDog.Draw.textImage("x " + keyCount, 22, 20, "#ffffff", font);
+                            }
+
+                            function moveSlimes() {
+                                const target = new Vector(playerBox.getMiddleX(), playerBox.getMiddleY());
+                                for (const slime of room.slimes) {
+                                    const toPlayer = target.clone().subtract(slime.position);
+                                    let step;
+                                    if (toPlayer.length() < 70) {
+                                        step = toPlayer.setLength(0.3);
+                                    } else {
+                                        slime.wanderTimer--;
+                                        if (slime.wanderTimer <= 0) {
+                                            slime.wander = new Vector(0.15, 0).rotate(Math.random() * 360);
+                                            slime.wanderTimer = 100 + Math.random() * 100;
+                                        }
+                                        step = slime.wander.clone();
+                                    }
+                                    // Slimes stay in their own room
+                                    move(slime.position, slime.box, step, true);
+
+                                    if (hurtTimer === 0 && hearts > 0 && playerBox.colliding(slime.box)) {
+                                        hearts--;
+                                        hurtTimer = 160;
+                                        knockback.set(target.clone().subtract(slime.position).setLength(2));
+                                    }
+                                }
+                                if (hurtTimer > 0) {
+                                    hurtTimer--;
+                                }
+                            }
+
+                            function swingSword() {
+                                if (!attacking) {
+                                    return;
+                                }
+                                const frame = attack.getRawFrame();
+                                if (frame >= 3 && frame <= 9) {
+                                    const swordX = facingLeft ? player.x - 22 : player.x + 12;
+                                    const sword = new SquareKickbox(new Vector(swordX, player.y - 14), 0, 0, 22, 22);
+                                    for (let i = room.slimes.length - 1; i >= 0; i--) {
+                                        if (sword.colliding(room.slimes[i].box)) {
+                                            splat(room.slimes[i].position.x, room.slimes[i].position.y - 4);
+                                            room.slimes.splice(i, 1);
+                                        }
+                                    }
+                                }
+                                if (frame >= 12) {
+                                    attacking = false;
+                                }
+                            }
+
+                            function splat(x, y) {
+                                for (let i = 0; i < 16; i++) {
+                                    const direction = new Vector(0.3 + Math.random() * 0.6, 0).rotate(Math.random() * 360);
+                                    particles.addParticle(new MDog.FX.ChunkParticle(x, y, 40, "#77dd66", direction.x, direction.y, {size: 2}));
+                                }
+                            }
+
+                            function drawSlime(slime) {
+                                const x = Math.floor(slime.position.x);
+                                const y = Math.floor(slime.position.y) - Math.floor(Math.abs(Math.sin(ticks / 20 + slime.position.x)) * 2);
+                                MDog.Draw.circle(x, y - 5, 5, "#55bb44");
+                                MDog.Draw.rectangleFill(x - 7, y - 5, 14, 5, "#55bb44");
+                                MDog.Draw.rectangleFill(x - 3, y - 6, 2, 2, "#10300a");
+                                MDog.Draw.rectangleFill(x + 1, y - 6, 2, 2, "#10300a");
+                            }
+
+                            function drawHearts() {
+                                for (let i = 0; i < 3; i++) {
+                                    const x = 6 + i * 11;
+                                    const color = i < hearts ? "#ff4466" : "#444444";
+                                    MDog.Draw.circle(x + 2, 7, 2, color);
+                                    MDog.Draw.circle(x + 6, 7, 2, color);
+                                    MDog.Draw.polygonFill([new Vector(x, 8), new Vector(x + 9, 8), new Vector(x + 4, 13)], color);
+                                }
+                            }
+
+                            function drawKey(x, y) {
+                                MDog.Draw.circle(x - 3, y, 3, "#ffcc33");
+                                MDog.Draw.point(x - 3, y, "#5a4000");
+                                MDog.Draw.rectangleFill(x, y - 1, 7, 2, "#ffcc33");
+                                MDog.Draw.rectangleFill(x + 4, y + 1, 1, 2, "#ffcc33");
+                                MDog.Draw.rectangleFill(x + 6, y + 1, 1, 2, "#ffcc33");
+                            }
+
+                            function drawDoor(door) {
+                                const x = door.getLeftX();
+                                const y = door.getTopY();
+                                MDog.Draw.rectangleFill(x, y, door.getWidth(), door.getHeight(), "#6b3a17");
+                                MDog.Draw.rectangle(x, y, door.getWidth(), door.getHeight(), "#2a1406");
+                                MDog.Draw.rectangleFill(door.getMiddleX() - 1, door.getMiddleY() - 2, 3, 5, "#ffcc33");
+                            }
+
+                            function drawChest(chest, open) {
+                                const x = chest.getLeftX();
+                                const y = chest.getTopY();
+                                if (open) {
+                                    MDog.Draw.rectangleFill(x, y - 5, 16, 5, "#4a2610");
+                                    MDog.Draw.rectangleFill(x, y, 16, 12, "#6b3a17");
+                                    MDog.Draw.rectangle(x, y, 16, 12, "#2a1406");
+                                    MDog.Draw.rectangleFill(x + 2, y + 1, 12, 3, "#ffcc33");
+                                } else {
+                                    MDog.Draw.rectangleFill(x, y, 16, 12, "#6b3a17");
+                                    MDog.Draw.rectangle(x, y, 16, 12, "#2a1406");
+                                    MDog.Draw.rectangleFill(x + 1, y + 4, 14, 2, "#ffcc33");
+                                    MDog.Draw.rectangleFill(x + 7, y + 4, 2, 4, "#ffcc33");
+                                }
+                            }
+
+                            function drawPlayer(animation) {
+                                if (Math.floor(hurtTimer / 8) % 2 === 1) {
+                                    return;
+                                }
+                                if (attacking) {
+                                    animation = attack;
+                                }
+                                const x = playerBox.getLeftX() - (facingLeft ? 31 : 20);
+                                MDog.Draw.animation(animation, x, playerBox.getTopY() - 35, {flipX: facingLeft});
+                            }
+
+                            // With stayInRoom, the edges of the screen block the way too
+                            function move(position, box, direction, stayInRoom) {
+                                position.x += direction.x;
+                                if (blocked(box, stayInRoom)) {
+                                    position.x -= direction.x;
+                                }
+                                position.y += direction.y;
+                                if (blocked(box, stayInRoom)) {
+                                    position.y -= direction.y;
+                                }
+                            }
+
+                            function blocked(box, stayInRoom) {
+                                if (stayInRoom && (box.getLeftX() < 0 || box.getRightX() > 255 || box.getTopY() < 0 || box.getBottomY() > 191)) {
+                                    return true;
+                                }
+                                return hitsWall(box) || room.doors.some(door => box.colliding(door));
+                            }
+
+                            // Past the edge of the room, get() gives -2, which isn't a wall, so she can walk out
+                            function hitsWall(box) {
+                                for (const x of [box.getLeftX(), box.getRightX()]) {
+                                    for (const y of [box.getTopY(), box.getBottomY()]) {
+                                        const tile = room.tilemap.get(Math.floor(x / 16), Math.floor(y / 16));
+                                        if (tile === 2 || tile === 3) {
+                                            return true;
+                                        }
+                                    }
+                                }
+                                return false;
+                            }
+
+                            makeRooms();
+                            room = rooms[roomName];
+                            MDog.setActiveFunction(titleScreen);
+                        `,
+                    });
+                </script>
+
+                <h2>What's Next</h2>
+
+                <p>That's a whole adventure game! Here are some ideas to try next:</p>
+
+                <ul>
+                    <li>Add more rooms to <code>roomData</code>. Just make sure the gaps in the edges line up with the room next door.</li>
+                    <li>Put hearts in some rooms that give back a heart when she walks over them.</li>
+                    <li>Make the rooms in a spreadsheet and load them from <code>.csv</code> files (see <a href="guide-levels.html">Levels From a File</a>).</li>
+                </ul>
+
+                <p>You've finished every tutorial! The <a href="playground.html">Playground</a> is a good place to make your own game, and the docs under Engine in the sidebar have everything else MDog Engine can do.</p>
+
+                <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
+
+            </div>
+
+        </div>
+    </div>
+    <script src="syntax.js"></script>
+    <script src="page.js"></script>
+    <script src="demos.js"></script>
+    <script src="search.js"></script>
+</body>
+</html>

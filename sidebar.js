@@ -20,6 +20,9 @@ const icons = {
     "github": [496, "M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"],
     "graduation-cap": [640, "M320 32c-8.1 0-16.1 1.4-23.7 4.1L15.8 137.4C6.3 140.9 0 149.9 0 160s6.3 19.1 15.8 22.6l57.9 20.9C57.3 229.3 48 259.8 48 291.9l0 28.1c0 28.4-10.8 57.7-22.3 80.8c-6.5 13-13.9 25.8-22.5 37.6C0 442.7-.9 448.3 .9 453.4s6 8.9 11.2 10.2l64 16c4.2 1.1 8.7 .3 12.4-2s6.3-6.1 7.1-10.4c8.6-42.8 4.3-81.2-2.1-108.7C90.3 344.3 86 329.8 80 316.5l0-24.6c0-30.2 10.2-58.7 27.9-81.5c12.9-15.5 29.6-28 49.2-35.7l157-61.7c8.2-3.2 17.5 .8 20.7 9s-.8 17.5-9 20.7l-157 61.7c-12.4 4.9-23.3 12.4-32.2 21.6l159.6 57.6c7.6 2.7 15.6 4.1 23.7 4.1s16.1-1.4 23.7-4.1L624.2 182.6c9.5-3.4 15.8-12.5 15.8-22.6s-6.3-19.1-15.8-22.6L343.7 36.1C336.1 33.4 328.1 32 320 32zM128 408c0 35.3 86 72 192 72s192-36.7 192-72L496.7 262.6 354.5 314c-11.1 4-22.8 6-34.5 6s-23.5-2-34.5-6L143.3 262.6 128 408z"],
     "sidebar": [512, "M96 64h320a64 64 0 0 1 64 64v256a64 64 0 0 1-64 64H96a64 64 0 0 1-64-64V128a64 64 0 0 1 64-64zM208 112v288h208a16 16 0 0 0 16-16V128a16 16 0 0 0-16-16z", "evenodd"],
+    "image": [512, "M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6l96 0 32 0 208 0c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"],
+    "sun": [512, "M361.5 1.2c5 2.1 8.6 6.6 9.6 11.9L391 121l107.9 19.8c5.3 1 9.8 4.6 11.9 9.6s1.5 10.7-1.6 15.2L446.9 256l62.3 90.3c3.1 4.5 3.7 10.2 1.6 15.2s-6.6 8.6-11.9 9.6L391 391 371.1 498.9c-1 5.3-4.6 9.8-9.6 11.9s-10.7 1.5-15.2-1.6L256 446.9l-90.3 62.3c-4.5 3.1-10.2 3.7-15.2 1.6s-8.6-6.6-9.6-11.9L121 391 13.1 371.1c-5.3-1-9.8-4.6-11.9-9.6s-1.5-10.7 1.6-15.2L65.1 256 2.8 165.7c-3.1-4.5-3.7-10.2-1.6-15.2s6.6-8.6 11.9-9.6L121 121 140.9 13.1c1-5.3 4.6-9.8 9.6-11.9s10.7-1.5 15.2 1.6L256 65.1 346.3 2.8c4.5-3.1 10.2-3.7 15.2-1.6zM160 256a96 96 0 1 1 192 0 96 96 0 1 1 -192 0zm224 0a128 128 0 1 0 -256 0 128 128 0 1 0 256 0z"],
+    "moon": [384, "M223.5 32C100 32 0 132.3 0 256S100 480 223.5 480c60.6 0 115.5-24.2 155.8-63.4c5-4.9 6.3-12.5 3.1-18.7s-10.1-9.7-17-8.5c-9.8 1.7-19.8 2.6-30.1 2.6c-96.9 0-175.5-78.8-175.5-176c0-65.8 36-123.1 89.3-153.3c6.1-3.5 9.2-10.5 7.7-17.3s-7.3-11.9-14.3-12.5c-6.3-.5-12.6-.8-19-.8z"],
     "lightbulb": [384, "M272 384c9.6-31.9 29.5-59.1 49.2-86.2c0 0 0 0 0 0c5.2-7.1 10.4-14.2 15.4-21.4c19.8-28.5 31.4-63 31.4-100.3C368 78.8 289.2 0 192 0S16 78.8 16 176c0 37.3 11.6 71.9 31.4 100.3c5 7.2 10.2 14.3 15.4 21.4c0 0 0 0 0 0c19.8 27.1 39.7 54.4 49.2 86.2l160 0zM192 512c44.2 0 80-35.8 80-80l0-16-160 0 0 16c0 44.2 35.8 80 80 80zM112 176c0 8.8-7.2 16-16 16s-16-7.2-16-16c0-61.9 50.1-112 112-112c8.8 0 16 7.2 16 16s-7.2 16-16 16c-44.2 0-80 35.8-80 80z"],
     "flask": [448, "M288 0L160 0 128 0C110.3 0 96 14.3 96 32s14.3 32 32 32l0 132.8c0 11.8-3.3 23.5-9.5 33.5L10.3 406.2C3.6 417.2 0 429.7 0 442.6C0 480.9 31.1 512 69.4 512l309.2 0c38.3 0 69.4-31.1 69.4-69.4c0-12.8-3.6-25.4-10.3-36.4L329.5 230.4c-6.2-10.1-9.5-21.7-9.5-33.5L320 64c17.7 0 32-14.3 32-32s-14.3-32-32-32L288 0zM192 196.8L192 64l64 0 0 132.8c0 23.7 6.6 46.9 19 67.1L309.5 320l-171 0L173 263.9c12.4-20.2 19-43.4 19-67.1z"],
 };
@@ -87,17 +90,38 @@ const sidebarHTML = `
                     </a>
                 </div>
 
-                <div class="navbar-button">
-                    <a class="navbar-title" data-page="tutorial.html" href="${docsPageHref("tutorial.html")}">
+                <div class="navbar-button navbar-dropdown">
+                    <label class="navbar-title">
+                        <input type="checkbox">
                         ${icon("graduation-cap", "navbar-title-icon navbar-icon")}
-                        <span class="navbar-title-text">Tutorial</span>
-                    </a>
+                        <span class="navbar-title-text">Tutorials</span>
+                        <span class="spacer"></span>
+                        ${icon("caret-right", "closed-i dropdown-indicator")}
+                        ${icon("caret-down", "open-i dropdown-indicator")}
+                    </label>
+
+                    <div class="navbar-children indent">
+
+                        <div class="sidebar-sideline"></div>
+                        ${pageLink("tutorial.html", "Platformer")}
+                        ${pageLink("tutorial-shooter.html", "Space Shooter")}
+                        ${pageLink("tutorial-racer.html", "3D Racer")}
+                        ${pageLink("tutorial-adventure.html", "Top-Down Adventure")}
+
+                    </div>
                 </div>
 
                 <div class="navbar-button">
                     <a class="navbar-title" data-page="playground.html" href="${docsPageHref("playground.html")}">
                         ${icon("flask", "navbar-title-icon navbar-icon")}
                         <span class="navbar-title-text">Playground</span>
+                    </a>
+                </div>
+
+                <div class="navbar-button">
+                    <a class="navbar-title" data-page="asset-packs.html" href="${docsPageHref("asset-packs.html")}">
+                        ${icon("image", "navbar-title-icon navbar-icon")}
+                        <span class="navbar-title-text">Asset Packs</span>
                     </a>
                 </div>
 
@@ -123,6 +147,9 @@ const sidebarHTML = `
                         ${pageLink("threedee.html", "ThreeDee")}
                         ${pageLink("asset-manager.html", "Asset Manager")}
                         ${pageLink("basics.html", "Basics")}
+                        ${pageLink("all-methods.html", "All Methods")}
+                        ${pageLink("cheat-sheet.html", "Cheat Sheet")}
+                        ${pageLink("glossary.html", "Glossary")}
 
                     </div>
                 </div>
@@ -179,6 +206,13 @@ const sidebarHTML = `
                         <span class="navbar-title-text">MDog Engine on GitHub</span>
                     </a>
                 </div>
+                <div class="navbar-button">
+                    <button class="navbar-title theme-toggle">
+                        ${icon("sun", "navbar-title-icon navbar-icon theme-icon-sun")}
+                        ${icon("moon", "navbar-title-icon navbar-icon theme-icon-moon")}
+                        <span class="navbar-title-text">Light mode</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -191,6 +225,7 @@ restoreOpenDropdowns(sidebar);
 highlightCurrentPage(sidebar);
 setUpMobileMenu();
 setUpCollapsing(sidebar);
+setUpThemeToggle(sidebar);
 
 // Every page load makes a new sidebar, so which dropdowns are open is saved for this tab and put back on the next page.
 // Dropdowns are saved by their title, like "Engine".
@@ -315,4 +350,24 @@ function setSidebarCollapsed(collapsed, save = true) {
             localStorage.setItem("sidebar-collapsed", collapsed);
         } catch (e) {}
     }
+}
+
+// The button at the bottom of the sidebar that switches between light and dark (see docsSetTheme in build-tables.js).
+// It says what it switches to.
+function setUpThemeToggle(sidebar) {
+    const button = sidebar.querySelector(".theme-toggle");
+    const label = () => {
+        const light = document.documentElement.dataset.theme === "light";
+        const text = light ? "Dark mode" : "Light mode";
+        button.querySelector(".navbar-title-text").textContent = text;
+        button.setAttribute("aria-label", "Switch to " + text.toLowerCase());
+        if (button.title) {
+            button.title = text;
+        }
+    };
+    label();
+    button.addEventListener("click", () => {
+        docsSetTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light");
+        label();
+    });
 }

@@ -125,6 +125,24 @@
                         },
                         {
                             name: "clear",
+                            demo: {
+                                keys: [" "],
+                                code: `
+                                let angle = 0;
+
+                                function main() {
+                                    angle += 0.03;
+
+                                    // Hold space to skip clearing, and everything drawn before stays on the screen
+                                    if (!MDog.Input.Keyboard.isDown(" ")) {
+                                        MDog.Draw.clear({color: "#203040"});
+                                    }
+                                    MDog.Draw.circle(80 + Math.round(Math.cos(angle) * 40), 60 + Math.round(Math.sin(angle) * 30), 6, "#ffcc33");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Clears the screen or a layer to a color.",
                             details: "Clears the screen (or specific layer) to a color (black by default). If no layer is given, every layer is wiped and the screen is filled with the color. The color can be <code>\"transparent\"</code> to see the web page behind the game. If a layer is given, only that layer is filled with the color, which covers up the layers below it. Use <code>\"transparent\"</code> to clear just that layer back to empty.",
                             settings: [
@@ -216,6 +234,29 @@
                         },
                         {
                             name: "point",
+                            demo: {
+                                code: `
+                                // Stars at random places, each moving at its own speed
+                                const stars = [];
+                                for (let i = 0; i < 60; i++) {
+                                    stars.push({x: Math.random() * 160, y: Math.random() * 120, speed: 0.1 + Math.random() * 0.5});
+                                }
+
+                                function main() {
+                                    MDog.Draw.clear({color: "#0b0b1a"});
+                                    for (const star of stars) {
+                                        star.x -= star.speed;
+                                        if (star.x < 0) {
+                                            star.x += 160;
+                                        }
+                                        // Faster stars are brighter, so they look closer
+                                        MDog.Draw.point(Math.floor(star.x), Math.floor(star.y), star.speed > 0.4 ? "#ffffff" : "#6a7090");
+                                    }
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Sets a pixel.",
                             details: "Sets a single pixel to a color.",
                             parameters: [
@@ -226,6 +267,27 @@
                         },
                         {
                             name: "polygon",
+                            demo: {
+                                code: `
+                                let angle = 0;
+
+                                function main() {
+                                    angle += 0.4;
+
+                                    // A star: points that go out and in around the middle, turned a bit more every tick
+                                    const points = [];
+                                    for (let i = 0; i < 10; i++) {
+                                        const point = new MDog.Math.Vector(0, i % 2 === 0 ? -45 : -18).rotate(angle + i * 36);
+                                        points.push(new MDog.Math.Vector(80 + Math.round(point.x), 60 + Math.round(point.y)));
+                                    }
+
+                                    MDog.Draw.clear();
+                                    MDog.Draw.polygon(points, "#ffcc33");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Draws the outline of a polygon.",
                             details: "Draws lines between each point, and from the last point back to the first one.",
                             parameters: [
@@ -412,6 +474,26 @@
                         },
                         {
                             name: "setActiveLayer",
+                            demo: {
+                                code: `
+                                let x = 0;
+
+                                function main() {
+                                    x = (x + 0.5) % 200;
+                                    MDog.Draw.clear({color: "#87b8e8"});
+
+                                    // The wall is drawn first, but on layer 1...
+                                    MDog.Draw.setActiveLayer(1);
+                                    MDog.Draw.rectangleFill(64, 20, 32, 80, "#5a6070");
+
+                                    // ...so the ball, drawn after it on layer 0, still goes behind it
+                                    MDog.Draw.setActiveLayer(0);
+                                    MDog.Draw.circle(Math.floor(x) - 20, 60, 12, "#ff5566");
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Sets the default draw layer.",
                             details: "Sets which layer is drawn to when a method isn't given a <code>layer</code> setting. The active layer starts as <code>0</code>.",
                             parameters: [
@@ -557,11 +639,52 @@ function main() {
                     methodsTable([
                         {
                             name: "getFrame",
+                            demo: {
+                                code: `
+                                const run = new MDog.Draw.MultipleFileAnimation("warrior/Run/Warrior_Run_?.png", 8, 4);
+
+                                function main() {
+                                    MDog.Draw.clear({color: "#203040"});
+                                    MDog.Draw.animation(run, 48, 26);
+                                    MDog.Draw.textImage("Frame " + run.getFrame(), 80, 90, "#ffcc33", "fonts/marsfont.png", {alignX: "center", size: 2});
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Gets the current frame.",
                             details: "Gets the frame number being shown right now, starting at 0. If the animation was given a custom frame order, this is the frame from that order.",
                         },
                         {
                             name: "getRawFrame",
+                            demo: {
+                                keys: [" "],
+                                code: `
+                                const idle = new MDog.Draw.MultipleFileAnimation("warrior/Idle/Warrior_Idle_?.png", 6, 8);
+                                const attack = new MDog.Draw.MultipleFileAnimation("warrior/Attack/Warrior_Attack_?.png", 12, 16);
+                                let attacking = false;
+
+                                function main() {
+                                    // Space starts the attack over from its first frame
+                                    if (MDog.Input.Keyboard.isClicked(" ") && !attacking) {
+                                        attacking = true;
+                                        attack.reset();
+                                    }
+
+                                    MDog.Draw.clear({color: "#203040"});
+                                    MDog.Draw.rectangleFill(0, 82, 160, 38, "#3a5a40");
+                                    MDog.Draw.animation(attacking ? attack : idle, 48, 40);
+                                    MDog.Draw.textImage("Space to attack", 80, 6, "#ffffff", "fonts/marsfont.png", {alignX: "center"});
+
+                                    // Once all 12 frames have been shown, the attack is over
+                                    if (attacking && attack.getRawFrame() >= 12) {
+                                        attacking = false;
+                                    }
+                                }
+
+                                MDog.setActiveFunction(main);
+                                `,
+                            },
                             description: "Gets how many frames have passed.",
                             details: "Gets how many frames have been shown since the animation started, without looping back to the start. Once this reaches the number of frames, the animation has played all the way through.",
                         },
