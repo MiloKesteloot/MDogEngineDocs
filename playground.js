@@ -12,13 +12,14 @@
 // The codemirror package itself is pinned to 6.0.1, since its newest 6.x is the old CodeMirror 5.
 
 import {EditorView, basicSetup} from "https://esm.sh/codemirror@6.0.1";
-import {keymap} from "https://esm.sh/@codemirror/view@^6.0.0";
+import {keymap, hoverTooltip} from "https://esm.sh/@codemirror/view@^6.0.0";
 import {EditorState, Transaction} from "https://esm.sh/@codemirror/state@^6.0.0";
 import {indentWithTab, undo} from "https://esm.sh/@codemirror/commands@^6.0.0";
 import {javascript, javascriptLanguage} from "https://esm.sh/@codemirror/lang-javascript@^6.0.0";
-import {HighlightStyle, syntaxHighlighting, indentUnit} from "https://esm.sh/@codemirror/language@^6.0.0";
+import {HighlightStyle, syntaxHighlighting, indentUnit, syntaxTree, ensureSyntaxTree} from "https://esm.sh/@codemirror/language@^6.0.0";
 import {tags} from "https://esm.sh/@lezer/highlight@^1.0.0";
 import {search} from "https://esm.sh/@codemirror/search@^6.0.0";
+import {setDiagnostics, lintGutter} from "https://esm.sh/@codemirror/lint@^6.0.0";
 
 const engineURL = docsEngineBaseURL + "MDogModules/MDogMain.js";
 const engineImport = `import MDog from "${engineURL}";`;
@@ -755,7 +756,148 @@ const editorTheme = EditorView.theme({
     ".cm-searchMatch": {backgroundColor: "rgba(255, 200, 80, 0.22)", outline: "none"},
     ".cm-searchMatch.cm-searchMatch-selected": {backgroundColor: "rgba(255, 200, 80, 0.5)"},
     ".cm-selectionMatch": {backgroundColor: "rgba(140, 184, 255, 0.12)"},
+    // Errors: a red squiggle under the code, a dot next to the line number, and the message when the mouse is over it
+    ".cm-gutter-lint": {width: "14px"},
+    ".cm-gutter-lint .cm-gutterElement": {padding: "0 2px"},
+    ".cm-lint-marker": {width: "10px", height: "10px", marginTop: "4px"},
+    ".cm-tooltip.cm-tooltip-lint": {maxWidth: "460px"},
+    ".cm-diagnostic": {padding: "6px 10px", fontFamily: "var(--font-sans)", fontSize: "13px", whiteSpace: "pre-wrap"},
+    ".cm-diagnostic-error": {borderLeft: "3px solid var(--error)"},
+    // The box that shows a method's docs, or a variable's value, when the mouse is over it
+    ".cm-tooltip.cm-tooltip-hover": {maxWidth: "420px"},
+    ".pg-hover": {padding: "8px 11px", fontFamily: "var(--font-sans)", fontSize: "13px", lineHeight: "1.5"},
+    ".pg-hover code": {color: "#dcdcaa", fontFamily: "var(--font-mono)", fontSize: "13px"},
+    ".pg-hover-text": {marginTop: "3px", color: "var(--text-muted)"},
+    ".pg-hover-value": {marginTop: "3px", color: "var(--text)", fontFamily: "var(--font-mono)", fontSize: "12px", wordBreak: "break-word"},
+    ".pg-hover-links": {display: "flex", gap: "12px", marginTop: "6px"},
+    ".pg-hover-links a, .pg-hover-links button": {
+        padding: "0", border: "none", background: "none", color: "var(--accent)", fontFamily: "var(--font-sans)", fontSize: "13px",
+        textDecoration: "underline", textUnderlineOffset: "2px", cursor: "pointer",
+    },
 }, {dark: true});
+
+// ===== Hovering over code =====
+
+// The docs page for each module, for links from the hover box
+const modulePages = Object.fromEntries(Object.entries(pageModules).filter(([, module]) => module).map(([page, module]) => [module, page]));
+
+// When the mouse is over something in the code: an engine method or class shows its docs, and anything else shows its
+// value from the running game, with a button to watch it.
+function hoverInfo(view, pos) {
+    const word = view.state.wordAt(pos);
+    if (!word) {
+        return null;
+    }
+    const nodeName = syntaxTree(view.state).resolveInner(pos, 1).name;
+    if (/String|Comment|Template/.test(nodeName)) {
+        return null;
+    }
+    // The whole name up to the word, like "MDog.Draw.circle" or "player.x"
+    const line = view.state.doc.lineAt(word.from);
+    const match = line.text.slice(0, word.to - line.from).match(/([A-Za-z_$][\w$]*(?:\s*\.\s*[A-Za-z_$][\w$]*)*)$/);
+    if (!match) {
+        return null;
+    }
+    const path = match[1].replace(/\s+/g, "");
+    const from = word.to - match[1].length;
+    const thing = resolve(path.split("."), variables);
+
+    const box = document.createElement("div");
+    box.className = "pg-hover";
+
+    if (thing && (thing.kind === "method" || thing.kind === "class") && thing.entry) {
+        const name = thing.kind === "class" ? "new " + thing.name : thing.name;
+        box.innerHTML = `
+            <code>${docsEscape(name)}${docsEscape(signature(thing.entry))}</code>
+            <div class="pg-hover-text">${docsEscape(thing.entry.description)}</div>
+            <div class="pg-hover-links"><a href="${docsPageHref(thing.entry.page)}#${thing.entry.id}" target="_blank">Read the docs ↗</a></div>`;
+    } else if (thing && (thing.kind === "object" || thing.kind === "property") && thing.info) {
+        const page = thing === mdogRoot ? "core.html" : modulePages[thing.name] ?? (thing.name === "Keyboard" || thing.name === "Mouse" ? "input.html" : null);
+        box.innerHTML = `
+            <code>${docsEscape(path)}</code>
+            <div class="pg-hover-text">${docsEscape(thing.info)}</div>
+            ${page ? `<div class="pg-hover-links"><a href="${docsPageHref(page)}" target="_blank">Read the docs ↗</a></div>` : ""}`;
+    } else {
+        // A value from the game, if it's running and the name means something there
+        if (/^(true|false|null|undefined|this|NaN|Infinity|function|return|if|else|for|while|let|const|var|new)$/.test(path)) {
+            return null;
+        }
+        const value = gameFrame?.contentWindow?.playgroundControl?.read(path);
+        if (!value?.ok || value.text.startsWith("function")) {
+            return null;
+        }
+        box.innerHTML = `
+            <code>${docsEscape(path)}</code>
+            <div class="pg-hover-value"></div>
+            <div class="pg-hover-links"><button>Watch</button></div>`;
+        box.querySelector(".pg-hover-value").textContent = value.text;
+        box.querySelector("button").addEventListener("click", () => addWatch(path));
+    }
+    return {pos: from, end: word.to, above: true, create: () => ({dom: box})};
+}
+
+// ===== Errors in the code =====
+// Two kinds: code that isn't finished JavaScript (found as you type), and errors from running the game (from the
+// console). Both are shown as squiggles in the editor.
+
+let syntaxDiagnostics = [];
+let runtimeDiagnostics = [];
+let syntaxTimer = null;
+
+function showDiagnostics() {
+    editor.dispatch(setDiagnostics(editor.state, [...syntaxDiagnostics, ...runtimeDiagnostics]));
+}
+
+// Finds the first place the code stops making sense, like a missing bracket. Only the first one is shown, since
+// everything after it can look wrong too.
+function checkSyntax() {
+    const state = editor.state;
+    const tree = ensureSyntaxTree(state, state.doc.length, 200) ?? syntaxTree(state);
+    let found = null;
+    tree.iterate({
+        enter(node) {
+            if (found) {
+                return false;
+            }
+            if (node.type.isError) {
+                found = node.from;
+                return false;
+            }
+        },
+    });
+    syntaxDiagnostics = [];
+    if (found !== null) {
+        const line = state.doc.lineAt(found);
+        // Underline the rest of the line. If the problem is noticed at the very start of a line, the mistake is
+        // usually at the end of the line before (like a missing bracket), so that line is underlined instead.
+        let from = found;
+        let to = line.to;
+        const startOfLine = line.from + line.text.search(/\S|$/);
+        if (found <= startOfLine && line.number > 1) {
+            let previous = state.doc.line(line.number - 1);
+            while (previous.number > 1 && previous.text.trim() === "") {
+                previous = state.doc.line(previous.number - 1);
+            }
+            from = previous.from + previous.text.search(/\S|$/);
+            to = previous.to;
+        }
+        if (to > from) {
+            syntaxDiagnostics.push({from, to, severity: "error", message: "This doesn't look like finished JavaScript. Check for a missing bracket, quote, or comma around here."});
+        }
+    }
+    showDiagnostics();
+}
+
+// An error from the running game, on one line of the code
+function addRuntimeError(lineNumber, message) {
+    if (lineNumber < 1 || lineNumber > editor.state.doc.lines || runtimeDiagnostics.some(d => d.lineNumber === lineNumber)) {
+        return;
+    }
+    const line = editor.state.doc.line(lineNumber);
+    const from = line.from + line.text.search(/\S|$/);
+    runtimeDiagnostics.push({lineNumber, from, to: Math.max(line.to, from + 1), severity: "error", message});
+    showDiagnostics();
+}
 
 let saveTimer = null;
 let autorunTimer = null;
@@ -780,6 +922,8 @@ const editor = new EditorView({
             }),
             EditorState.tabSize.of(4),
             indentUnit.of("    "),
+            lintGutter(),
+            hoverTooltip(hoverInfo, {hoverTime: 350}),
             keymap.of([
                 {key: "Mod-Enter", run: () => { run(true); return true; }},
                 {key: "Mod-s", run: () => { saveCode(true); return true; }, preventDefault: true},
@@ -823,6 +967,13 @@ function setCode(code, undoable = false) {
 }
 
 function codeChanged() {
+    // Errors from running the game are about the old code, so they're cleared, and the new code is checked
+    if (runtimeDiagnostics.length > 0) {
+        runtimeDiagnostics = [];
+        showDiagnostics();
+    }
+    clearTimeout(syntaxTimer);
+    syntaxTimer = setTimeout(checkSyntax, 700);
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => saveCode(false), 400);
     clearTimeout(variablesTimer);
@@ -860,13 +1011,11 @@ let codeOffset = 0;
 
 async function run(showGame = false) {
     clearConsole();
+    stopRecording(false);
     const code = getCode();
     variables = findVariables(code);
-
-    // If the code doesn't import MDog Engine, the import is added for it
-    const addImport = !/import\s+MDog\s+from/.test(code);
-    const userCode = (addImport ? engineImport + "\n" : "") + code;
-    const engine = userCode.match(/import\s+MDog\s+from\s+["']([^"']+)["']/)?.[1] ?? engineURL;
+    runtimeDiagnostics = [];
+    checkSyntax();
 
     // Load every image before the game starts, so nothing flickers in. Added files are used instead of built-in ones.
     const assetURLs = {};
@@ -876,30 +1025,18 @@ async function run(showGame = false) {
     const builtInImages = (await findDemoImages(code)).filter(name => !(name in assetURLs));
     const images = [...assets.filter(a => isImage(a.name)).map(a => a.name), ...builtInImages];
 
-    let script = `import playgroundMDog from "${engine}"; await playgroundPreload(playgroundMDog);\n` + userCode;
-    // A </script> in the code would end the script early
-    script = script.replace(/<\/script/gi, "<\\/script");
-
-    const before = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>html, body { margin: 0; height: 100%; overflow: hidden; background: #000; }</style>
-<script>
-${frameHelpers(assetURLs, images)}
-<\/script>
-</head>
-<body>
-<script type="module">
-`;
-    // Errors give line numbers in this whole page, so remember where the code in the editor starts
-    codeOffset = before.split("\n").length - 1 + 1 + (addImport ? 1 : 0);
+    // The page the game runs in (see game-page.js). Errors give line numbers in that whole page, so codeOffset is where
+    // the code in the editor starts.
+    const page = mdogGamePage({code, engineURL, assetURLs, images});
+    codeOffset = page.codeOffset;
 
     gameFrame?.remove();
     gameFrame = document.createElement("iframe");
     gameFrame.className = "pg-frame";
     gameFrame.title = "Your game";
-    gameFrame.srcdoc = before + script + "\n<\/script>\n</body>\n</html>";
+    gameFrame.srcdoc = page.html;
+    setPaused(false);
+    showTouchKeys(code);
     const frame = gameFrame;
     gameFrame.addEventListener("load", () => {
         frame.focus();
@@ -916,104 +1053,233 @@ ${frameHelpers(assetURLs, images)}
     }
 }
 
-// The code that runs in the game's page before the game does:
-//  - Added files are used in place of "assets/..." for images and loadFile()
-//  - console.log() and errors are sent to the playground's console. Messages from the engine itself, like
-//    "Created MDog instance.", are left out, since they aren't the game's.
-//  - Images are loaded before the game starts (playgroundPreload)
-function frameHelpers(assetURLs, images) {
-    return `
-const playgroundAssets = ${JSON.stringify(assetURLs)};
-const playgroundImages = ${JSON.stringify(images)};
-const toPlayground = message => parent.postMessage({playground: message}, "*");
+// ===== Controlling the game: restart, pause, step, screenshots, and GIFs =====
 
-function playgroundAsset(url) {
-    const match = String(url).match(/^(?:\\.\\/)?assets\\/(.+)$/);
-    return match && playgroundAssets[match[1]] ? playgroundAssets[match[1]] : url;
-}
+let gamePaused = false;
+let recorder = null;
 
-const imageSrc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
-Object.defineProperty(HTMLImageElement.prototype, "src", {
-    configurable: true,
-    get: imageSrc.get,
-    set(value) {
-        const match = String(value).match(/^(?:\\.\\/)?assets\\/(.+)$/);
-        if (match) {
-            this.addEventListener("error", () => toPlayground({level: "warn",
-                text: 'Couldn\\'t load the image "' + match[1] + '". Check that it\\'s added in the Assets tab, and that the name matches exactly, capital letters too.'}), {once: true});
-        }
-        imageSrc.set.call(this, playgroundAsset(value));
-    },
-});
-
-const realFetch = window.fetch.bind(window);
-window.fetch = async (input, options) => {
-    const url = typeof input === "string" ? input : input.url;
-    const response = await realFetch(typeof input === "string" ? playgroundAsset(input) : input, options);
-    const match = String(url).match(/^(?:\\.\\/)?assets\\/(.+)$/);
-    if (match && !response.ok) {
-        toPlayground({level: "warn", text: 'Couldn\\'t load the file "' + match[1] + '". Check that it\\'s added in the Assets tab.'});
-    }
-    return response;
-};
-
-function playgroundFormat(value) {
-    if (typeof value === "string") {
-        return value;
-    }
-    if (value instanceof Error) {
-        return value.name + ": " + value.message;
-    }
-    if (value && typeof value === "object") {
-        // Things like Vectors have their own toString(), like "(3, 4)"
-        if (value.toString !== Object.prototype.toString && !Array.isArray(value)) {
-            return String(value);
-        }
-        try {
-            const seen = new WeakSet();
-            const text = JSON.stringify(value, (key, inner) => {
-                if (inner && typeof inner === "object") {
-                    if (seen.has(inner)) {
-                        return "[circular]";
-                    }
-                    seen.add(inner);
-                }
-                return inner;
-            });
-            return text.length > 500 ? text.slice(0, 500) + "..." : text;
-        } catch (error) {
-            return String(value);
-        }
-    }
-    return String(value);
-}
-
-for (const level of ["log", "info", "warn", "error", "debug"]) {
-    const original = console[level].bind(console);
-    console[level] = (...args) => {
-        const fromEngine = /MDogEngine@/.test((new Error().stack ?? "").split("\\n").slice(2, 3).join(""));
-        if (!fromEngine) {
-            toPlayground({level, text: args.map(playgroundFormat).join(" ")});
-        }
-        original(...args);
-    };
-}
-
-window.addEventListener("error", e => toPlayground({level: "error", text: e.message, line: e.filename === location.href ? e.lineno : null}));
-window.addEventListener("unhandledrejection", e => toPlayground({level: "error", text: "Uncaught (in promise) " + playgroundFormat(e.reason)}));
-
-window.playgroundPreload = mdog => Promise.race([
-    Promise.all(playgroundImages.map(path => new Promise(resolve => {
-        const image = mdog.Draw._getImageByName(path);
-        if (image.complete) {
-            resolve();
+function setPaused(paused) {
+    gamePaused = paused;
+    const control = gameFrame?.contentWindow?.playgroundControl;
+    if (control) {
+        if (paused) {
+            control.pause();
         } else {
-            image.addEventListener("load", resolve);
-            image.addEventListener("error", resolve);
+            control.resume();
         }
-    }))),
-    new Promise(resolve => setTimeout(resolve, 5000)),
-]);`;
+    }
+    const button = root.querySelector(".pg-game-pause");
+    button.textContent = paused ? "Resume" : "Pause";
+    button.title = paused ? "Keep playing" : "Pause the game";
+    root.querySelector(".pg-game-step").disabled = !paused;
+    gameBox.classList.toggle("paused", paused);
+}
+
+// The game's picture, every layer drawn together, made bigger by scale
+function gamePicture(scale) {
+    const canvases = [...(gameFrame?.contentDocument?.querySelectorAll("canvas") ?? [])];
+    if (canvases.length === 0 || !canvases[0].width) {
+        return null;
+    }
+    const picture = document.createElement("canvas");
+    picture.width = canvases[0].width * scale;
+    picture.height = canvases[0].height * scale;
+    const context = picture.getContext("2d", {willReadFrequently: true});
+    context.imageSmoothingEnabled = false;
+    context.fillStyle = "#000";
+    context.fillRect(0, 0, picture.width, picture.height);
+    for (const canvas of canvases) {
+        context.drawImage(canvas, 0, 0, picture.width, picture.height);
+    }
+    return picture;
+}
+
+function downloadName(extension) {
+    const name = viewingShared ? "mdog-game" : currentProject?.name ?? "mdog-game";
+    return (name.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").toLowerCase() || "mdog-game") + "." + extension;
+}
+
+function download(blob, name) {
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = name;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+}
+
+// GIFs are recorded at 20 frames per second, for up to 10 seconds, at a whole-number size up to about 480 wide
+const gifFrameTime = 50;
+const gifMaxFrames = 200;
+let recordTimer = null;
+
+function startRecording() {
+    const art = gamePicture(1);
+    if (!art) {
+        notify("Run the game first, then record it.");
+        return;
+    }
+    const scale = Math.max(1, Math.floor(480 / art.width));
+    recorder = {gif: mdogGifRecorder(art.width * scale, art.height * scale), width: art.width * scale, scale, started: Date.now()};
+    const button = root.querySelector(".pg-game-record");
+    button.classList.add("recording");
+    const capture = () => {
+        const picture = gamePicture(recorder.scale);
+        // Only frames the same size as the first, in case the game changes its size while recording
+        if (picture && picture.width === recorder.width) {
+            recorder.gif.addFrame(picture.getContext("2d").getImageData(0, 0, picture.width, picture.height).data);
+        }
+        const seconds = Math.floor((Date.now() - recorder.started) / 1000);
+        button.textContent = `Stop (0:${String(seconds).padStart(2, "0")})`;
+        if (recorder.gif.frameCount() >= gifMaxFrames) {
+            stopRecording(true);
+        }
+    };
+    capture();
+    recordTimer = setInterval(capture, gifFrameTime);
+}
+
+// Stops recording, and makes the GIF if save is true
+async function stopRecording(save) {
+    if (!recorder) {
+        return;
+    }
+    clearInterval(recordTimer);
+    const done = recorder;
+    recorder = null;
+    const button = root.querySelector(".pg-game-record");
+    button.classList.remove("recording");
+    if (!save || done.gif.frameCount() === 0) {
+        button.textContent = "Record GIF";
+        return;
+    }
+    button.disabled = true;
+    const blob = await done.gif.finish(gifFrameTime / 10, progress => {
+        button.textContent = `Making GIF ${Math.round(progress * 100)}%`;
+    });
+    button.disabled = false;
+    button.textContent = "Record GIF";
+    download(blob, downloadName("gif"));
+    notify(`Saved a ${(blob.size / 1024 / 1024).toFixed(1)} MB GIF.`);
+}
+
+function setUpGameControls() {
+    root.querySelector(".pg-game-restart").addEventListener("click", () => run(true));
+    root.querySelector(".pg-game-pause").addEventListener("click", () => setPaused(!gamePaused));
+    root.querySelector(".pg-game-step").addEventListener("click", () => gameFrame?.contentWindow?.playgroundControl?.step());
+    root.querySelector(".pg-game-screenshot").addEventListener("click", () => {
+        const art = gamePicture(1);
+        if (!art) {
+            notify("Run the game first, then take a screenshot.");
+            return;
+        }
+        // Pixel art is saved bigger, with each pixel a whole number of pixels, about 960 wide
+        const picture = gamePicture(Math.max(1, Math.floor(960 / art.width)));
+        picture.toBlob(blob => {
+            download(blob, downloadName("png"));
+            notify("Saved a screenshot.");
+        });
+    });
+    root.querySelector(".pg-game-record").addEventListener("click", () => {
+        if (recorder) {
+            stopRecording(true);
+        } else {
+            startRecording();
+        }
+    });
+    root.querySelector(".pg-fullscreen").addEventListener("click", () => gameBox.requestFullscreen?.());
+}
+
+// ===== Touch buttons, for playing on phones =====
+
+// Shows a button for each key the code checks for, on touch screens
+function showTouchKeys(code) {
+    const container = root.querySelector(".pg-touch-keys");
+    const keys = window.matchMedia("(pointer: coarse)").matches ? mdogFindKeys(code) : [];
+    container.hidden = keys.length === 0;
+    mdogTouchKeys(container, keys, () => gameFrame?.contentWindow);
+    layOut();
+}
+
+// ===== Watching values from the game =====
+// Each project has its own list of things to watch, saved like its code.
+
+let watches = [];
+const watchKeyFor = id => "mdog-playground-watch:" + id;
+
+function loadWatches() {
+    try {
+        watches = JSON.parse(localStorage.getItem(watchKeyFor(currentProject?.id))) ?? [];
+    } catch (error) {
+        watches = [];
+    }
+    renderWatches();
+}
+
+function saveWatches() {
+    if (viewingShared || !currentProject) {
+        return;
+    }
+    try {
+        localStorage.setItem(watchKeyFor(currentProject.id), JSON.stringify(watches));
+    } catch (error) {}
+}
+
+function addWatch(expression) {
+    expression = expression.trim();
+    if (expression && !watches.includes(expression)) {
+        watches.push(expression);
+        saveWatches();
+        renderWatches();
+    }
+    showPanel("watch");
+}
+
+function renderWatches() {
+    const list = root.querySelector(".pg-watch-list");
+    list.innerHTML = "";
+    for (const expression of watches) {
+        const row = document.createElement("div");
+        row.className = "pg-watch-row";
+        row.innerHTML = `<code class="pg-watch-name"></code><span class="pg-watch-value"></span><button class="pg-watch-remove" aria-label="Stop watching" title="Stop watching">×</button>`;
+        row.querySelector(".pg-watch-name").textContent = expression;
+        row.querySelector(".pg-watch-remove").addEventListener("click", () => {
+            watches = watches.filter(w => w !== expression);
+            saveWatches();
+            renderWatches();
+        });
+        row.dataset.expression = expression;
+        list.appendChild(row);
+    }
+    root.querySelector(".pg-watch-empty").hidden = watches.length > 0;
+    root.querySelector(".pg-watch-count").textContent = watches.length ? "(" + watches.length + ")" : "";
+    updateWatches();
+}
+
+// Reads every watched value from the game
+function updateWatches() {
+    const control = gameFrame?.contentWindow?.playgroundControl;
+    for (const row of root.querySelectorAll(".pg-watch-row")) {
+        const value = control ? control.read(row.dataset.expression) : {ok: false, text: "the game isn't running"};
+        const element = row.querySelector(".pg-watch-value");
+        element.textContent = value.text;
+        element.classList.toggle("problem", !value.ok);
+    }
+}
+
+function setUpWatch() {
+    const form = root.querySelector(".pg-watch-form");
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+        const input = form.querySelector("input");
+        addWatch(input.value);
+        input.value = "";
+    });
+    // Kept up to date while the Watch tab can be seen
+    setInterval(() => {
+        if (!root.querySelector(".pg-watch").hidden && main.dataset.view !== "code") {
+            updateWatches();
+        }
+    }, 150);
 }
 
 // ===== The console =====
@@ -1086,6 +1352,9 @@ function addConsoleLine({level, text, line}) {
     root.querySelector(".pg-console-count").textContent = "(" + consoleLines + ")";
     if (level === "error") {
         showPanel("console");
+        if (userLine) {
+            addRuntimeError(userLine, text);
+        }
     }
 }
 
@@ -1142,6 +1411,11 @@ setInterval(() => {
 // Until a line is dragged, the game's box is made exactly the size the game draws at, so there are no black bars
 // around it. MDog Engine makes each art pixel a whole number of screen pixels, so the biggest whole number is picked
 // that keeps the game to half the width (in Split view) and leaves room for the console.
+// The height of the bar above the game, and the touch buttons under it, which share the game's column
+function gameExtrasHeight() {
+    return root.querySelector(".pg-game-bar").offsetHeight + root.querySelector(".pg-touch-keys").offsetHeight;
+}
+
 function setUpDividers() {
     const gameColumn = root.querySelector(".pg-game-column");
     let sizes = {};
@@ -1164,7 +1438,7 @@ function setUpDividers() {
         if (sizes.panels) {
             main.style.setProperty("--pg-panels-height", (sizes.panels * 100) + "%");
         } else if (fit) {
-            main.style.setProperty("--pg-panels-height", `calc(100% - ${fit.height}px)`);
+            main.style.setProperty("--pg-panels-height", `calc(100% - ${fit.height + gameExtrasHeight()}px)`);
         } else {
             main.style.removeProperty("--pg-panels-height");
         }
@@ -1179,7 +1453,7 @@ function setUpDividers() {
         const rect = main.getBoundingClientRect();
         const ratio = window.devicePixelRatio || 1;
         const maxWidth = main.dataset.view === "split" ? rect.width / 2 : rect.width;
-        const maxHeight = rect.height - 150;
+        const maxHeight = rect.height - 150 - gameExtrasHeight();
         const scale = Math.max(1, Math.floor(Math.min(maxWidth * ratio / gameArtSize.width, maxHeight * ratio / gameArtSize.height)));
         // Rounded up to a whole CSS pixel, since the game's page is given a whole number of pixels to draw in. Rounding
         // down there would leave it a hair too small, and the game would drop to the next size down.
@@ -1281,17 +1555,55 @@ function assetsFromSaved(list) {
 // Files over this many bytes in total are too big to fit in a link
 const maxLinkAssetBytes = 12000;
 
-async function share(button) {
-    const totalSize = assets.reduce((total, a) => total + a.blob.size, 0);
-    const includeAssets = totalSize <= maxLinkAssetBytes;
-    const project = {code: getCode(), assets: includeAssets ? await assetsToSave(assets) : []};
-    const link = new URL(await docsPlaygroundLink(project), window.location.href).href;
-    copyText(link);
-    if (assets.length > 0 && !includeAssets) {
-        notify("Link copied, but your files are too big to fit in a link. Use Export to share them too.");
-    } else {
-        notify("Link copied");
+const shareDialog = root.querySelector(".pg-share-dialog");
+
+function setUpSharing() {
+    let encoded = "";
+    const embedCode = () => {
+        const width = Number(shareDialog.querySelector(".pg-embed-width").value) || 640;
+        const height = Number(shareDialog.querySelector(".pg-embed-height").value) || 480;
+        const src = new URL(docsPageHref("embed.html"), window.location.href).href + "#p=" + encoded;
+        const title = viewingShared ? "MDog Engine game" : currentProject?.name ?? "MDog Engine game";
+        return `<iframe src="${src}" width="${width}" height="${height}" title="${docsEscape(title)}" style="border: 0;" allow="fullscreen"></iframe>`;
+    };
+    const update = () => {
+        shareDialog.querySelector(".pg-embed-code").value = embedCode();
+    };
+
+    root.querySelector(".pg-share").addEventListener("click", async () => {
+        const totalSize = assets.reduce((total, a) => total + a.blob.size, 0);
+        const includeAssets = totalSize <= maxLinkAssetBytes;
+        shareDialog.querySelector(".pg-share-warning").hidden = assets.length === 0 || includeAssets;
+        encoded = await docsEncodeProject({code: getCode(), assets: includeAssets ? await assetsToSave(assets) : []});
+        shareDialog.querySelector(".pg-share-link").value = new URL(docsPageHref("playground.html"), window.location.href).href + "#p=" + encoded;
+
+        // Starts at a size the game fits exactly, about 640 wide
+        if (gameArtSize) {
+            const scale = Math.max(1, Math.floor(640 / gameArtSize.width));
+            shareDialog.querySelector(".pg-embed-width").value = gameArtSize.width * scale;
+            shareDialog.querySelector(".pg-embed-height").value = gameArtSize.height * scale;
+        }
+        update();
+        shareDialog.showModal();
+        shareDialog.focus();
+    });
+    for (const input of shareDialog.querySelectorAll("input[type=number]")) {
+        input.addEventListener("input", update);
     }
+    shareDialog.querySelector(".pg-copy-link").addEventListener("click", e => {
+        copyText(shareDialog.querySelector(".pg-share-link").value);
+        notify("Link copied");
+    });
+    shareDialog.querySelector(".pg-copy-embed").addEventListener("click", () => {
+        copyText(shareDialog.querySelector(".pg-embed-code").value);
+        notify("Embed code copied");
+    });
+    shareDialog.querySelector(".pg-dialog-close").addEventListener("click", () => shareDialog.close());
+    shareDialog.addEventListener("click", e => {
+        if (e.target === shareDialog) {
+            shareDialog.close();
+        }
+    });
 }
 
 // Makes one HTML file with the game's code and files in it. It runs when it's opened, and Import can open it again.
@@ -1482,6 +1794,7 @@ async function openProject(project) {
     setCode(code ?? defaultCode);
     setAssets(await loadSavedAssets(project.id));
     showProjectName();
+    loadWatches();
     savedLabel.textContent = "";
 }
 
@@ -1860,10 +2173,10 @@ function setUpControls() {
         button.addEventListener("click", () => showPanel(button.dataset.panel));
     }
     root.querySelector(".pg-clear-console").addEventListener("click", clearConsole);
-    root.querySelector(".pg-fullscreen").addEventListener("click", () => gameBox.requestFullscreen?.());
+    setUpGameControls();
+    setUpWatch();
 
-    const shareButton = root.querySelector(".pg-share");
-    shareButton.addEventListener("click", () => share(shareButton));
+    setUpSharing();
     root.querySelector(".pg-export").addEventListener("click", exportProject);
     const importInput = root.querySelector(".pg-import-file");
     root.querySelector(".pg-import").addEventListener("click", () => importInput.click());

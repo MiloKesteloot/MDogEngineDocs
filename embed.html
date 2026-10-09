@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>MDog Engine Game</title>
+    <link rel="icon" href="favicon.svg">
+    <script src="build-tables.js"></script>
+    <style>
+        /* A game from the Playground, made to be put on other websites in an iframe (see Share in the Playground) */
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            color: #e6e9ee;
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+
+        .embed {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .embed-game {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .embed-game iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Click to play, so a page with games on it doesn't start them all at once */
+        .embed-play {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: none;
+            background: radial-gradient(circle, #1f2230, #111216);
+            color: #e6e9ee;
+            font: inherit;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .embed-play span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background-color: #3466b0;
+            font-size: 22px;
+            transition: transform 0.15s;
+        }
+
+        .embed-play:hover span {
+            transform: scale(1.08);
+        }
+
+        .embed-play[hidden], .embed-message[hidden] {
+            display: none;
+        }
+
+        .embed-message {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #a2a9b4;
+            text-align: center;
+        }
+
+        /* Where the game was made, small in the corner */
+        .embed-edit {
+            position: absolute;
+            right: 6px;
+            bottom: 6px;
+            z-index: 2;
+            padding: 3px 9px;
+            border-radius: 5px;
+            background-color: rgba(20, 21, 25, 0.8);
+            color: #a2a9b4;
+            font-size: 12px;
+            text-decoration: none;
+            opacity: 0.75;
+            transition: opacity 0.15s;
+        }
+
+        .embed-edit:hover {
+            color: #8cb8ff;
+            opacity: 1;
+        }
+
+        .embed-touch {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px;
+            background-color: #212327;
+        }
+
+        .embed-touch[hidden] {
+            display: none;
+        }
+
+        .mdog-touch-key {
+            min-width: 52px;
+            height: 46px;
+            padding: 0 12px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            background-color: #2a2d33;
+            color: #e6e9ee;
+            font: inherit;
+            font-size: 16px;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .mdog-touch-key.held {
+            border-color: #8cb8ff;
+            background-color: rgba(140, 184, 255, 0.12);
+        }
+    </style>
+</head>
+<body>
+    <div class="embed">
+        <div class="embed-game">
+            <button class="embed-play" hidden><span>▶</span> Play</button>
+            <div class="embed-message" hidden></div>
+        </div>
+        <div class="embed-touch" hidden></div>
+        <a class="embed-edit" target="_blank" rel="noopener">Made with MDog Engine ↗</a>
+    </div>
+    <script src="demos.js"></script>
+    <script src="game-page.js"></script>
+    <script>
+        // The game is in the link after #p=, the same way the Playground shares games (see docsEncodeProject in build-tables.js)
+        (async () => {
+            const gameBox = document.querySelector(".embed-game");
+            const playButton = document.querySelector(".embed-play");
+            const message = document.querySelector(".embed-message");
+            const editLink = document.querySelector(".embed-edit");
+            editLink.href = docsPageHref("index.html");
+
+            const showMessage = text => {
+                message.textContent = text;
+                message.hidden = false;
+            };
+
+            const match = window.location.hash.match(/^#p=(.+)$/);
+            if (!match) {
+                showMessage("This link is missing its game.");
+                return;
+            }
+            let project;
+            try {
+                project = await docsDecodeProject(match[1]);
+            } catch (error) {
+                showMessage("This game couldn't be opened. Its link might be cut off.");
+                return;
+            }
+            // The corner link opens the game in the Playground, where its code can be seen and changed
+            editLink.href = new URL(docsPageHref("playground.html"), window.location.href).href + "#p=" + match[1];
+            editLink.textContent = "Edit in the MDog Engine Playground ↗";
+            playButton.hidden = false;
+
+            playButton.addEventListener("click", async () => {
+                playButton.hidden = true;
+                const code = project.code ?? "";
+
+                // Files that came with the game are used instead of the docs' built-in ones
+                const assetURLs = {};
+                for (const asset of project.assets ?? []) {
+                    const bytes = Uint8Array.from(atob(asset.data), c => c.charCodeAt(0));
+                    assetURLs[asset.name] = URL.createObjectURL(new Blob([bytes], {type: asset.type}));
+                }
+                const added = Object.keys(assetURLs).filter(name => /\.(png|gif|jpe?g|webp)$/i.test(name));
+                const builtIn = (await findDemoImages(code)).filter(name => !(name in assetURLs));
+
+                const page = mdogGamePage({code, engineURL: docsEngineBaseURL + "MDogModules/MDogMain.js", assetURLs, images: [...added, ...builtIn]});
+                const frame = document.createElement("iframe");
+                frame.title = "Game";
+                frame.allow = "fullscreen";
+                frame.srcdoc = page.html;
+                frame.addEventListener("load", () => {
+                    frame.focus();
+                    frame.contentWindow.focus();
+                });
+                gameBox.appendChild(frame);
+
+                // Buttons for the game's keys, on touch screens
+                const keys = window.matchMedia("(pointer: coarse)").matches ? mdogFindKeys(code) : [];
+                const touch = document.querySelector(".embed-touch");
+                touch.hidden = keys.length === 0;
+                mdogTouchKeys(touch, keys, () => frame.contentWindow);
+            });
+        })();
+    </script>
+</body>
+</html>

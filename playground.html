@@ -91,6 +91,35 @@
                 </div>
             </dialog>
 
+            <!-- Sharing: a link, or code to put the game on another website (see setUpSharing in playground.js) -->
+            <dialog class="pg-dialog pg-share-dialog" aria-labelledby="pg-share-title" tabindex="-1">
+                <div class="pg-dialog-header">
+                    <h2 id="pg-share-title">Share your game</h2>
+                    <button class="pg-dialog-close" aria-label="Close">×</button>
+                </div>
+                <div class="pg-share-body">
+                    <p class="pg-share-warning" hidden>Your files are too big to fit in a link, so they're left out. Use Export to share a game with big files.</p>
+
+                    <h3>Link</h3>
+                    <p>Anyone with the link can play the game and see its code in the Playground.</p>
+                    <div class="pg-share-row">
+                        <input class="pg-share-link" readonly aria-label="Link to the game">
+                        <button class="pg-button pg-run pg-copy-link">Copy link</button>
+                    </div>
+
+                    <h3>Put it on a website</h3>
+                    <p>Paste this into a web page to show the game there, with a button to play it.</p>
+                    <div class="pg-share-size">
+                        <label>Width <input class="pg-embed-width" type="number" min="100" max="2000" value="640"></label>
+                        <label>Height <input class="pg-embed-height" type="number" min="100" max="2000" value="480"></label>
+                    </div>
+                    <div class="pg-share-row">
+                        <textarea class="pg-embed-code" readonly rows="3" aria-label="Code to put the game on a website"></textarea>
+                        <button class="pg-button pg-copy-embed">Copy code</button>
+                    </div>
+                </div>
+            </dialog>
+
             <div class="pg-banner" hidden>
                 <span>You're looking at a shared project. Changes to it aren't saved until you save it as one of your projects.</span>
                 <button class="pg-button pg-keep-shared">Save as a new project</button>
@@ -106,18 +135,32 @@
                 </div>
 
                 <div class="pg-game-column">
+                    <!-- Controls for the running game (see setUpGameControls in playground.js) -->
+                    <div class="pg-game-bar">
+                        <button class="pg-game-restart" title="Start the game over">Restart</button>
+                        <button class="pg-game-pause" title="Pause the game">Pause</button>
+                        <button class="pg-game-step" title="Run one tick, while paused" disabled>Step</button>
+                        <span class="pg-spacer"></span>
+                        <button class="pg-game-screenshot" title="Save a picture of the game">Screenshot</button>
+                        <button class="pg-game-record" title="Record the game as an animated GIF">Record GIF</button>
+                        <button class="pg-fullscreen" title="Play full screen">Full screen</button>
+                    </div>
+
                     <div class="pg-game">
                         <div class="pg-game-empty">Press Run to start your game</div>
                     </div>
+
+                    <!-- Buttons for the keys the game uses, on phones (see showTouchKeys in playground.js) -->
+                    <div class="pg-touch-keys" hidden></div>
 
                     <div class="pg-panels">
                         <div class="pg-divider pg-divider-rows" role="separator" aria-orientation="horizontal" aria-label="Drag to resize the game and console" title="Drag to resize. Double-click to reset."></div>
                         <div class="pg-panel-tabs" role="tablist">
                             <button data-panel="console" class="selected">Console <span class="pg-console-count"></span></button>
                             <button data-panel="assets">Assets <span class="pg-assets-count"></span></button>
+                            <button data-panel="watch">Watch <span class="pg-watch-count"></span></button>
                             <span class="pg-spacer"></span>
                             <button class="pg-clear-console">Clear</button>
-                            <button class="pg-fullscreen">Full screen</button>
                         </div>
 
                         <div class="pg-console" data-panel="console">
@@ -134,6 +177,16 @@
                             <div class="pg-asset-heading">Built in <span>These come with the docs, so they can be used without adding them.</span></div>
                             <div class="pg-asset-list pg-builtin-list"></div>
                         </div>
+
+                        <!-- Values from the running game, kept up to date (see setUpWatch in playground.js) -->
+                        <div class="pg-watch" data-panel="watch" hidden>
+                            <form class="pg-watch-form">
+                                <input class="pg-watch-input" placeholder="Something to watch, like player.x" aria-label="Something to watch" spellcheck="false" autocomplete="off">
+                                <button class="pg-button">Watch</button>
+                            </form>
+                            <div class="pg-watch-list"></div>
+                            <p class="pg-watch-empty">Watch any variable in your game while it runs. Type its name above, or hover over it in your code and press Watch.</p>
+                        </div>
                     </div>
                 </div>
 
@@ -144,6 +197,8 @@
     <script src="page.js"></script>
     <script src="demos.js"></script>
     <script src="search.js"></script>
+    <script src="game-page.js"></script>
+    <script src="gif-encoder.js"></script>
     <script type="module" src="playground.js"></script>
 </body>
 </html>

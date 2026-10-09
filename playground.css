@@ -229,11 +229,113 @@ html {
     color: var(--accent);
 }
 
+/* The bar above the game: restart, pause, step, screenshot, record, and full screen */
+.pg-game-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--surface);
+}
+
+.pg-game-bar button {
+    padding: 3px 10px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-small);
+    background: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.pg-game-bar button:hover:not(:disabled) {
+    background-color: var(--hover-bg);
+    color: var(--text);
+}
+
+.pg-game-bar button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* Recording: a red dot before the time */
+.pg-game-bar .pg-game-record.recording {
+    border-color: rgba(255, 100, 100, 0.5);
+    color: var(--text);
+}
+
+.pg-game-bar .pg-game-record.recording::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background-color: #ff5566;
+    animation: pg-recording 1s infinite;
+}
+
+@keyframes pg-recording {
+    50% { opacity: 0.3; }
+}
+
 .pg-game {
     position: relative;
     flex: 1;
     min-height: 0;
     background-color: #000;
+}
+
+/* A label in the corner while the game is paused */
+.pg-game.paused::after {
+    content: "Paused";
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    padding: 2px 9px;
+    border-radius: var(--radius-small);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+/* Buttons for the keys the game uses, on phones (see mdogTouchKeys in game-page.js) */
+.pg-touch-keys {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+    border-top: 1px solid var(--border);
+    background-color: var(--surface);
+}
+
+.pg-touch-keys[hidden] {
+    display: none;
+}
+
+.mdog-touch-key {
+    min-width: 52px;
+    height: 46px;
+    padding: 0 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background-color: var(--surface-raised);
+    color: var(--text);
+    font-size: 16px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.mdog-touch-key.held {
+    border-color: var(--accent);
+    background-color: var(--accent-bg);
 }
 
 .pg-frame {
@@ -366,13 +468,93 @@ html {
     color: var(--accent);
 }
 
-.pg-console, .pg-assets {
+.pg-console, .pg-assets, .pg-watch {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
 }
 
-.pg-console[hidden], .pg-assets[hidden] {
+.pg-console[hidden], .pg-assets[hidden], .pg-watch[hidden] {
+    display: none;
+}
+
+/* ===== Watch ===== */
+
+.pg-watch-form {
+    display: flex;
+    gap: 6px;
+    padding: 10px 14px;
+}
+
+.pg-watch-input {
+    flex: 1;
+    min-width: 0;
+    padding: 5px 9px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-small);
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-family: var(--font-mono) !important;
+    font-size: 13px;
+}
+
+.pg-watch-input:focus {
+    border-color: var(--accent);
+}
+
+.pg-watch-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 5px 14px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono) !important;
+    font-size: 13px;
+}
+
+.pg-watch-name {
+    flex-shrink: 0;
+    color: #9cdcfe;
+}
+
+.pg-watch-value {
+    flex: 1;
+    min-width: 0;
+    color: var(--text);
+    font-family: var(--font-mono) !important;
+    overflow-wrap: anywhere;
+}
+
+.pg-watch-value.problem {
+    color: var(--text-faint);
+    font-style: italic;
+}
+
+.pg-watch-remove {
+    padding: 0 6px;
+    border: none;
+    border-radius: var(--radius-small);
+    background: none;
+    color: var(--text-faint);
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.pg-watch-remove:hover {
+    background-color: var(--hover-bg);
+    color: var(--text);
+}
+
+.pg-watch-empty {
+    margin: 0;
+    padding: 4px 14px;
+    color: var(--text-faint);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.pg-watch-empty[hidden] {
     display: none;
 }
 
@@ -724,6 +906,79 @@ html {
     color: var(--text-muted);
     font-size: 13px;
     line-height: 1.45;
+}
+
+/* ===== Sharing ===== */
+
+.pg-share-dialog {
+    width: min(620px, calc(100vw - 32px));
+}
+
+.pg-share-body {
+    padding: 6px 20px 20px;
+}
+
+.pg-share-body h3 {
+    margin: 16px 0 2px;
+    font-size: 15px;
+}
+
+.pg-share-body p {
+    margin: 0 0 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.pg-share-body .pg-share-warning {
+    padding: 8px 12px;
+    border-radius: var(--radius-small);
+    background-color: rgba(255, 200, 80, 0.1);
+    color: #ffd27f;
+}
+
+.pg-share-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.pg-share-row input, .pg-share-row textarea, .pg-share-size input {
+    padding: 6px 9px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-small);
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-family: var(--font-mono) !important;
+    font-size: 12px;
+}
+
+.pg-share-row input, .pg-share-row textarea {
+    flex: 1;
+    min-width: 0;
+}
+
+.pg-share-row textarea {
+    resize: none;
+    line-height: 1.5;
+}
+
+.pg-share-row button {
+    flex-shrink: 0;
+}
+
+.pg-share-size {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.pg-share-size input {
+    width: 76px;
+    margin-left: 4px;
 }
 
 /* ===== Questions, like "Delete this project?" (see ask in playground.js) ===== */
