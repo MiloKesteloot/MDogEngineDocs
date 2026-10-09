@@ -289,6 +289,12 @@ function setUpCollapsing(sidebar) {
 }
 
 function setSidebarCollapsed(collapsed, save = true) {
+    // How tall each open dropdown is, so it folds from exactly its own height (see sidebar.css)
+    for (const children of document.querySelectorAll(".navbar-children")) {
+        if (children.scrollHeight > 0) {
+            children.style.setProperty("--open-height", children.scrollHeight + "px");
+        }
+    }
     document.body.classList.toggle("sidebar-collapsed", collapsed);
     const toggle = document.querySelector(".sidebar-toggle");
     const label = collapsed ? "Expand the sidebar" : "Collapse the sidebar";

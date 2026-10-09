@@ -81,6 +81,16 @@
                 <div class="pg-project-list"></div>
             </dialog>
 
+            <!-- Questions like "Delete this project?", instead of the browser's own popups (see ask in playground.js) -->
+            <dialog class="pg-dialog pg-ask-dialog" aria-labelledby="pg-ask-title" aria-describedby="pg-ask-text" tabindex="-1">
+                <h2 id="pg-ask-title" class="pg-ask-title"></h2>
+                <p id="pg-ask-text" class="pg-ask-text"></p>
+                <div class="pg-ask-buttons">
+                    <button class="pg-button pg-ask-cancel">Cancel</button>
+                    <button class="pg-button pg-ask-ok">OK</button>
+                </div>
+            </dialog>
+
             <div class="pg-banner" hidden>
                 <span>You're looking at a shared project. Changes to it aren't saved until you save it as one of your projects.</span>
                 <button class="pg-button pg-keep-shared">Save as a new project</button>

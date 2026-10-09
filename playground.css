@@ -726,6 +726,67 @@ html {
     line-height: 1.45;
 }
 
+/* ===== Questions, like "Delete this project?" (see ask in playground.js) ===== */
+
+.pg-ask-dialog {
+    width: min(420px, calc(100vw - 32px));
+    padding: 20px 22px 18px;
+}
+
+.pg-ask-title {
+    margin: 0 0 8px;
+    font-size: 18px;
+    overflow-wrap: anywhere;
+}
+
+.pg-ask-text {
+    margin: 0 0 18px;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.pg-ask-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.pg-ask-buttons [hidden] {
+    display: none;
+}
+
+.pg-ask-ok {
+    border-color: var(--accent-strong);
+    background-color: var(--accent-strong);
+    color: #fff;
+    font-weight: bold;
+}
+
+.pg-ask-ok.danger {
+    border-color: #b8404a;
+    background-color: #b8404a;
+}
+
+.pg-ask-ok.danger:hover {
+    border-color: #d0505a;
+    background-color: #d0505a;
+}
+
+/* A file's name while it's being renamed */
+.pg-asset-name-input {
+    width: 100%;
+    padding: 1px 5px;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-small);
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-family: var(--font-mono) !important;
+    font-size: 12px;
+}
+
 /* ===== The project button and list ===== */
 
 .pg-project {

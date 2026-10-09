@@ -242,16 +242,15 @@ function renderAssets() {
             <button data-action="rename">Rename</button>
             <a href="${asset.url}" download="${docsEscape(asset.name)}">Download</a>
             <button data-action="delete">Delete</button>`;
-        buttons.querySelector('[data-action="rename"]').addEventListener("click", async () => {
-            const name = prompt("New name for " + asset.name, asset.name);
-            if (name && name.trim() && name !== asset.name) {
-                asset.name = name.trim();
-                renderAssets();
-                await saveAssets();
-            }
-        });
+        buttons.querySelector('[data-action="rename"]').addEventListener("click", () => renameAssetInPlace(tile, asset));
         buttons.querySelector('[data-action="delete"]').addEventListener("click", async () => {
-            if (confirm("Delete " + asset.name + "?")) {
+            const sure = await ask({
+                title: `Delete "${asset.name}"?`,
+                text: "The game won't be able to use it anymore.",
+                ok: "Delete",
+                danger: true,
+            });
+            if (sure) {
                 URL.revokeObjectURL(asset.url);
                 assets = assets.filter(a => a !== asset);
                 renderAssets();
@@ -260,6 +259,50 @@ function renderAssets() {
         });
         assetList.appendChild(tile);
     }
+}
+
+// Turns a file's name on its tile into a text box, like renaming a project. Enter or clicking away saves it, and
+// Escape puts it back.
+function renameAssetInPlace(tile, asset) {
+    const nameElement = tile.querySelector(".pg-asset-name");
+    const input = document.createElement("input");
+    input.className = "pg-asset-name-input";
+    input.value = asset.name;
+    input.setAttribute("aria-label", "File name");
+    nameElement.replaceWith(input);
+    input.focus();
+    // Select the name without the extension, like most file managers do
+    const dot = asset.name.lastIndexOf(".");
+    input.setSelectionRange(0, dot > 0 ? dot : asset.name.length);
+
+    let done = false;
+    const finish = async save => {
+        if (done) {
+            return;
+        }
+        done = true;
+        const name = input.value.trim();
+        if (save && name && name !== asset.name) {
+            if (assets.some(a => a !== asset && a.name === name)) {
+                notify(`There's already a file named "${name}".`);
+            } else {
+                asset.name = name;
+                assets.sort((a, b) => a.name.localeCompare(b.name));
+                await saveAssets();
+            }
+        }
+        renderAssets();
+    };
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            finish(true);
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            finish(false);
+        }
+    });
+    input.addEventListener("blur", () => finish(true));
 }
 
 // The files in the docs' assets folder. Animations are shown playing, at the speed the docs use them at.
@@ -1323,7 +1366,12 @@ async function importFile(file) {
     const page = new DOMParser().parseFromString(html, "text/html");
     const gameScript = page.querySelector("script#mdog-game") ?? page.querySelector('script[type="module"]');
     if (!gameScript) {
-        alert("That file doesn't have any game code in it. Import opens files made with Export.");
+        await ask({
+            title: "That file can't be imported",
+            text: `"${file.name}" doesn't have any game code in it. Import opens files that were made with Export.`,
+            ok: "OK",
+            cancel: null,
+        });
         return;
     }
     let saved = {};
@@ -1570,7 +1618,13 @@ function renderProjects() {
             renderProjects();
         });
         card.querySelector('[data-action="delete"]').addEventListener("click", async () => {
-            if (!confirm(`Delete "${project.name}"? Its code and files will be gone for good.`)) {
+            const sure = await ask({
+                title: `Delete "${project.name}"?`,
+                text: "Its code and files will be gone for good.",
+                ok: "Delete",
+                danger: true,
+            });
+            if (!sure) {
                 return;
             }
             projects = projects.filter(p => p !== project);
@@ -1657,6 +1711,50 @@ function setUpProjects() {
                 templateDialog.focus();
             },
         });
+    });
+}
+
+// Asks a question in a box over the playground, instead of the browser's own popup. Gives back true if the person
+// pressed the OK button, or false for Cancel, Escape, or clicking outside the box. cancel: null leaves out the Cancel
+// button, for messages that only need an OK. danger makes the OK button red, for things that can't be undone.
+const askDialog = root.querySelector(".pg-ask-dialog");
+
+function ask({title, text, ok = "OK", cancel = "Cancel", danger = false}) {
+    askDialog.querySelector(".pg-ask-title").textContent = title;
+    askDialog.querySelector(".pg-ask-text").textContent = text;
+    const okButton = askDialog.querySelector(".pg-ask-ok");
+    const cancelButton = askDialog.querySelector(".pg-ask-cancel");
+    okButton.textContent = ok;
+    okButton.classList.toggle("danger", danger);
+    cancelButton.hidden = cancel === null;
+    cancelButton.textContent = cancel ?? "";
+
+    return new Promise(resolve => {
+        let answer = false;
+        const answerWith = value => () => {
+            answer = value;
+            askDialog.close();
+        };
+        const onOk = answerWith(true);
+        const onCancel = answerWith(false);
+        const onOutside = e => {
+            if (e.target === askDialog) {
+                askDialog.close();
+            }
+        };
+        okButton.addEventListener("click", onOk);
+        cancelButton.addEventListener("click", onCancel);
+        askDialog.addEventListener("click", onOutside);
+        askDialog.addEventListener("close", () => {
+            okButton.removeEventListener("click", onOk);
+            cancelButton.removeEventListener("click", onCancel);
+            askDialog.removeEventListener("click", onOutside);
+            resolve(answer);
+        }, {once: true});
+
+        askDialog.showModal();
+        // For things that can't be undone, Enter doesn't do them by accident
+        (danger && cancel !== null ? cancelButton : okButton).focus();
     });
 }
 

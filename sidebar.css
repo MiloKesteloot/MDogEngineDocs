@@ -210,7 +210,7 @@
 }
 
 .navbar-container .indent {
-    margin-left: var(--nav-indent);
+    padding-left: var(--nav-indent);
 }
 
 .navbar-button .navbar-title {
@@ -290,21 +290,70 @@
     position: absolute;
     top: 6px;
     bottom: 4px;
-    left: -17px;
+    left: calc(var(--nav-indent) - 17px);
     width: 2px;
     border-radius: 2px;
     background-color: var(--border-strong);
 }
 
-/* ===== Collapsed: just the icons (see setUpCollapsing in sidebar.js) ===== */
+/* ===== Collapsed: just the icons (see setUpCollapsing in sidebar.js) =====
+   The icons are in the same place whether the sidebar is open or collapsed, so only the width changes. Everything else
+   fades or folds away while the sidebar shrinks, and the sidebar clips whatever is still sticking out. */
 
-/* Search is an icon in the list while collapsed, since the search bar doesn't fit */
+.sidebar-container .sidebar-fixed {
+    overflow: hidden;
+}
+
+/* Names never wrap while the sidebar is narrowing. They're cut off at the edge instead. */
+.navbar-button .navbar-title, .navbar-button .navbar-title .navbar-title-text {
+    white-space: nowrap;
+}
+
+/* The search bar keeps its size and is cut off, instead of being squeezed */
+.searchbar-container > .searchbar {
+    min-width: 180px;
+}
+
+/* Search is an icon while collapsed, since the search bar doesn't fit. It sits on top of the "Docs" label, and the two
+   fade into each other, so nothing changes height and the rest of the list doesn't move. */
+.navbar-container {
+    position: relative;
+}
+
 .navbar-search-button {
-    display: none !important;
+    position: absolute;
+    top: 1px;
+    left: 8px;
+    right: 8px;
+    margin-top: 0 !important;
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Open dropdowns fold up while collapsing, and back down while opening. --open-height is how tall each one really is
+   (set by setSidebarCollapsed in sidebar.js), so the fold moves the whole time instead of starting late. */
+.navbar-container .navbar-children {
+    max-height: var(--open-height, 600px);
+    overflow: hidden;
 }
 
 body.sidebar-animate .sidebar-container, body.sidebar-animate .sidebar-container .sidebar-fixed {
     transition: width 0.15s, min-width 0.15s;
+}
+
+body.sidebar-animate .searchbar,
+body.sidebar-animate .navbar-title-text,
+body.sidebar-animate .dropdown-indicator {
+    transition: opacity 0.15s;
+}
+
+body.sidebar-animate .navbar-container > .header-text,
+body.sidebar-animate .navbar-search-button {
+    transition: opacity 0.15s, visibility 0.15s;
+}
+
+body.sidebar-animate .navbar-children {
+    transition: max-height 0.15s, opacity 0.15s;
 }
 
 @media (min-width: 801px) {
@@ -312,41 +361,32 @@ body.sidebar-animate .sidebar-container, body.sidebar-animate .sidebar-container
         --sidebar-width: 55px;
     }
 
-    body.sidebar-collapsed .sidebar-fixed {
-        overflow: hidden;
+    body.sidebar-collapsed .searchbar,
+    body.sidebar-collapsed .navbar-title-text,
+    body.sidebar-collapsed .dropdown-indicator {
+        opacity: 0;
+        pointer-events: none;
     }
 
-    body.sidebar-collapsed .searchbar,
-    body.sidebar-collapsed .search-results,
-    body.sidebar-collapsed .navbar-container > .header-text,
-    body.sidebar-collapsed .navbar-title-text,
-    body.sidebar-collapsed .dropdown-indicator,
-    body.sidebar-collapsed .navbar-children {
+    body.sidebar-collapsed .search-results {
         display: none !important;
     }
 
+    body.sidebar-collapsed .navbar-container > .header-text {
+        opacity: 0;
+    }
+
     body.sidebar-collapsed .navbar-search-button {
-        display: flex !important;
+        opacity: 1;
+        visibility: visible;
     }
 
-    body.sidebar-collapsed .navbar-container .navbar-padding {
-        padding-top: 8px;
-        overflow-x: hidden;
+    body.sidebar-collapsed .navbar-container .navbar-children {
+        max-height: 0;
+        opacity: 0;
     }
 
-    body.sidebar-collapsed .navbar-button .navbar-title {
-        justify-content: center;
-    }
-
-    body.sidebar-collapsed .navbar-button .navbar-title .navbar-icon {
-        margin-left: 0;
-    }
-
-    body.sidebar-collapsed .spacer {
-        display: none;
-    }
-
-    /* On a page inside Code or Examples, that icon is lit up */
+    /* On a page inside Engine, Guides, or Examples, that icon is lit up */
     body.sidebar-collapsed .navbar-dropdown:has(a.active) > .navbar-title {
         background-color: var(--accent-bg);
         color: var(--accent);
