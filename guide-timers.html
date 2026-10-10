@@ -31,9 +31,9 @@
 
                 <h1>Timers and Cooldowns</h1>
 
-<p>Lots of things in games happen after a while: an enemy that spawns every few seconds, a power-up that runs out, or a gun that can only shoot so fast. In MDog Engine, the simplest way to time things is to count ticks. The active function runs 160 times per second, so 160 ticks is one second.</p>
+<p>A lot of things in games happen after a while: an enemy that spawns every few seconds, a power-up that wears off, a gun that can only shoot so fast. In MDog Engine, the easiest way to time things is to count ticks. The active function runs 160 times a second, so 160 ticks is one second.</p>
 
-                <p>Hold space to shoot. The cannon can only shoot once every quarter of a second, and the light in the corner blinks once a second.</p>
+                <p>Hold space to shoot. The cannon can only fire every quarter second, and the light in the corner blinks once a second.</p>
 
                 <script>
                     demo({
@@ -91,21 +91,21 @@
 
                 <h2>Cooldowns</h2>
 
-                <p>A cooldown is a number of ticks to wait. When the cannon shoots, <code>cooldown</code> is set to <code>40</code>, and it goes down by one every tick. The cannon can only shoot again once it's back to <code>0</code>.</p>
+                <p>A cooldown is just a number of ticks to wait. When the cannon fires, <code>cooldown</code> gets set to <code>40</code>, and it goes down by one every tick. You can't fire again until it's back to <code>0</code>.</p>
 
                 <h2>Every So Often</h2>
 
-                <p><code>ticks</code> goes up by one every tick. <code>ticks % 160</code> counts from <code>0</code> to <code>159</code> over and over, so something can happen once a second:</p>
+                <p><code>ticks</code> goes up by one every tick. <code>ticks % 160</code> counts from <code>0</code> to <code>159</code> over and over, so you can make something happen once a second:</p>
 
                 <pre><code>if (ticks % 160 === 0) {
     spawnEnemy();
 }</code></pre>
 
-                <p>The blinking light uses the same trick. <code>ticks % 160 &lt; 80</code> is true for the first half of every second.</p>
+                <p>The blinking light is the same trick. <code>ticks % 160 &lt; 80</code> is true for the first half of every second.</p>
 
                 <h2>Waiting, Then Doing Something</h2>
 
-                <p>To wait before something happens, count down to it, like a power-up that lasts five seconds:</p>
+                <p>To wait before something happens, count down to it. Here's a power-up that lasts five seconds:</p>
 
                 <pre><code>let powerUpTicks = 0;
 
@@ -124,7 +124,7 @@ function main() {
 
                 <h2>Why Not setTimeout()?</h2>
 
-                <p>JavaScript's <code>setTimeout()</code> waits a number of milliseconds, but it doesn't know about the game. It keeps counting while the game is <a href="guide-pausing.html">paused</a>, and when the browser tab is hidden. Counting ticks keeps timers in step with everything else in the game.</p>
+                <p>JavaScript's <code>setTimeout()</code> waits a number of milliseconds, but it has no idea your game exists. It keeps counting while the game is <a href="guide-pausing.html">paused</a> and while the tab is hidden. Counting ticks keeps your timers in step with everything else.</p>
 
                 <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
 

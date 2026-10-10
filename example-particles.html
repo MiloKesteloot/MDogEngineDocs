@@ -33,7 +33,7 @@
 
                 <p>Explosions and sparkles made with the <a href="fx.html">FX Module</a>.</p>
 
-                <p>Click to make an explosion, and hold the mouse down to leave a trail of sparkles.</p>
+                <p>Click to blow something up, and hold the mouse down to leave a trail of sparkles.</p>
                 <script>
                     demo({source: "#example-code", width: 512, height: 384, keys: []});
                 </script>
@@ -92,11 +92,11 @@ MDog.setActiveFunction(main);</code></pre>
 
                 <h2>How it Works</h2>
 
-                <p>All of the particles are in one <code>ParticleSystem</code>. Every tick, <code>ParticleSystem.update()</code> moves the particles and removes the ones whose life ran out, then <code>MDog.Draw.particleSystem()</code> draws them.</p>
+                <p>All the particles live in one <code>ParticleSystem</code>. Every tick, <code>ParticleSystem.update()</code> moves them and removes the ones that ran out of life, then <code>MDog.Draw.particleSystem()</code> draws them.</p>
 
-                <p>Each explosion is made of two kinds of particles: <code>ChunkParticle</code>s that fly out and fall with gravity, and <code>LineParticle</code>s that streak outward.</p>
+                <p>Each explosion mixes two kinds of particles: <code>ChunkParticle</code>s that fly out and fall with gravity, and <code>LineParticle</code>s that streak outward. Mixing them is what makes it look like more than a puff.</p>
 
-                <p>The random directions come from making a <code>Vector</code> that points right, then turning it a random amount with <code>rotate()</code>.</p>
+                <p>For the random directions, we make a <code>Vector</code> that points right and spin it a random amount with <code>rotate()</code>.</p>
 
                 <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
 

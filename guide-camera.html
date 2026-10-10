@@ -31,9 +31,9 @@
 
                 <h1>A Camera That Follows the Player</h1>
 
-<p>When a level is bigger than the screen, the camera has to follow the player around. MDog Engine doesn't have a camera object. Instead, <code>MDog.Draw.translate()</code> shifts everything that's drawn after it, so the world moves instead of the camera.</p>
+<p>Once your level is bigger than the screen, the camera needs to follow the player. MDog Engine doesn't actually have a camera object. Instead, <code>MDog.Draw.translate()</code> shifts everything drawn after it, so you move the world instead of the camera.</p>
 
-                <p>Run right with the arrow keys. The camera eases along behind the player, and stops at the ends of the level.</p>
+                <p>Run right with the arrow keys. The camera eases along behind you and stops at the ends of the level.</p>
 
                 <script>
                     demo({
@@ -87,27 +87,27 @@
 
                 <h2>How it Works</h2>
 
-                <p>Positions in the game are "world" positions, so the player's <code>x</code> goes all the way from <code>0</code> to the end of the level. <code>cameraX</code> is the world position of the left edge of the screen.</p>
+                <p>Everything in the game uses "world" positions, so the player's <code>x</code> goes from <code>0</code> all the way to the end of the level. <code>cameraX</code> is the world position of the left edge of the screen.</p>
 
-                <p>To keep the player in the middle, the camera's left edge goes half a screen to the left of the player. The camera is kept between <code>0</code> and the level's width minus the screen's width, so it never shows anything past the ends of the level.</p>
+                <p>To keep the player centered, the camera's left edge sits half a screen to the left of them. Then it's clamped between <code>0</code> and the level's width minus the screen's width, so you never see past the ends of the level.</p>
 
-                <p><code>translate(-cameraX, 0)</code> shifts everything drawn after it to the left by <code>cameraX</code>, which makes the world scroll. Then <code>translate(0, 0)</code> puts things back to normal, for anything that should stay put, like the score.</p>
+                <p><code>translate(-cameraX, 0)</code> shifts everything after it left by <code>cameraX</code>, and that's what makes the world scroll. <code>translate(0, 0)</code> puts things back for anything that should stay put, like the score.</p>
 
                 <h2>Smooth or Locked</h2>
 
-                <p><code>lerp()</code> moves the camera part of the way to where it wants to be every tick, so it catches up smoothly. For a camera that's locked to the player instead, skip the <code>lerp()</code>:</p>
+                <p><code>lerp()</code> moves the camera part of the way to where it wants to be each tick, so it catches up smoothly. If you'd rather it be locked to the player, skip the <code>lerp()</code>:</p>
 
                 <pre><code>cameraX = player.x + 6 - MDog.Draw.getHalfScreenWidthInArtPixels();</code></pre>
 
-                <p>The camera can end up between two pixels, so it's rounded with <code>Math.round()</code> before it's used. Without that, things can wobble by a pixel as the camera moves.</p>
+                <p>The camera can land between two pixels, so we round it with <code>Math.round()</code> before using it. Skip that and things will jitter by a pixel as the camera moves, which is weirdly noticeable.</p>
 
                 <h2>Up and Down Too</h2>
 
-                <p>For a level that's tall as well as wide, do the same thing with a <code>cameraY</code>, and shift both ways at once:</p>
+                <p>If your level is tall as well as wide, do the same thing with a <code>cameraY</code> and shift both ways at once:</p>
 
                 <pre><code>MDog.Draw.translate(-Math.round(cameraX), -Math.round(cameraY));</code></pre>
 
-                <p>Mouse positions from <code>MDog.Input.Mouse</code> are screen positions, so add <code>cameraX</code> and <code>cameraY</code> to them to find where the mouse is in the world.</p>
+                <p>One gotcha: mouse positions from <code>MDog.Input.Mouse</code> are screen positions, so add <code>cameraX</code> and <code>cameraY</code> to get where the mouse is in the world.</p>
 
                 <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
 

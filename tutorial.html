@@ -31,17 +31,17 @@
 
                 <h1>Make Your First Platformer</h1>
 
-                <p>In this tutorial you'll make a small platformer, one step at a time: a warrior who runs and jumps between platforms, collects coins, and has a title screen.</p>
+                <p>Let's make a platformer. By the end you'll have a warrior who runs around, jumps between platforms, and grabs coins, plus a title screen.</p>
 
-                <p>Every step has a game you can play, and its code is right under it. Change the code and press Run to see what happens, then press Reset code to put it back. Each step builds on the last one, so the code grows as you go.</p>
+                <p>Every step has a demo you can play, with the code right below it. Mess with the code and hit Run. If you break something, Reset code puts it back.</p>
 
-                <p>In these boxes, MDog Engine is already imported and the screen is set to 256 by 192. In your own game, start with the import line from <a href="getting-started.html">Getting Started</a>. Any step can also be opened in the <a href="playground.html">Playground</a> to keep working on it.</p>
+                <p>MDog Engine is already imported in these demos, and the screen is 256 by 192. When you start your own game, grab the import line from <a href="getting-started.html">Getting Started</a>. You can also open any step in the <a href="playground.html">Playground</a> if you want to keep going on your own.</p>
 
                 <h2>1. Move a Square</h2>
 
-                <p>Every game starts with something to control. Here the player is a 14 by 30 box, and its position is a <code>Vector</code>, which holds an <code>x</code> and a <code>y</code>.</p>
+                <p>We'll start with a box. The player is 14 by 30 pixels, and its position is a <code>Vector</code>, which is just an <code>x</code> and a <code>y</code>.</p>
 
-                <p>MDog Engine runs <code>main()</code> 160 times per second. Each time, it checks the arrow keys with <code>isDown()</code>, moves the player a little, then clears the screen and draws everything again.</p>
+                <p><code>main()</code> runs 160 times a second. Every time, we check the arrow keys with <code>isDown()</code>, nudge the player, clear the screen, and draw everything again. Pretty much every game works this way.</p>
 
                 <script>
                     demo({
@@ -71,13 +71,11 @@
                     });
                 </script>
 
-                <p>Try changing <code>0.6</code> to make the player faster or slower.</p>
-
                 <h2>2. Gravity and Jumping</h2>
 
-                <p>To jump, the player needs a speed, called its velocity. Every tick, gravity adds a little to the downward speed, and the velocity is added to the position. Jumping sets the speed to point up, and gravity slowly turns it around.</p>
+                <p>For jumping, the player needs a velocity. Every tick, gravity pulls the velocity down a little, and the velocity moves the player. A jump just sets the velocity upward and lets gravity do the rest.</p>
 
-                <p>The player can only jump while standing on the ground, so <code>isClicked()</code> is used for the up arrow. It's only true on the tick the key is pressed, so holding it down doesn't keep jumping.</p>
+                <p>The up arrow uses <code>isClicked()</code> instead of <code>isDown()</code>. It's only true on the tick you press the key, so holding it doesn't turn you into a pogo stick.</p>
 
                 <script>
                     demo({
@@ -127,13 +125,13 @@
                     });
                 </script>
 
-                <p>Try changing the gravity (<code>0.06</code>) or the jump speed (<code>-2.7</code>) to make the jump floatier or snappier.</p>
+                <p>Mess with gravity (<code>0.06</code>) and jump speed (<code>-2.7</code>). Small changes to these two make a big difference in how the jump feels.</p>
 
                 <h2>3. Platforms</h2>
 
-                <p>Checking for the ground by hand works for one floor, but not for lots of platforms. A <code>SquareKickbox</code> is a hitbox that can tell if it's touching another one. The player's kickbox is attached to its position, so it moves along with the player.</p>
+                <p>One floor is easy. A bunch of platforms needs real collision, and that's what <code>SquareKickbox</code> is for. It's a hitbox that can tell when it's overlapping another one. The player's kickbox is stuck to its position, so it follows the player around.</p>
 
-                <p>The player moves sideways and up or down separately. After each move, if the player's kickbox is touching a platform, the player is pushed back to the platform's edge. Moving one direction at a time makes it easy to tell if the player hit a wall, a floor, or a ceiling.</p>
+                <p>The trick is to move one axis at a time. Move sideways, and if you're now inside a platform, push back out. Then do the same for up and down. If you move both at once, you can't tell whether you hit a wall or landed on a floor, and things get weird fast.</p>
 
                 <script>
                     demo({
@@ -223,13 +221,11 @@
                     });
                 </script>
 
-                <p>Try adding another platform to the list, like <code>makePlatform(10, 90, 30, 8)</code>.</p>
-
                 <h2>4. The Warrior</h2>
 
-                <p>Now the box can become a character. <code>MultipleFileAnimation</code> plays a set of images in order, so the warrior has one animation for standing still and one for running. The animation changes with how the player is moving, and the picture is flipped with <code>flipX</code> when running left.</p>
+                <p>Now the box gets a sprite. <code>MultipleFileAnimation</code> plays a list of images in order. The warrior has an idle animation and a run animation, and <code>flipX</code> turns her around when she runs left.</p>
 
-                <p>The warrior's picture is bigger than her hitbox, since it has empty space around her and a sword. So the picture is drawn a little up and to the left of the hitbox, to line her feet up with the bottom of it. The game still uses the simple box for collisions, which is how most platformers work.</p>
+                <p>Her sprite is a lot bigger than her hitbox (there's empty space around her, plus the sword), so we draw it up and to the left to line her feet up with the bottom of the box. Collisions still use the plain box. Nobody wants to get stuck on a ledge by the tip of their sword.</p>
 
                 <script>
                     demo({
@@ -328,13 +324,13 @@
                     });
                 </script>
 
-                <p>To see the hitbox, try adding <code>MDog.Draw.rectangle(playerBox.getLeftX(), playerBox.getTopY(), 14, 30, "#ff0000");</code> after the warrior is drawn.</p>
+                <p>If she ever looks like she's floating or sinking into the ground, draw the hitbox to see what's going on: <code>MDog.Draw.rectangle(playerBox.getLeftX(), playerBox.getTopY(), 14, 30, "#ff0000");</code> right after the warrior is drawn.</p>
 
                 <h2>5. Coins</h2>
 
-                <p>Coins give the player something to do. Each coin is a small kickbox, and when the player touches one, it's taken out of the list and the score goes up.</p>
+                <p>Each coin is a small kickbox. When you touch one, it gets removed from the list and your score goes up.</p>
 
-                <p>To make collecting a coin feel good, it bursts into sparkles. These are particles from the <a href="fx.html">FX Module</a>. Each one gets a random direction by turning a <code>Vector</code> a random amount with <code>rotate()</code>, and gravity pulls them down.</p>
+                <p>The sparkles are particles from the <a href="fx.html">FX Module</a>. Each one shoots off in a random direction (a <code>Vector</code> spun a random amount with <code>rotate()</code>) and falls with gravity.</p>
 
                 <script>
                     demo({
@@ -458,13 +454,11 @@
                     });
                 </script>
 
-                <p>Try adding more coins to the list, or making the sparkles a different color.</p>
+                <h2>6. Title Screen and Score</h2>
 
-                <h2>6. A Title Screen and Score</h2>
+                <p>Each screen is its own function, and <code>setActiveFunction()</code> picks which one runs. <code>startGame()</code> puts everything back to the start, so you can play again after you win.</p>
 
-                <p>Last, the game gets a title screen, a score in the corner, and a way to play again. Each screen is its own function, and <code>setActiveFunction()</code> switches which one runs. <code>startGame()</code> puts everything back where it started, so the game can be played as many times as you like.</p>
-
-                <p>Text is drawn with <code>textImage()</code> and the <code>marsfont.png</code> pixel font. In your own game, the font image goes in your assets folder (see <a href="getting-started.html#fonts">Add Text</a>).</p>
+                <p>Text is drawn with <code>textImage()</code> using the <code>marsfont.png</code> pixel font. For your own game, put the font image in your assets folder (see <a href="getting-started.html#fonts">Add Text</a>).</p>
 
                 <script>
                     demo({
@@ -621,17 +615,11 @@
                     });
                 </script>
 
-                <h2>What's Next</h2>
+                <h2>Next</h2>
 
-                <p>That's a whole game! Here are some ideas to try next:</p>
+                <p>From here it's your game. Some ideas: enemies that walk back and forth on the platforms, a level bigger than the screen using <code>translate()</code>, or a timer so you can speedrun the coins.</p>
 
-                <ul>
-                    <li>Add enemies that walk back and forth on the platforms, and send the player back to the start if they touch one.</li>
-                    <li>Make a bigger level with <code>translate()</code>, so the screen follows the player.</li>
-                    <li>Add a timer, and try to collect every coin as fast as you can.</li>
-                </ul>
-
-                <p>When you're ready for more, the next tutorial is a <a href="tutorial-shooter.html">space shooter</a>, then a <a href="tutorial-racer.html">3D racer</a>, and last a <a href="tutorial-adventure.html">top-down adventure</a>. The <a href="playground.html">Playground</a> is a good place to keep building, and the docs under Engine in the sidebar have everything else MDog Engine can do.</p>
+                <p>Or move on to the next tutorial, a <a href="tutorial-shooter.html">space shooter</a>.</p>
 
                 <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
 

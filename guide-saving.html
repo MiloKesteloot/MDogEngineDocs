@@ -31,9 +31,9 @@
 
                 <h1>Saving Progress</h1>
 
-<p>Browsers have a place to save small bits of text for a website, called <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"><code>localStorage</code></a>. Anything saved there is still there after the page is closed, so it's good for high scores, unlocked levels, and settings.</p>
+<p>Browsers have a little spot to save text for each website, called <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage"><code>localStorage</code></a>. It sticks around after the page is closed, so it's perfect for high scores, unlocked levels, and settings.</p>
 
-                <p>Click the game to add a coin. Then refresh the page: the coins are still there, because they're saved.</p>
+                <p>Click the game to add a coin. Then refresh the page. Your coins are still there.</p>
 
                 <script>
                     demo({
@@ -65,11 +65,11 @@
 
                 <p><code>localStorage.setItem(name, value)</code> saves a value under a name, here <code>"coin-demo"</code>. <code>localStorage.getItem(name)</code> gets it back, even after the page has been closed.</p>
 
-                <p>If nothing has been saved yet, <code>getItem()</code> gives back <code>null</code>, so <code>?? 0</code> starts the coins at <code>0</code>. Everything is saved as text, so <code>Number()</code> turns it back into a number.</p>
+                <p>If nothing's been saved yet, <code>getItem()</code> gives back <code>null</code>, so <code>?? 0</code> starts you at <code>0</code> coins. Everything's saved as text, so <code>Number()</code> turns it back into a number.</p>
 
                 <h2>Saving More Than One Thing</h2>
 
-                <p>To save a lot of things at once, put them in an object, and turn it into text with <code>JSON.stringify()</code>. <code>JSON.parse()</code> turns it back:</p>
+                <p>To save a bunch of things at once, put them in an object and turn it into text with <code>JSON.stringify()</code>. <code>JSON.parse()</code> turns it back:</p>
 
                 <pre><code>const saveName = "my-game-save";
 
@@ -84,14 +84,14 @@ function saveGame() {
 save.level++;
 saveGame();</code></pre>
 
-                <p>To erase the save, like for a "New Game" button, use <code>localStorage.removeItem(saveName)</code>.</p>
+                <p>To wipe the save, like for a "New Game" button, use <code>localStorage.removeItem(saveName)</code>.</p>
 
                 <h2>Things to Know</h2>
 
                 <ul>
-                    <li><b>Give your save a name only your game uses.</b> Every page on the same website shares one <code>localStorage</code>. On GitHub Pages, that's every project on your account, so a name like <code>"score"</code> could clash with another game. A name like <code>"my-game-best"</code> won't.</li>
-                    <li><b>Saves stay on one browser.</b> They don't move to other computers, and private windows forget them when they're closed.</li>
-                    <li><b>Players can change them.</b> Anyone can edit <code>localStorage</code> from the browser's developer tools, so don't trust it for anything that matters, like an online leaderboard.</li>
+                    <li><b>Give your save a name only your game uses.</b> Every page on the same website shares one <code>localStorage</code>. On GitHub Pages, that's every project on your account, so something like <code>"score"</code> could clash with another game. <code>"my-game-best"</code> won't.</li>
+                    <li><b>Saves stay in one browser.</b> They don't follow you to other computers, and private windows forget them when they close.</li>
+                    <li><b>Players can change them.</b> Anyone can edit <code>localStorage</code> from the browser's developer tools, so don't trust it for anything that matters, like an online leaderboard. Someone will give themselves a billion coins.</li>
                 </ul>
 
                 <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>

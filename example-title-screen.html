@@ -31,7 +31,7 @@
 
                 <h1>Title Screen</h1>
 
-                <p>A title screen that starts the game when space is pressed, and a game that goes back to the title screen when Escape is pressed. It shows how to switch between screens with <code>setActiveFunction()</code>.</p>
+                <p>A title screen that starts the game when you press space, and a game that goes back to the title when you press Escape. It shows how to switch screens with <code>setActiveFunction()</code>.</p>
                 <script>
                     demo({source: "#example-code", width: 512, height: 384, keys: [" ","Escape"]});
                 </script>
@@ -96,11 +96,11 @@ MDog.setActiveFunction(titleScreen);</code></pre>
 
                 <h2>How it Works</h2>
 
-                <p>Each screen is its own function. <code>MDog.setActiveFunction()</code> changes which one runs every tick, so switching screens only takes one line.</p>
+                <p>Each screen is its own function. <code>MDog.setActiveFunction()</code> changes which one runs every tick, so switching screens is one line.</p>
 
-                <p><code>startGame()</code> puts the ball back in the middle before switching, so the game starts over every time.</p>
+                <p><code>startGame()</code> puts the ball back in the middle before switching, so you get a fresh game every time.</p>
 
-                <p>The blinking text uses a count of ticks. <code>Math.floor(ticks / 40) % 2</code> switches between <code>0</code> and <code>1</code> every 40 ticks, which is a quarter of a second.</p>
+                <p>The blinking text just counts ticks. <code>Math.floor(ticks / 40) % 2</code> flips between <code>0</code> and <code>1</code> every 40 ticks, which is a quarter of a second.</p>
 
                 <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
 

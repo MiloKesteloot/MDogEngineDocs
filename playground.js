@@ -1356,9 +1356,12 @@ setInterval(() => {
 // Until a line is dragged, the game's box is made exactly the size the game draws at, so there are no black bars
 // around it. MDog Engine makes each art pixel a whole number of screen pixels, so the biggest whole number is picked
 // that keeps the game to half the width (in Split view) and leaves room for the console.
-// The height of the bar above the game, and the touch buttons under it, which share the game's column
+// The height of the bar above the game, and the touch buttons under it, which share the game's column. Not
+// offsetHeight, since that's rounded: with display scaling the bar can be a fraction of a pixel taller, which would
+// come out of the game's box and leave it too small for the size it was made for.
 function gameExtrasHeight() {
-    return root.querySelector(".pg-game-bar").offsetHeight + root.querySelector(".pg-touch-keys").offsetHeight;
+    return root.querySelector(".pg-game-bar").getBoundingClientRect().height
+        + root.querySelector(".pg-touch-keys").getBoundingClientRect().height;
 }
 
 function setUpDividers() {

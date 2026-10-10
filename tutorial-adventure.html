@@ -31,19 +31,19 @@
 
                 <h1>Make a Top-Down Adventure</h1>
 
-                <p>In this tutorial you'll make a top-down adventure game, seen from above: the warrior explores rooms with walls and water, finds keys to open locked doors, fights slimes with her sword, and searches for treasure.</p>
+                <p>This is a top-down adventure game, the kind where you look down at the world from above. The warrior explores rooms, finds keys for locked doors, fights slimes with her sword, and goes looking for treasure.</p>
 
-                <p>This is the biggest of the tutorials, and it uses ideas from the others, like kickboxes, animations, particles, and screens, so try the <a href="tutorial.html">platformer tutorial</a> first. Every step has a game you can play, with its code right under it. Change the code and press Run to try it, or Reset code to put it back.</p>
+                <p>It's the biggest tutorial, and it borrows from all the others (kickboxes, animations, particles, screens), so do the <a href="tutorial.html">platformer tutorial</a> first if you haven't. Same as always: play the demo, mess with the code, hit Run.</p>
 
-                <p>In these boxes, MDog Engine is already imported and the screen is set to 256 by 192. In your own game, start with the import line from <a href="getting-started.html">Getting Started</a>. The tiles are from <code>tiles.png</code> in the <a href="asset-packs.html#tiles">Asset Packs</a>.</p>
+                <p>MDog Engine is already imported in these demos, and the screen is 256 by 192. For your own game, grab the import line from <a href="getting-started.html">Getting Started</a>. The tiles come from <code>tiles.png</code> in the <a href="asset-packs.html#tiles">Asset Packs</a>.</p>
 
                 <h2>1. Walking Around</h2>
 
-                <p>The room is a <code>TilemapInteractable</code> from the <a href="ui.html">UI Module</a>: a grid of 16 by 16 tiles, made from rows of tile numbers. In <code>tiles.png</code>, <code>1</code> is dirt, <code>2</code> is stone, and <code>3</code> is water. Tile <code>0</code> is grass with dirt under it, made for side-on games like the platformer, so it isn't used here. Grass is an empty tile, <code>-1</code>, with the green background showing through.</p>
+                <p>The room is a <code>TilemapInteractable</code> from the <a href="ui.html">UI Module</a>, a grid of 16 by 16 tiles made from rows of tile numbers. In <code>tiles.png</code>, <code>1</code> is dirt, <code>2</code> is stone, and <code>3</code> is water. Tile <code>0</code> is grass with dirt under it, which is meant for side-on games like the platformer, so we skip it. Grass here is just an empty tile, <code>-1</code>, with the green background showing through.</p>
 
-                <p>Rows of numbers are hard to read, so the room is written as rows of letters instead, one letter per tile, that look like the room: <code>.</code> is grass, <code>=</code> is dirt, <code>#</code> is stone, and <code>~</code> is water. <code>makeRoom()</code> turns each letter into its tile number and makes the tilemap. The room is 16 tiles wide and 12 tall, which fills the 256 by 192 screen exactly.</p>
+                <p>Rows of numbers are a pain to read, so we write the room as letters instead, one per tile, so it kind of looks like the room: <code>.</code> is grass, <code>=</code> is dirt, <code>#</code> is stone, and <code>~</code> is water. <code>makeRoom()</code> turns the letters into tile numbers and builds the tilemap. The room is 16 by 12 tiles, which fills the 256 by 192 screen exactly.</p>
 
-                <p>Seen from above, the player walks in four directions. Each tick, the arrow keys being held make a direction, like <code>(1, -1)</code> for right and up. That direction is longer going diagonally than going straight, which would make diagonal walking faster. <code>setLength()</code> makes it the same length either way, so the player always walks at the same speed.</p>
+                <p>From above, you walk in four directions. Each tick, the held arrow keys make a direction, like <code>(1, -1)</code> for right and up. The catch is that a diagonal is longer than a straight line, so you'd walk faster diagonally. <code>setLength()</code> fixes that by making it the same length either way.</p>
 
                 <script>
                     demo({
@@ -109,13 +109,13 @@
                     });
                 </script>
 
-                <p>Try changing some of the letters in the room, then press Run to see it change.</p>
+                <p>Go ahead and change some letters in the room and hit Run. It's a weirdly satisfying way to make levels.</p>
 
                 <h2>2. Walls</h2>
 
-                <p>Now stone and water stop the player. To tell if the player is in a wall, <code>hitsWall()</code> looks at the tiles under each corner of its kickbox. Dividing a position by 16 and rounding down gives which tile it's in, and <code>get()</code> gives that tile's number.</p>
+                <p>Now stone and water actually block you. <code>hitsWall()</code> checks the tile under each corner of the player's kickbox. Divide a position by 16, round down, and you've got which tile it's in. <code>get()</code> gives you that tile's number.</p>
 
-                <p>Moving works like in the platformer: first move across, and if that put the player in a wall, move back. Then the same going up and down. Doing them one at a time means the player can slide along a wall while walking into it diagonally, instead of getting stuck.</p>
+                <p>Moving works like the platformer: move across, and if that put you in a wall, move back. Then the same for up and down. Because they're separate, you slide along walls when you walk into them diagonally instead of getting stuck.</p>
 
                 <script>
                     demo({
@@ -205,13 +205,13 @@
                     });
                 </script>
 
-                <p>Checking only the corners works as long as the kickbox is no bigger than a tile. Try making dirt a wall too, by adding <code>|| tile === 1</code> in <code>hitsWall()</code>.</p>
+                <p>Only checking corners works as long as the kickbox isn't bigger than a tile. If you want dirt to be a wall too, add <code>|| tile === 1</code> in <code>hitsWall()</code>.</p>
 
                 <h2>3. The Warrior</h2>
 
-                <p>Time to swap the square for the warrior from the <a href="asset-packs.html#warrior">Asset Packs</a>. She uses her idle animation while standing and her run animation while walking, flipped with <code>flipX</code> when she faces left. Walking up or down keeps her facing the way she was.</p>
+                <p>Now the square becomes the warrior from the <a href="asset-packs.html#warrior">Asset Packs</a>. She plays her idle animation standing still and her run animation while walking, flipped with <code>flipX</code> when she faces left. Walking straight up or down keeps her facing whatever way she was.</p>
 
-                <p>Seen from above, things are standing on the ground, so only their feet should bump into walls. Her kickbox is now just her feet, 12 by 8, and her picture is drawn above it. That way her head can go in front of a wall behind her, which makes the room feel like it has depth.</p>
+                <p>This part is easy to miss: from above, things are standing on the ground, so only their feet should hit walls. Her kickbox is now just her feet, 12 by 8, and her sprite is drawn above that. That way her head can overlap a wall behind her, and the room suddenly looks like it has depth.</p>
 
                 <script>
                     demo({
@@ -314,15 +314,15 @@
                     });
                 </script>
 
-                <p>To see her kickbox, try drawing a rectangle at <code>playerBox.getLeftX(), playerBox.getTopY()</code> that's 12 by 8, after she's drawn.</p>
+                <p>If you want to see her kickbox, draw a 12 by 8 rectangle at <code>playerBox.getLeftX(), playerBox.getTopY()</code> after she's drawn.</p>
 
                 <h2>4. Keys and Doors</h2>
 
-                <p>Now the way to the right side of the room is locked. The door is a kickbox that counts as a wall in <code>blocked()</code>, which checks the walls and every door. A key lies on the left side, and walking over it picks it up.</p>
+                <p>Now the right side of the room is locked. The door is a kickbox that counts as a wall in <code>blocked()</code>, which checks the walls and every door. There's a key on the left side, and you pick it up by walking over it.</p>
 
-                <p>To open the door, the warrior needs to be right next to it with a key. A second kickbox, <code>reachBox</code>, is attached to the same <code>Vector</code> as her feet but is 2 pixels bigger on every side, so it touches things she's standing against. When it touches a door and she has a key, the key is used up and the door is taken out of the list.</p>
+                <p>To open the door, you need to be right up against it holding a key. That needs a second kickbox, <code>reachBox</code>. It's stuck to the same <code>Vector</code> as her feet but 2 pixels bigger on every side, so it touches whatever she's standing against. If it touches a door and you have a key, the key gets used and the door disappears.</p>
 
-                <p>Behind the door is a treasure chest. Walking into it opens it, and that's how you win.</p>
+                <p>Behind the door is a treasure chest. Walk into it and you win.</p>
 
                 <script>
                     demo({
@@ -511,17 +511,15 @@
                     });
                 </script>
 
-                <p>Try adding a second door, with a second key to open it.</p>
-
                 <h2>5. Slimes and a Sword</h2>
 
-                <p>The room isn't safe anymore. Slimes wander around, and when the warrior gets close, they chase her. A slime's direction toward her is her position minus its own, set to the slime's speed with <code>setLength()</code>. Slimes move with the same <code>move()</code> as her, so walls stop them too. It now takes the position and kickbox to move.</p>
+                <p>Now there are slimes. They wander around, and if the warrior gets close, they come after her. A slime's direction toward her is her position minus its own, set to its speed with <code>setLength()</code>. Slimes use the same <code>move()</code> she does, so walls stop them too. <code>move()</code> now takes the position and kickbox to move.</p>
 
-                <p>Touching a slime takes one of her three hearts, knocks her back, and makes her blink for a moment while she can't be hurt again. Losing every heart starts the game over.</p>
+                <p>Touching a slime costs one of her three hearts, knocks her back, and makes her blink for a moment while she can't be hit. Lose all three and it's game over.</p>
 
-                <p>Press space to swing her sword. While the attack animation plays she stands still, and during the frames where the sword is out, a kickbox in front of her defeats any slime it touches.</p>
+                <p>Space swings her sword. She stands still while the attack animation plays, and on the frames where the sword is out, a kickbox in front of her takes out any slime it touches.</p>
 
-                <p>Now that things can be in front of each other, they're drawn in order from the top of the screen to the bottom. Things lower on the screen are closer, so they're drawn last, on top.</p>
+                <p>Now that things can overlap, we draw them from the top of the screen to the bottom. Lower on the screen means closer, so those get drawn last, on top.</p>
 
                 <script>
                     demo({
@@ -849,15 +847,15 @@
                     });
                 </script>
 
-                <p>Try making the slimes faster, or giving them more room to notice her by changing the 70.</p>
+                <p>The 70 is how close she has to get before slimes notice her. Make it bigger if you want them to be meaner.</p>
 
                 <h2>6. Rooms to Explore</h2>
 
-                <p>Last, the world gets bigger. There are now three rooms, and walking out through a gap in a room's edge goes into the room next to it. Rooms are named by where they are in a grid, like <code>"1,0"</code> for one room to the right of the start. When her middle goes past the right edge, the game switches to the room one to the right and moves her back by the width of the screen, so she's at its left edge.</p>
+                <p>Last, the world gets bigger. There are three rooms now, and walking through a gap in the edge takes you into the next one. Rooms are named by their spot in a grid, like <code>"1,0"</code> for one room to the right of the start. When her middle goes past the right edge, the game switches to the room on the right and moves her back by a screen width, so she shows up on its left edge.</p>
 
-                <p>Each room keeps its own tilemap, keys, doors, slimes, and chest, all made from <code>roomData</code> by <code>makeRooms()</code>. A slime you defeated stays gone if you leave and come back. To find the treasure, you'll need both keys.</p>
+                <p>Each room has its own tilemap, keys, doors, slimes, and chest, all built from <code>roomData</code> by <code>makeRooms()</code>. Slimes you've beaten stay gone if you leave and come back. You'll need both keys to get to the treasure.</p>
 
-                <p>The game also has a title screen, a game over screen, and a winning screen, which work like the ones in the other tutorials. <code>startGame()</code> makes the rooms again, so everything comes back for a new game.</p>
+                <p>There's also a title screen, a game over screen, and a win screen, which work like the ones in the other tutorials. <code>startGame()</code> rebuilds the rooms, so everything comes back for a new game.</p>
 
                 <script>
                     demo({
@@ -1305,9 +1303,9 @@
                     });
                 </script>
 
-                <h2>What's Next</h2>
+                <h2>Next</h2>
 
-                <p>That's a whole adventure game! Here are some ideas to try next:</p>
+                <p>Some ideas if you want to keep going:</p>
 
                 <ul>
                     <li>Add more rooms to <code>roomData</code>. Just make sure the gaps in the edges line up with the room next door.</li>
@@ -1315,7 +1313,7 @@
                     <li>Make the rooms in a spreadsheet and load them from <code>.csv</code> files (see <a href="guide-levels.html">Levels From a File</a>).</li>
                 </ul>
 
-                <p>You've finished every tutorial! The <a href="playground.html">Playground</a> is a good place to make your own game, and the docs under Engine in the sidebar have everything else MDog Engine can do.</p>
+                <p>That's every tutorial. From here, the <a href="playground.html">Playground</a> is a good place to start your own game, and the Engine docs in the sidebar cover everything else MDog Engine can do.</p>
 
                 <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
 

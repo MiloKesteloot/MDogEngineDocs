@@ -31,7 +31,7 @@
 
                 <h1>Pausing the Game</h1>
 
-<p>A pause button stops the game from moving, but keeps it on the screen. The easiest way is to split the game into two functions: one that moves everything, and one that draws everything. While the game is paused, only the drawing one runs.</p>
+<p>Pausing should freeze the game but keep it on screen. The easiest way is to split your game into two functions, one that moves everything and one that draws everything. While paused, only the drawing one runs.</p>
 
                 <p>Press Escape to pause and unpause.</p>
 
@@ -94,13 +94,13 @@
 
                 <h2>How it Works</h2>
 
-                <p>Every tick, <code>main()</code> checks for Escape with <code>isClicked()</code>, which is only true on the tick the key is pressed, so holding it down doesn't flip back and forth.</p>
+                <p>Every tick, <code>main()</code> checks for Escape with <code>isClicked()</code>. It's only true on the tick the key is pressed, so holding Escape doesn't flicker between paused and unpaused.</p>
 
-                <p>While <code>paused</code> is true, <code>update()</code> is skipped, so nothing moves. <code>draw()</code> still runs, so the game stays on the screen. The pause screen is a see-through black rectangle over everything. The last two digits of <code>"#00000099"</code> are how see-through it is, from <code>00</code> (invisible) to <code>ff</code> (solid).</p>
+                <p>While <code>paused</code> is true, <code>update()</code> gets skipped, so nothing moves. <code>draw()</code> still runs, so the game stays on screen. The pause overlay is a see-through black rectangle over everything. The last two digits of <code>"#00000099"</code> are how see-through it is, from <code>00</code> (invisible) to <code>ff</code> (solid).</p>
 
                 <h2>Pausing When the Player Leaves</h2>
 
-                <p>Games often pause themselves when the player switches to another tab. The browser says when that happens with a <code>visibilitychange</code> event:</p>
+                <p>It's nice to pause automatically when the player switches tabs. The browser tells you when that happens with a <code>visibilitychange</code> event:</p>
 
                 <pre><code>document.addEventListener("visibilitychange", () =&gt; {
     if (document.hidden) {
@@ -110,7 +110,7 @@
 
                 <h2>Timers Pause Too</h2>
 
-                <p>Anything counted in ticks, like a cooldown or a countdown, stops while the game is paused, as long as it's counted in <code>update()</code>. That's one reason to count ticks instead of using <code>setTimeout()</code>, which keeps going while the game is paused. See <a href="guide-timers.html">Timers and Cooldowns</a>.</p>
+                <p>Anything counted in ticks, like a cooldown or a countdown, stops while paused for free, as long as it's counted in <code>update()</code>. That's a big reason to count ticks instead of using <code>setTimeout()</code>, which keeps going while the game is paused. See <a href="guide-timers.html">Timers and Cooldowns</a>.</p>
 
                 <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
 

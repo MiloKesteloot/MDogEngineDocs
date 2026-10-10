@@ -297,6 +297,10 @@ function setUpCollapsing(sidebar) {
     try {
         collapsed = localStorage.getItem("sidebar-collapsed") === "true";
     } catch (e) {}
+    // The playground wants all the room it can get, so it always starts collapsed, without changing the saved choice
+    if (docsCurrentPage() === "playground.html") {
+        collapsed = true;
+    }
     setSidebarCollapsed(collapsed, false);
 
     // Only animated after the page is drawn, so a collapsed sidebar doesn't visibly shrink on every page load

@@ -31,19 +31,19 @@
 
                 <h1>Make a 3D Racer</h1>
 
-                <p>In this tutorial you'll make a retro 3D racing game, like the arcade racers from the 80s: a curvy road, a car you drive, trees flying past, other cars to pass, and lap times to beat.</p>
+                <p>This one's a retro 3D racer, the kind you'd find in an 80s arcade. You'll get a curvy road, a car to drive, trees flying past, other cars to pass, and lap times to beat.</p>
 
-                <p>It uses the <a href="threedee.html">ThreeDee Module</a>, which draws flat shapes with perspective, so far away things look smaller. Every step has a game you can play, with its code right under it. Change the code and press Run to try it, or Reset code to put it back. If you haven't made a game with MDog Engine before, start with the <a href="tutorial.html">platformer tutorial</a>.</p>
+                <p>It uses the <a href="threedee.html">ThreeDee Module</a>, which draws flat shapes with perspective so far away things look smaller. Same deal as the other tutorials: play the demo, mess with the code, hit Run. If you're new to MDog Engine, start with the <a href="tutorial.html">platformer tutorial</a>.</p>
 
-                <p>In these boxes, MDog Engine is already imported and the screen is set to 256 by 192. In your own game, start with the import line from <a href="getting-started.html">Getting Started</a>.</p>
+                <p>MDog Engine is already imported in these demos, and the screen is 256 by 192. For your own game, grab the import line from <a href="getting-started.html">Getting Started</a>.</p>
 
                 <h2>1. A Road</h2>
 
-                <p>In 3D, positions have a third number, <code>z</code>, for how far away something is. The camera looks forward along z, so things with a bigger z are farther ahead. Driving is just moving the camera forward by adding to its z every tick.</p>
+                <p>In 3D, positions get a third number, <code>z</code>, for how far away something is. The camera looks forward along z, so bigger z means farther ahead. Driving is just adding to the camera's z every tick. That's it.</p>
 
-                <p>The road is made of stripes, each 4 long, in two colors. That's what makes it look like it's moving. Every tick the game makes a new <code>ThreeDeeScene</code> with only the stripes that can be seen, from 3 in front of the camera to 100 away. Each stripe is a <code>ThreeDeeFloor</code> of grass across the whole screen, with the road on top made of <code>ThreeDeeShape</code>s, which are flat shapes made from 3D corners.</p>
+                <p>The road is a bunch of stripes, each 4 long, in two alternating colors. The stripes are the whole reason it looks like you're moving. Every tick we build a new <code>ThreeDeeScene</code> with only the stripes you can see, from 3 in front of the camera out to 100. Each stripe is a <code>ThreeDeeFloor</code> of grass across the screen, with the road on top made of <code>ThreeDeeShape</code>s (flat shapes made from 3D corners).</p>
 
-                <p>A scene draws things in the order they were added, so the farthest stripes are added first and the closer ones are drawn on top of them.</p>
+                <p>A scene draws things in the order you add them. So we add the farthest stripes first, and the closer ones get drawn on top. This "far stuff first" idea comes up again later.</p>
 
                 <script>
                     demo({
@@ -114,15 +114,15 @@
                     });
                 </script>
 
-                <p>Try making the stripes longer, or the road wider by changing the 6s.</p>
+                <p>The 6s are how wide the road is, if you want a highway.</p>
 
                 <h2>2. Your Car</h2>
 
-                <p>Now there's a car to drive. Its position is a <code>Vector3</code>, and it moves forward by its <code>speed</code> every tick. Holding up speeds it up, letting go slows it down a little, and holding down brakes. Driving on the grass slows it down too.</p>
+                <p>Now you get a car. Its position is a <code>Vector3</code>, and it moves forward by its <code>speed</code> every tick. Up speeds you up, letting go slowly coasts, and down brakes. Going off onto the grass slows you down too, so stay on the road.</p>
 
-                <p>The camera stays 5 behind the car and right in line with it, so the car is always in the middle of the screen, and the road moves around it instead. The car is a few <code>ThreeDeeRectangle</code>s, which are rectangles that face the camera: wheels, a body, a window, and tail lights, each added after the one it covers.</p>
+                <p>The camera sits 5 behind the car, lined up with it, so the car always stays in the middle of the screen and the road moves around it instead. The car itself is a few <code>ThreeDeeRectangle</code>s (rectangles that always face the camera): wheels, body, window, and tail lights, each added after whatever it covers.</p>
 
-                <p>Steering turns more the faster the car goes, so it can't slide sideways while it's stopped.</p>
+                <p>Steering turns more the faster you go, so you can't spin in place while you're stopped. Real cars don't do that either.</p>
 
                 <script>
                     demo({
@@ -234,13 +234,11 @@
                     });
                 </script>
 
-                <p>Try changing <code>maxSpeed</code>, or making the car a different color.</p>
-
                 <h2>3. Curves and Trees</h2>
 
-                <p>A straight road gets boring fast. <code>roadCenter()</code> now curves the road back and forth with two <code>Math.sin()</code> waves added together, so the curves aren't all the same. Since every stripe asks <code>roadCenter()</code> where it goes, the whole road follows. Now you have to steer to stay on it.</p>
+                <p>A straight road isn't much of a race. <code>roadCenter()</code> now curves the road back and forth by adding two <code>Math.sin()</code> waves together, so the curves don't all look the same. Every stripe asks <code>roadCenter()</code> where it should go, so the whole road follows along. Now you actually have to steer.</p>
 
-                <p>Trees stand beside the road every 10, on alternating sides, so you can feel how fast you're going. Trees and the car can be in front of or behind each other, so they're all put in one list, sorted from farthest to closest, then added to the scene in that order. The road is flat, so it can all be added first, under everything.</p>
+                <p>Trees line the road every 10, switching sides, which really helps you feel the speed. This is where "far stuff first" gets trickier: trees and the car can be in front of or behind each other, so they all go in one list, get sorted from farthest to closest, and get added in that order. The road is flat, so it all goes in first, under everything.</p>
 
                 <script>
                     demo({
@@ -371,15 +369,15 @@
                     });
                 </script>
 
-                <p>Try making the curves sharper by changing the 14, or putting trees on both sides.</p>
+                <p>The 14 controls how sharp the curves are. Try making it bigger if you want to suffer.</p>
 
                 <h2>4. Other Cars</h2>
 
-                <p>A race needs someone to race. Six other cars drive along the road, each in a lane and at its own speed, a little slower than your top speed. A car's lane is how far it is from the middle of the road, so it follows the curves too.</p>
+                <p>A race isn't really a race without other cars. Six of them drive along the road, each in its own lane and at its own speed, a little slower than your top speed. A car's lane is just how far it is from the middle of the road, so they follow the curves too.</p>
 
-                <p>There are only six cars, but the road feels busy because they're reused. A car that falls far behind you is moved far ahead, past where you can see, and comes back as if it were a new car. If you're the slow one, cars that get far ahead are moved back behind you.</p>
+                <p>Here's a fun cheat: there are only six cars, but it feels like a lot more. When one falls way behind you, it gets moved way ahead, past where you can see, and comes back like it's a new car. If you're the slow one, cars that get too far ahead get moved back behind you.</p>
 
-                <p>Bumping into the back of a car puts you right behind it and slows you down. Cars only need to be close in x and z to crash, since they're all on the ground.</p>
+                <p>Rear-end someone and you get put right behind them and slowed down. Everything's on the ground, so cars only need to be close in x and z to crash.</p>
 
                 <script>
                     demo({
@@ -547,13 +545,11 @@
                     });
                 </script>
 
-                <p>Try adding more colors to the list for more cars, or making them faster.</p>
-
                 <h2>5. Laps and Times</h2>
 
-                <p>The road now goes around in a loop, 600 long. The trick is that <code>roadCenter()</code> uses waves that repeat exactly every 600, so every lap has the same curves. A checkered finish line on the road and a banner over it mark where each lap starts.</p>
+                <p>The road now loops, and a lap is 600 long. The trick is that <code>roadCenter()</code> uses waves that repeat exactly every 600, so every lap has the same curves. There's a checkered finish line and a banner over it to mark the start of each lap.</p>
 
-                <p>The lap you're on is the car's z divided by the lap length, rounded down, plus one. When that number goes up, a lap just ended, so the game remembers how long it took and starts timing the next one. Times are counted in ticks, and there are 160 ticks in a second, so dividing by 160 gives seconds.</p>
+                <p>Your lap is the car's z divided by the lap length, rounded down, plus one. When that number goes up, you just finished a lap, so the game saves how long it took and starts timing the next one. Times are in ticks, and there are 160 ticks in a second, so divide by 160 to get seconds.</p>
 
                 <script>
                     demo({
@@ -782,13 +778,13 @@
                     });
                 </script>
 
-                <p>Try making <code>lapLength</code> shorter for quicker laps. Since the waves are made from it, the track still loops.</p>
+                <p>You can make <code>lapLength</code> shorter for quicker laps. The waves are built from it, so the track still loops.</p>
 
                 <h2>6. Start Lights and Finish</h2>
 
-                <p>Last, the race gets a beginning and an end. The title screen shows the road slowly driving by. Pressing space puts everyone on the starting line, and a countdown of 3, 2, 1, GO holds the cars still until it's done. After 3 laps the race is over, the results show your total time and best lap, and your car coasts to a stop.</p>
+                <p>Finally, the race gets a start and a finish. The title screen shows the road slowly rolling by. Press space and everyone lines up, then a 3, 2, 1, GO countdown holds the cars still until it's done. After 3 laps you get your total time and best lap, and your car coasts to a stop.</p>
 
-                <p>Like the other tutorials, each screen is its own function, and <code>setActiveFunction()</code> switches between them. <code>drive()</code> now takes whether the keys work, so the title and results screens can use it too, with nobody at the wheel.</p>
+                <p>Same as the other tutorials, each screen is its own function and <code>setActiveFunction()</code> switches between them. <code>drive()</code> now takes whether the keys work, so the title and results screens can use it too, with nobody driving.</p>
 
                 <script>
                     demo({
@@ -1075,9 +1071,9 @@
                     });
                 </script>
 
-                <h2>What's Next</h2>
+                <h2>Next</h2>
 
-                <p>That's a whole racing game! Here are some ideas to try next:</p>
+                <p>Some ideas if you want to keep going:</p>
 
                 <ul>
                     <li>Add hills by changing <code>groundY</code> along the road, the same way <code>roadCenter()</code> changes x.</li>
@@ -1085,7 +1081,7 @@
                     <li>Save your best lap with <code>localStorage</code> (see <a href="guide-saving.html">Saving Progress</a>), and show it on the title screen.</li>
                 </ul>
 
-                <p>For the last and biggest one, try the <a href="tutorial-adventure.html">adventure game tutorial</a>.</p>
+                <p>For the last and biggest one, there's the <a href="tutorial-adventure.html">adventure game tutorial</a>.</p>
 
                 <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
 

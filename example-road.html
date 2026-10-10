@@ -105,11 +105,11 @@ MDog.setActiveFunction(main);</code></pre>
 
                 <p>The camera drives forward by adding to <code>camera.position.z</code> every tick, and steers by changing <code>camera.position.x</code>.</p>
 
-                <p>The ground is split into stripes that switch between two colors, which is what makes it look like it's moving. Each stripe is a <code>ThreeDeeFloor</code> for the grass and a <code>ThreeDeeShape</code> for the road.</p>
+                <p>The ground is split into stripes that alternate between two colors, and that's what makes it look like it's moving. Each stripe is a <code>ThreeDeeFloor</code> for the grass and a <code>ThreeDeeShape</code> for the road.</p>
 
-                <p>A new scene is made every tick with only the stripes in front of the camera. Objects are drawn in the order they're added, so the stripes are added from farthest to closest. Since the closest stripe is cut shorter as the camera drives over it, starting over every tick is simpler than moving stripes around with <code>removeObject()</code>.</p>
+                <p>We make a brand new scene every tick with only the stripes in front of the camera. Things are drawn in the order they're added, so stripes go in from farthest to closest. The closest stripe gets cut shorter as you drive over it, so rebuilding every tick is a lot simpler than shuffling stripes around with <code>removeObject()</code>.</p>
 
-                <p>The middle of the road moves side to side with <code>Math.sin()</code>, which makes it curve.</p>
+                <p>The middle of the road wiggles side to side with <code>Math.sin()</code>, and that's the whole curve.</p>
 
                 <div class="copyright">Copyright © 2024-2026 Milo Kesteloot. All rights reserved.</div>
 

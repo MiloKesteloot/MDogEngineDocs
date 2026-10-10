@@ -31,9 +31,9 @@
 
                 <h1>Getting Started</h1>
 
-                <p>This page walks through making a small game where you move a square around with the arrow keys. You don't need to download MDog Engine, since your game imports it from the web.</p>
+                <p>Let's make the smallest possible game: a square you move around with the arrow keys. You don't need to download anything, since your game imports MDog Engine straight from the web.</p>
 
-                <p>To try MDog Engine before setting anything up, the <a href="playground.html">Playground</a> runs code right in your browser.</p>
+                <p>If you just want to poke at it first, the <a href="playground.html">Playground</a> runs code right in your browser, no setup.</p>
 
                 <h2>1. Make the Project</h2>
 
@@ -44,11 +44,11 @@
     game.js
     assets/</code></pre>
 
-                <p>The <code>assets</code> folder is where your images and other files go. Whenever MDog Engine asks for a file name, it looks inside this folder. There's more about this in <a href="#files">Where Do My Files Go?</a></p>
+                <p>The <code>assets</code> folder is where your images and other files go. Any time MDog Engine asks for a file name, it looks in here. More on that in <a href="#files">Where Do My Files Go?</a></p>
 
                 <h2>2. Make the Web Page</h2>
 
-                <p>Put this in <code>index.html</code>. It loads <code>game.js</code> as a module, and centers the game in the window.</p>
+                <p>Put this in <code>index.html</code>. It loads <code>game.js</code> as a module and centers the game in the window.</p>
 
                 <pre><code>&lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
@@ -91,9 +91,9 @@ function main() {
 
 MDog.setActiveFunction(main);</code></pre>
 
-                <p>The <code>import</code> line loads MDog Engine and makes the game screen. <code>MDog.setActiveFunction(main)</code> tells MDog Engine to run <code>main</code> 160 times per second, and each run is called a "tick" (see <a href="core.html">Core</a>). Every tick, the game moves the square if an arrow key is held down, then clears the screen and draws the square.</p>
+                <p>The <code>import</code> line loads MDog Engine and makes the game screen. <code>MDog.setActiveFunction(main)</code> tells MDog Engine to run <code>main</code> 160 times a second, and each run is called a "tick" (see <a href="core.html">Core</a>). Every tick, we move the square if an arrow key is held, then clear the screen and draw it.</p>
 
-                <p>Here it is running. Click it, then use the arrow keys:</p>
+                <p>Here it is running. Click on it, then use the arrow keys:</p>
 
                 <script>
                     demo({source: "#game-code", width: 512, height: 384, keys: ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]});
@@ -101,7 +101,7 @@ MDog.setActiveFunction(main);</code></pre>
 
                 <h2>4. Run the Game</h2>
 
-                <p>Browsers won't run modules from a file opened straight off your computer, so the game needs to be opened through a local web server. Any of these work:</p>
+                <p>Browsers won't run modules from a file you just double-click, so you need a local web server. Any of these work:</p>
 
                 <ul>
                     <li>The <a href="https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer">Live Server</a> extension for VS Code. Right click <code>index.html</code> and pick "Open with Live Server."</li>
@@ -109,7 +109,7 @@ MDog.setActiveFunction(main);</code></pre>
                     <li>Running <code>npx serve</code> or <code>python -m http.server</code> in the game's folder, then going to the address it prints.</li>
                 </ul>
 
-                <p>An orange square should show up in the middle of the screen, and the arrow keys move it around.</p>
+                <p>You should see an orange square in the middle of the screen that moves with the arrow keys. If you do, congrats, you made a game.</p>
 
                 <h2>5. Add an Image</h2>
 
@@ -117,7 +117,7 @@ MDog.setActiveFunction(main);</code></pre>
 
                 <pre><code>MDog.Draw.image("player.png", position.x - 8, position.y - 8);</code></pre>
 
-                <p>Images load the first time they're drawn, so an image can be missing for the first few ticks.</p>
+                <p>Images load the first time they're drawn, so don't be surprised if one's missing for the first few ticks.</p>
 
                 <h2 id="fonts">6. Add Text</h2>
 
@@ -134,13 +134,13 @@ MDog.setActiveFunction(main);</code></pre>
 
                 <h2>7. Share It</h2>
 
-                <p>The game is a regular web page, so it can be put online anywhere that hosts web pages, like <a href="https://pages.github.com/">GitHub Pages</a>.</p>
+                <p>It's just a web page, so you can put it online anywhere that hosts web pages, like <a href="https://pages.github.com/">GitHub Pages</a>.</p>
 
-                <p>Once this is working, the <a href="example-platformer.html">Examples</a> have some bigger games to look through.</p>
+                <p>Once you've got this working, the <a href="example-platformer.html">Examples</a> have some bigger games to dig through.</p>
 
                 <h2 id="files">Where Do My Files Go?</h2>
 
-                <p>Every file MDog Engine loads, like images, fonts, and level files, goes in the <code>assets</code> folder next to <code>index.html</code>. Folders inside <code>assets</code> are fine. In your code, leave off the <code>assets/</code> part, since the engine adds it for you.</p>
+                <p>Every file MDog Engine loads (images, fonts, level files) goes in the <code>assets</code> folder next to <code>index.html</code>. Folders inside <code>assets</code> are fine. In your code, leave off the <code>assets/</code> part, since the engine adds it for you.</p>
 
                 <pre data-lang="text" data-label="Files"><code>my-game/
     index.html
@@ -152,10 +152,10 @@ MDog.setActiveFunction(main);</code></pre>
         levels/
             level1.csv    MDog.AssetManager.loadFile("levels/level1.csv", ...)</code></pre>
 
-                <p>If an image doesn't show up:</p>
+                <p>If an image won't show up:</p>
 
                 <ul>
-                    <li><b>Check the spelling and capital letters.</b> Windows doesn't care if a file is named <code>Player.png</code> or <code>player.png</code>, but GitHub Pages does, so a game can work on your computer and break once it's online.</li>
+                    <li><b>Check the spelling and capital letters.</b> Windows doesn't care whether a file is <code>Player.png</code> or <code>player.png</code>, but GitHub Pages does. This one gets everybody: the game works fine on your computer and breaks the second it's online.</li>
                     <li><b>Don't add <code>assets/</code> yourself.</b> <code>MDog.Draw.image("assets/player.png", ...)</code> looks for <code>assets/assets/player.png</code>.</li>
                     <li><b>Run the game from a local web server</b> (see <a href="#4-run-the-game">Run the Game</a>), not by opening <code>index.html</code> straight from your computer.</li>
                     <li><b>Look in the browser's console</b> (press F12). A missing file shows up there as a 404 error, along with the exact path the engine looked for.</li>
