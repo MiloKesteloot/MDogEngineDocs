@@ -75,7 +75,7 @@
 
                 <p>For jumping, the player needs a velocity. Every tick, gravity pulls the velocity down a little, and the velocity moves the player. A jump just sets the velocity upward and lets gravity do the rest.</p>
 
-                <p>The up arrow uses <code>isClicked()</code> instead of <code>isDown()</code>. It's only true on the tick you press the key, so holding it doesn't turn you into a pogo stick.</p>
+                <p>You can only jump while you're on the ground, and the up arrow uses <code>isClicked()</code> instead of <code>isDown()</code>. It's only true on the tick you press the key, so holding it doesn't turn you into a pogo stick.</p>
 
                 <script>
                     demo({
@@ -131,7 +131,7 @@
 
                 <p>One floor is easy. A bunch of platforms needs real collision, and that's what <code>SquareKickbox</code> is for. It's a hitbox that can tell when it's overlapping another one. The player's kickbox is stuck to its position, so it follows the player around.</p>
 
-                <p>The trick is to move one axis at a time. Move sideways, and if you're now inside a platform, push back out. Then do the same for up and down. If you move both at once, you can't tell whether you hit a wall or landed on a floor, and things get weird fast.</p>
+                <p>The trick is to move one axis at a time. Move sideways, and if you're now inside a platform, push back out. Then do the same for up and down. If you move both at once, you can't tell whether you hit a wall, landed on a floor, or bonked your head on a ceiling, and things get weird fast.</p>
 
                 <script>
                     demo({
